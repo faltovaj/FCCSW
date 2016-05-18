@@ -10,6 +10,6 @@ FullSimActions::FullSimActions():
 FullSimActions::~FullSimActions() {}
 
 void FullSimActions::Build() const {
-  SetUserAction(new MCTruthTrackingAction);
+  //  SetUserAction(new MCTruthTrackingAction);
 }
 }

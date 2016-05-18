@@ -32,7 +32,7 @@ geantservice = G4SimSvc("G4SimSvc", detector='G4DD4hepDetector', physicslist="G4
 particleGenerator=G4SingleParticleGeneratorTool("G4SingleParticleGeneratorTool",
                 ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25,phiMin=0.0,phiMax=3.14,VertexX=0,VertexY=2600,VertexZ=0),
 #                ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25),
-                actions="G4FullSimActions") 
+                actions="G4MCTruthActions") 
 
 # reads an HepMC::GenEvent from the data service and writes a collection of EDM Particles
 #from Configurables import HepMCConverter
