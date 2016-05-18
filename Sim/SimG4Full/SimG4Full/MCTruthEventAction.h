@@ -3,6 +3,7 @@
 
 // Geant
 #include "G4UserEventAction.hh"
+#include "G4Event.hh"
 
 /**
  *

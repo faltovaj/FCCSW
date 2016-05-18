@@ -2,25 +2,30 @@
 
 //FCCSW
 #include "SimG4Common/Units.h"
-//#include "SimG4Common/MCTruthEventInformation.h"
+#include "SimG4Common/MCTruthEventInformation.h"
 
 // datamodel
-#include "datamodel/MCParticle.h"
+//#include "datamodel/MCParticle.h"
 
 // Geant4
-#include "G4TrackingManager.hh"
-#include "G4PrimaryParticle.hh"
+#include "G4EventManager.hh"
 #include "G4ThreeVector.hh"
 #include "G4VUserEventInformation.hh"
 
 namespace sim {
 MCTruthEventAction::MCTruthEventAction():
   G4UserEventAction() {}
-
 MCTruthEventAction::~MCTruthEventAction() {}
 
 void MCTruthEventAction::BeginOfEventAction(const G4Event* aEvent) {
-    
+
+  
+  if(!aEvent->GetUserInformation()) 
+    {
+      MCTruthEventInformation* mcinf = new MCTruthEventInformation;
+      (G4EventManager::GetEventManager())->SetUserInformation(mcinf);
+    }
+  
   return;
 }
 

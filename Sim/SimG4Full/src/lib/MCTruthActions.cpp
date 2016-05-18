@@ -2,6 +2,7 @@
 
 //FCCSW
 #include "SimG4Full/MCTruthTrackingAction.h"
+#include "SimG4Full/MCTruthEventAction.h"
 
 namespace sim {
 MCTruthActions::MCTruthActions():
@@ -11,5 +12,6 @@ MCTruthActions::~MCTruthActions() {}
 
 void MCTruthActions::Build() const {
   SetUserAction(new MCTruthTrackingAction);
+  SetUserAction(new MCTruthEventAction);
 }
 }

@@ -2,7 +2,7 @@
 
 // FCCSW
 #include "SimG4Common/Units.h"
-#include "SimG4Common/MCTruthTrackInformation.h"
+#include "SimG4Common/MCTruthEventInformation.h"
 
 // Geant4
 #include "G4Event.hh"
@@ -37,9 +37,10 @@ StatusCode G4SaveMCTruthParticles::finalize() {
 }
 
 StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
+
   auto particles = m_particles.createAndPut();
 
-
+  sim::MCTruthEventInformation* mcevinf = (sim::MCTruthEventInformation*) aEvent.GetUserInformation();
 
   /* 
   G4TrajectoryContainer* g4trajectorycontainer = aEvent.GetTrajectoryContainer();

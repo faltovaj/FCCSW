@@ -3,11 +3,14 @@
 //FCCSW
 #include "SimG4Common/Units.h"
 #include "SimG4Common/MCTruthTrackInformation.h"
+#include "SimG4Common/MCTruthEventInformation.h"
 
 // datamodel
 #include "datamodel/MCParticle.h"
 
 // Geant4
+#include "G4Event.hh"
+#include "G4EventManager.hh"
 #include "G4TrackingManager.hh"
 #include "G4PrimaryParticle.hh"
 #include "G4ThreeVector.hh"
@@ -49,6 +52,10 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   if (trackToBeStored(aTrack))
   {
     MCTruthTrackInformation* mcinf = (MCTruthTrackInformation*) aTrack->GetUserInformation();
+    const G4Event *aEvent = (G4EventManager::GetEventManager())->GetConstCurrentEvent();
+    MCTruthEventInformation* mcevinf = (MCTruthEventInformation*) aEvent->GetUserInformation();
+    mcevinf->AddParticle(aTrack->GetMomentum());
+
     /*
     MCTruthManager::GetInstance()->
       AddParticle(fmom, prodpos, endpos,
