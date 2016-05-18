@@ -66,7 +66,7 @@ StatusCode G4SingleParticleGeneratorTool::initialize( )
 StatusCode G4SingleParticleGeneratorTool::finalize( )
 {
 	info()<<" G4SingleParticleGeneratorTool::finalize( ) "<<endmsg;
-	StatusCode sc = GaudiTool::initialize( ) ;
+	StatusCode sc = GaudiTool::finalize( ) ;
 	return sc;
 }
 

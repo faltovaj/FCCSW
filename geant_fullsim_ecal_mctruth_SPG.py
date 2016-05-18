@@ -1,5 +1,5 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
-ENE = 100000
+ENE = 50000
 BFIELD = 0
 EVTMAX = 2
 
