@@ -7,6 +7,8 @@
 // Geant
 #include "G4UserTrackingAction.hh"
 #include "G4ThreeVector.hh"
+#include "G4LorentzVector.hh"
+#include "G4TrackStatus.hh"
 
 /**
  *
@@ -28,9 +30,13 @@ public:
   virtual void PreUserTrackingAction(const G4Track*) final;
   virtual void PostUserTrackingAction(const G4Track*) final;
 private:
-  G4ThreeVector aInitMom;
+  G4LorentzVector aInitMom;
   G4ThreeVector prodPosition;
   G4ThreeVector endPosition;
+  G4TrackStatus statusTrack;
+  G4int pdgCode;
+  G4int charge;
+  G4int status;
   bool trackToBeStored(const G4Track* aTrack);
 };
 }

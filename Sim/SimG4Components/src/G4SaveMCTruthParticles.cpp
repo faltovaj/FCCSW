@@ -59,13 +59,19 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
     particle_core.P4.Px = vector_of_particles.at(i)->Core().P4.Px;
     particle_core.P4.Py = vector_of_particles.at(i)->Core().P4.Py;
     particle_core.P4.Pz = vector_of_particles.at(i)->Core().P4.Pz;
+    particle_core.P4.Mass = vector_of_particles.at(i)->Core().P4.Mass;
     particle_core.Vertex.X = vector_of_particles.at(i)->Core().Vertex.X;
     particle_core.Vertex.Y = vector_of_particles.at(i)->Core().Vertex.Y;
     particle_core.Vertex.Z = vector_of_particles.at(i)->Core().Vertex.Z;
-
-    
+    particle_core.Charge = vector_of_particles.at(i)->Core().Charge;
+    particle_core.Type = vector_of_particles.at(i)->Core().Type;
+    particle_core.Status = vector_of_particles.at(i)->Core().Status;
+    particle_core.Bits = vector_of_particles.at(i)->Core().Bits;
 
     std::cout << "saved particle info " 
+	      << " status " << vector_of_particles.at(i)->Core().Status
+	      << " type " << vector_of_particles.at(i)->Core().Type
+	      << " charge " << vector_of_particles.at(i)->Core().Charge 
 	      << " px " << vector_of_particles.at(i)->Core().P4.Px  
 	      << " py " << vector_of_particles.at(i)->Core().P4.Py
 	      << " pz " << vector_of_particles.at(i)->Core().P4.Pz << std::endl;

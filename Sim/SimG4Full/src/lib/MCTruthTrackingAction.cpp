@@ -6,7 +6,7 @@
 #include "SimG4Common/MCTruthEventInformation.h"
 
 // datamodel
-#include "datamodel/MCParticle.h"
+//#include "datamodel/MCParticle.h"
 
 // Geant4
 #include "G4Event.hh"
@@ -24,9 +24,10 @@ MCTruthTrackingAction::~MCTruthTrackingAction() {}
 
 void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
     
-  aInitMom = (G4ThreeVector)aTrack->GetMomentum();
-
-  //Primary particle: Track Id == 1
+  aInitMom.setPx( aTrack->GetMomentum().x() );
+  aInitMom.setPy( aTrack->GetMomentum().y() );
+  aInitMom.setPz( aTrack->GetMomentum().z() );
+  aInitMom.setE( aTrack->GetTotalEnergy() );
  
   if(!aTrack->GetUserInformation()) 
     {
@@ -40,17 +41,24 @@ void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 
 void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
-  prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
-  endPosition = (G4ThreeVector)aTrack->GetPosition();
-
-  // here (?) make all different checks to decide whether to store the particle
+  // make all different checks to decide whether to store the particle
   //
   if (trackToBeStored(aTrack))
   {
+
+    prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
+    endPosition = (G4ThreeVector)aTrack->GetPosition();
+    statusTrack = aTrack->GetTrackStatus(); //TrackStatus is enum type
+
+    const G4DynamicParticle* dynamicparticle = aTrack->GetDynamicParticle();
+    pdgCode = dynamicparticle->GetPDGcode();
+    charge = dynamicparticle->GetDefinition()->GetPDGCharge();
+    status = 1e6;  //TODO: define the status correctly
+
     MCTruthTrackInformation* mcinf = (MCTruthTrackInformation*) aTrack->GetUserInformation();
     const G4Event *aEvent = (G4EventManager::GetEventManager())->GetConstCurrentEvent();
     MCTruthEventInformation* mcevinf = (MCTruthEventInformation*) aEvent->GetUserInformation();
-    mcevinf->AddParticle(aInitMom, prodPosition, endPosition);
+    mcevinf->AddParticle(aInitMom, prodPosition, endPosition, pdgCode, charge, status);
 
     /*
     MCTruthManager::GetInstance()->
@@ -96,7 +104,7 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
   // check energy
   double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
   if (kinE > MinE) {
-    std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
+    // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
     return true;
   }
   

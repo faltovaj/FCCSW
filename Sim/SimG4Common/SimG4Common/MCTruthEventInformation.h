@@ -1,3 +1,4 @@
+
 #ifndef SIMG4COMMON_MCTRUTHEVENTINFORMATION_H
 #define SIMG4COMMON_MCTRUTHEVENTINFORMATION_H
 
@@ -10,6 +11,7 @@
 // Geant4
 #include "G4VUserEventInformation.hh"
 #include "G4ThreeVector.hh"
+#include "G4LorentzVector.hh"
 
 // CLHEP
 //#include "CLHEP/Vector/ThreeVector.h"
@@ -36,7 +38,8 @@ public:
   /** 
    *  
    */
-  void AddParticle(const G4ThreeVector& aMom,const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex);
+  void AddParticle(const G4LorentzVector& aMom,const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex,
+		   G4int aPDGcode, G4int aCharge, G4int aStatus);
 
   const std::vector<fcc::MCParticle*> GetVectorOfParticles();
 

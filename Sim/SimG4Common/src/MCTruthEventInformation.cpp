@@ -6,8 +6,8 @@
 // datamodel                                                                                                                                         
 #include "datamodel/MCParticle.h"
 #include "datamodel/GenVertex.h"
-#include "datamodel/MCParticleCollection.h"
-#include "datamodel/GenVertexCollection.h"
+//#include "datamodel/MCParticleCollection.h"
+//#include "datamodel/GenVertexCollection.h"
 
 namespace sim {
 MCTruthEventInformation::MCTruthEventInformation() {
@@ -30,17 +30,20 @@ void MCTruthEventInformation::Print() const {
   */
 }
 
-void MCTruthEventInformation::AddParticle(const G4ThreeVector& aMom, const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex) {
+  void MCTruthEventInformation::AddParticle(const G4LorentzVector& aMom, const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex, G4int aPDGcode, G4int aCharge, G4int aStatus) {
 
     fcc::MCParticle* edmMCparticle = new fcc::MCParticle();
     fcc::BareParticle& core = edmMCparticle->Core();
-    core.P4.Px = aMom.x()*sim::g42edm::energy;
-    core.P4.Py = aMom.y()*sim::g42edm::energy;
-    core.P4.Pz = aMom.z()*sim::g42edm::energy;
-    //core.P4.Mass = aMom.m()*sim::g42edm::energy;
+    core.P4.Px = aMom.px()*sim::g42edm::energy;
+    core.P4.Py = aMom.py()*sim::g42edm::energy;
+    core.P4.Pz = aMom.pz()*sim::g42edm::energy;
+    core.P4.Mass = aMom.m()*sim::g42edm::energy;
     core.Vertex.X = aInitVertex.x()*sim::g42edm::length;
     core.Vertex.Y = aInitVertex.y()*sim::g42edm::length;
     core.Vertex.Z = aInitVertex.z()*sim::g42edm::length;
+    core.Charge = aCharge;
+    core.Type = aPDGcode;
+    core.Status = aStatus;
 
     m_vector_mcparticle.push_back(edmMCparticle);
     //m_collection_mcparticle.push_back(edmMCparticle);
