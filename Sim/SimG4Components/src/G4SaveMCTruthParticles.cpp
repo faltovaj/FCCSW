@@ -42,34 +42,49 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
 
   sim::MCTruthEventInformation* mcevinf = (sim::MCTruthEventInformation*) aEvent.GetUserInformation();
 
-  /* 
-  G4TrajectoryContainer* g4trajectorycontainer = aEvent.GetTrajectoryContainer();
+  mcevinf->Print();
 
-  std::cout << "G4SaveMCTruthParticles:saveOutput, size of the TrajectoryContainer " << g4trajectorycontainer->size() << std::endl;
+  auto vector_of_particles = mcevinf->GetVectorOfParticles();
 
-  for (unsigned int i = 0; i<g4trajectorycontainer->size(); i++) {
-    //std::cout << "G4SaveMCTruthParticles: index " << i <<std::endl;
-    MCTrajectory* g4trajectory = dynamic_cast<MCTrajectory*>((*g4trajectorycontainer)[i]);
-  
-    
+  std::cout << "G4SaveMCTruthParticles:saveOutput, number of MCparticles to be stored: " << vector_of_particles.size() << std::endl;
+
+  //m_particles.put(vector_of_particles);
+
+  for (unsigned int i = 0; i<vector_of_particles.size(); i++) {
+   
     fcc::MCParticle particle = particles->create();
-    fcc::BareParticle& core = particle.Core();
-    core.Type = g4trajectory->GetPDGEncoding();
-    core.Status = 1; // how it is defined ???? as in HepMC ?
-    core.Charge = g4trajectory->GetCharge();
-    core.P4.Px = g4trajectory->GetMomentum().x()*sim::g42edm::energy;
-    core.P4.Py = g4trajectory->GetMomentum().y()*sim::g42edm::energy;
-    core.P4.Pz = g4trajectory->GetMomentum().z()*sim::g42edm::energy;
-    core.P4.Mass = g4trajectory->GetMass()*sim::g42edm::energy;
-    core.Vertex.X = g4trajectory->GetVertexPosition().x()*sim::g42edm::length;
-    core.Vertex.Y = g4trajectory->GetVertexPosition().y()*sim::g42edm::length;
-    core.Vertex.Z = g4trajectory->GetVertexPosition().z()*sim::g42edm::length;
-    g4trajectory->ShowTrajectory();
-    std::cout << "Conversion factor g42edm::energy " << sim::g42edm::energy << std::endl;
-    std::cout << "G4SaveMCTruthParticles: Track ID " << g4trajectory->GetTrackID() << " Parent ID " << g4trajectory->GetParentID() << " Momentum x " <<g4trajectory->GetMomentum().x() << " y " << g4trajectory->GetMomentum().y() << " z " << g4trajectory->GetMomentum().z() << " E " << sqrt(pow(g4trajectory->GetMomentum().x(),2)+pow(g4trajectory->GetMomentum().y(),2)+pow(g4trajectory->GetMomentum().z(),2)) << std::endl;
-    std::cout << "G4SaveMCTruthParticles: Point x " << g4trajectory->GetVertexPosition().x() << " y " << g4trajectory->GetVertexPosition().y() << " z " << g4trajectory->GetVertexPosition().z() <<  " mass " << g4trajectory->GetMass() << std::endl;
-   }
+    //particle = *vector_of_particles.at(i);
+
+    fcc::BareParticle& particle_core = particle.Core();
+    particle_core.P4.Px = vector_of_particles.at(i)->Core().P4.Px;
+    particle_core.P4.Py = vector_of_particles.at(i)->Core().P4.Py;
+    particle_core.P4.Pz = vector_of_particles.at(i)->Core().P4.Pz;
+    particle_core.Vertex.X = vector_of_particles.at(i)->Core().Vertex.X;
+    particle_core.Vertex.Y = vector_of_particles.at(i)->Core().Vertex.Y;
+    particle_core.Vertex.Z = vector_of_particles.at(i)->Core().Vertex.Z;
+
+    
+
+    std::cout << "saved particle info " 
+	      << " px " << vector_of_particles.at(i)->Core().P4.Px  
+	      << " py " << vector_of_particles.at(i)->Core().P4.Py
+	      << " pz " << vector_of_particles.at(i)->Core().P4.Pz << std::endl;
+    std::cout << "new collection particle info "
+              << " px " << particles->at(i).Core().P4.Px
+              << " py " << particles->at(i).Core().P4.Py
+              << " pz " << particles->at(i).Core().P4.Pz << std::endl;
+
+
+
+
+    /*   
+    std::cout << "G4SaveMCTruthParticles: index " << i 
+	      << " px " << particle.Core().P4.Px
+	      << " py " << particle.Core().P4.Py 
+	      << " pz " << particle.Core().P4.Pz << std::endl;
     */
+   }
+    
 
   return StatusCode::SUCCESS;
 }

@@ -2,14 +2,17 @@
 #define SIMG4COMMON_MCTRUTHEVENTINFORMATION_H
 
 // datamodel
-//#include "datamodel/MCParticle.h"
-//#include "datamodel/Particle.h"
+#include "datamodel/MCParticle.h"
+#include "datamodel/GenVertex.h"
+#include "datamodel/MCParticleCollection.h"
+#include "datamodel/GenVertexCollection.h"
 
 // Geant4
 #include "G4VUserEventInformation.hh"
+#include "G4ThreeVector.hh"
 
 // CLHEP
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
 
 /** @class MCTruthEventInformation SimG4Common/SimG4Common/MCTruthEventInformation.h MCTruthEventInformation.h
  *
@@ -33,12 +36,20 @@ public:
   /** 
    *  
    */
-  void AddParticle(const CLHEP::Hep3Vector& aMom);
- 
+  void AddParticle(const G4ThreeVector& aMom,const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex);
+
+  const std::vector<fcc::MCParticle*> GetVectorOfParticles();
+
+  const std::vector<fcc::GenVertex*> GetVectorOfGenVertices(); 
+
+  //const std::vector<fcc::MCParticle*> GetCollectionOfParticles();
+
 private:
   /// EDM MC particle
-  CLHEP::Hep3Vector m_initMomentum;
-  
+  std::vector<fcc::MCParticle*> m_vector_mcparticle;
+  std::vector<fcc::GenVertex*> m_vector_genvertex;
+  //fcc::MCParticleCollection m_collection_mcparticle;  
+
 };
 }
 

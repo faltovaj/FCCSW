@@ -24,7 +24,7 @@ MCTruthTrackingAction::~MCTruthTrackingAction() {}
 
 void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
     
-  G4LorentzVector fmom = G4LorentzVector(aTrack->GetMomentum(), aTrack->GetTotalEnergy());
+  aInitMom = (G4ThreeVector)aTrack->GetMomentum();
 
   //Primary particle: Track Id == 1
  
@@ -32,9 +32,6 @@ void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
     {
       MCTruthTrackInformation* mcinf = new MCTruthTrackInformation;
     
-      mcinf->SetInitMomentum(aTrack->GetMomentum());
-      mcinf->SetInitVertexPosition(aTrack->GetVertexPosition());
-      
       fpTrackingManager->SetUserTrackInformation(mcinf);
     }
   
@@ -43,9 +40,8 @@ void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 
 void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
-  G4LorentzVector prodpos(aTrack->GetGlobalTime() - aTrack->GetLocalTime(),
-                             aTrack->GetVertexPosition());
-  G4LorentzVector endpos(aTrack->GetGlobalTime(), aTrack->GetPosition());
+  prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
+  endPosition = (G4ThreeVector)aTrack->GetPosition();
 
   // here (?) make all different checks to decide whether to store the particle
   //
@@ -54,7 +50,7 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
     MCTruthTrackInformation* mcinf = (MCTruthTrackInformation*) aTrack->GetUserInformation();
     const G4Event *aEvent = (G4EventManager::GetEventManager())->GetConstCurrentEvent();
     MCTruthEventInformation* mcevinf = (MCTruthEventInformation*) aEvent->GetUserInformation();
-    mcevinf->AddParticle(aTrack->GetMomentum());
+    mcevinf->AddParticle(aInitMom, prodPosition, endPosition);
 
     /*
     MCTruthManager::GetInstance()->
@@ -98,8 +94,9 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
 
   double MinE = 1000;
   // check energy
-  if (aTrack->GetTotalEnergy() > MinE) {
-    std::cout << "Track accepted" << std::endl;
+  double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
+  if (kinE > MinE) {
+    std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
     return true;
   }
   

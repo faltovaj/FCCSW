@@ -9,7 +9,7 @@
 #include "G4VUserTrackInformation.hh"
 
 // CLHEP
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
 
 /** @class MCTruthTrackInformation SimG4Common/SimG4Common/MCTruthTrackInformation.h MCTruthTrackInformation.h
  *
@@ -30,38 +30,8 @@ public:
   /// A printing method
   virtual void Print() const final;
  
-  /** Setter of the init-track momentum
-   *  @param[in] aMom Particle momentum.
-   */
-  void SetInitMomentum(const CLHEP::Hep3Vector& aMom);
-  /** Getter of the init-track momentum
-   *  @returns Init momentum.
-   */
-  const CLHEP::Hep3Vector& GetInitMomentum() const;
-  /** Setter of the init vertex
-   *  @param[in] aPos init Vertex position.
-   */
-  void SetInitVertexPosition(const CLHEP::Hep3Vector& aPos);
-  /** Getter of the init vertex positon
-   *  @returns init Vertex position.
-   */
-  const CLHEP::Hep3Vector& GetInitVertexPosition() const;
-  /** Setter of the end vertex
-   *  @param[in] aPos end Vertex position.
-   */
-  void SetEndVertexPosition(const CLHEP::Hep3Vector& aPos);
-  /** Getter of the end vertex positon
-   *  @returns end Vertex position.
-   */
-  const CLHEP::Hep3Vector& GetEndVertexPosition() const;
-
- 
 private:
-  /// EDM MC particle
-  CLHEP::Hep3Vector m_initMomentum;
-  /// Particle vertex position saved at the end of tracking (filled for fast-sim)
-  CLHEP::Hep3Vector m_initVertexPosition;
-  CLHEP::Hep3Vector m_endVertexPosition;
+  
 };
 }
 

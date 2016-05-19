@@ -1,8 +1,12 @@
 #ifndef SIMG4FULL_MCTRUTHTRACKINGACTION_H
 #define SIMG4FULL_MCTRUTHTRACKINGACTION_H
 
+//CLHEP
+//#include "CLHEP/Vector/ThreeVector.h"
+
 // Geant
 #include "G4UserTrackingAction.hh"
+#include "G4ThreeVector.hh"
 
 /**
  *
@@ -24,6 +28,9 @@ public:
   virtual void PreUserTrackingAction(const G4Track*) final;
   virtual void PostUserTrackingAction(const G4Track*) final;
 private:
+  G4ThreeVector aInitMom;
+  G4ThreeVector prodPosition;
+  G4ThreeVector endPosition;
   bool trackToBeStored(const G4Track* aTrack);
 };
 }
