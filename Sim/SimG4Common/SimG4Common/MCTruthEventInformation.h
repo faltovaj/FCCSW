@@ -38,12 +38,12 @@ public:
   /** 
    *  
    */
-  void AddParticle(const G4LorentzVector& aMom,const G4ThreeVector& aInitVertex, const G4ThreeVector& aEndVertex,
+  void AddParticle(const G4LorentzVector& aMom,const G4LorentzVector& aInitVertex, const G4LorentzVector& aEndVertex,
 		   G4int aPDGcode, G4int aCharge, G4int aStatus);
 
   const std::vector<fcc::MCParticle*> GetVectorOfParticles();
 
-  const std::vector<fcc::GenVertex*> GetVectorOfGenVertices(); 
+  const std::vector<fcc::GenVertex*> GetVectorOfVertices(); 
 
   //const std::vector<fcc::MCParticle*> GetCollectionOfParticles();
 

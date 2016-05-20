@@ -31,8 +31,8 @@ public:
   virtual void PostUserTrackingAction(const G4Track*) final;
 private:
   G4LorentzVector aInitMom;
-  G4ThreeVector prodPosition;
-  G4ThreeVector endPosition;
+  G4LorentzVector prodPosition;
+  G4LorentzVector endPosition;
   G4TrackStatus statusTrack;
   G4int pdgCode;
   G4int charge;

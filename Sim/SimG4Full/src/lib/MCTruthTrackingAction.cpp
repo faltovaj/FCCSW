@@ -46,8 +46,13 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   if (trackToBeStored(aTrack))
   {
 
-    prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
-    endPosition = (G4ThreeVector)aTrack->GetPosition();
+    //prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
+    //endPosition = (G4ThreeVector)aTrack->GetPosition();
+
+    prodPosition = (aTrack->GetGlobalTime() - aTrack->GetLocalTime(), aTrack->GetVertexPosition());
+    endPosition = (aTrack->GetGlobalTime(), aTrack->GetPosition());
+    //TODO: Time in which units? mm?
+
     statusTrack = aTrack->GetTrackStatus(); //TrackStatus is enum type
 
     const G4DynamicParticle* dynamicparticle = aTrack->GetDynamicParticle();
