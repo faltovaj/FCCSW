@@ -5,6 +5,7 @@
 // datamodel
 #include "datamodel/MCParticle.h"
 #include "datamodel/GenVertex.h"
+#include "datamodel/Point.h"
 #include "datamodel/MCParticleCollection.h"
 #include "datamodel/GenVertexCollection.h"
 
@@ -45,12 +46,15 @@ public:
 
   const std::vector<fcc::GenVertex*> GetVectorOfVertices(); 
 
+  bool SameVertex(const G4LorentzVector& g4lorentzVertex, fcc::Point& fccPoint); 
+
   //const std::vector<fcc::MCParticle*> GetCollectionOfParticles();
 
 private:
   /// EDM MC particle
   std::vector<fcc::MCParticle*> m_vector_mcparticle;
   std::vector<fcc::GenVertex*> m_vector_genvertex;
+  float epsilon_dist = 1e-4;
   //fcc::MCParticleCollection m_collection_mcparticle;  
 
 };

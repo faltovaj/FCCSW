@@ -5,9 +5,6 @@
 #include "SimG4Common/MCTruthTrackInformation.h"
 #include "SimG4Common/MCTruthEventInformation.h"
 
-// datamodel
-//#include "datamodel/MCParticle.h"
-
 // Geant4
 #include "G4Event.hh"
 #include "G4EventManager.hh"
@@ -42,18 +39,14 @@ void MCTruthTrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
   // make all different checks to decide whether to store the particle
-  //
+  prodPosition = (aTrack->GetGlobalTime() - aTrack->GetLocalTime(), aTrack->GetVertexPosition());
+  endPosition = (aTrack->GetGlobalTime(), aTrack->GetPosition());
+  //TODO: Time in which units? mm?                                                              
+
+  statusTrack = aTrack->GetTrackStatus(); //TrackStatus is enum type
+
   if (trackToBeStored(aTrack))
-  {
-
-    //prodPosition = (G4ThreeVector)aTrack->GetVertexPosition();
-    //endPosition = (G4ThreeVector)aTrack->GetPosition();
-
-    prodPosition = (aTrack->GetGlobalTime() - aTrack->GetLocalTime(), aTrack->GetVertexPosition());
-    endPosition = (aTrack->GetGlobalTime(), aTrack->GetPosition());
-    //TODO: Time in which units? mm?
-
-    statusTrack = aTrack->GetTrackStatus(); //TrackStatus is enum type
+    {
 
     const G4DynamicParticle* dynamicparticle = aTrack->GetDynamicParticle();
     pdgCode = dynamicparticle->GetPDGcode();
@@ -103,16 +96,38 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
 bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
 {
-  //MCTruthConfig* config = MCTruthManager::GetInstance()->GetConfig();
 
-  double MinE = 1000;
+  bool pass = true;  
+
+  double MinE = 10.;
   // check energy
   double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
-  if (kinE > MinE) {
+  if (kinE < MinE) {
     // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
-    return true;
+    pass = false;
   }
   
+  //where is the track?
+  double rInit = sqrt( pow(prodPosition.x()*sim::g42edm::length,2)+pow(prodPosition.y()*sim::g42edm::length,2) );
+  double rmin = 2600;
+  double zmax = 4000;  
+  if ( (rInit>rmin) || (prodPosition.z()*sim::g42edm::length>zmax)) {
+    pass = false;
+  }
+  else {
+    // if (kinE>MinE) std::cout << "rInit " << rInit << " z " << prodPosition.z()*sim::g42edm::length << std::endl;
+  }
+
+  /*
+  //which volume?
+  if (aTrack->GetMaterial()->GetName()!="Air") {
+    pass = false;
+  }
+  else {
+    std::cout << "In Air" << std::endl;
+  }
+  */
+
   /*
   // particle type
   std::vector<G4int> types = config->GetParticleTypes();
@@ -125,7 +140,7 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
   */
   // etc...
   
-  return false;
+  return pass;
 }
 
 }

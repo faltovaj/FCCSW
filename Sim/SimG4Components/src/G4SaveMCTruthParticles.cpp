@@ -53,9 +53,10 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
    
     fcc::MCParticle particle = particles->create();
     particle.Core() = (*iterator)->Core();
-    //particle.StartVertex( (*iterator)->StartVertex() );
-    //particle.EndVertex( (*iterator)->EndVertex() );
+    particle.StartVertex( (*iterator)->StartVertex() );
+    particle.EndVertex( (*iterator)->EndVertex() );
  
+    /*
     std::cout << "saved particle info " 
 	      << " status " << (*iterator)->Core().Status
 	      << " type " << (*iterator)->Core().Type
@@ -63,12 +64,29 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
 	      << " px " << (*iterator)->Core().P4.Px  
 	      << " py " << (*iterator)->Core().P4.Py
 	      << " pz " << (*iterator)->Core().P4.Pz << std::endl;
-    /*
-    std::cout << "new collection particle info "
+    */
+    std::cout << "MCparticle info "
               << " px " << particle.Core().P4.Px
               << " py " << particle.Core().P4.Py
-              << " pz " << particle.Core().P4.Pz << std::endl;
+              << " pz " << particle.Core().P4.Pz
+	      << " Start vertex x " << particle.StartVertex().Position().X 
+	      << " y " << particle.StartVertex().Position().X
+	      << " z " << particle.StartVertex().Position().Z 
+	      << " End vertex x " << particle.EndVertex().Position().X
+              << " y " << particle.EndVertex().Position().Y
+              << " z " << particle.EndVertex().Position().Z << std::endl;
+
+    /*
+    fcc::GenVertex *vertex_test = new fcc::GenVertex();
+    vertex_test->Position().X = 0.;
+    vertex_test->Position().Y = 0.;
+    vertex_test->Position().Z = 0.;
+    vertex_test->Ctau(0.);    
+    (*iterator)->StartVertex(*vertex_test);
+
+    std::cout << "new collection test " <<  particle.StartVertex().Position().X << std::endl;
     */
+   
   }
 
   //create a collection of GenVertices
@@ -81,6 +99,20 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
   for (auto iterator = vector_of_vertices.begin(); iterator != vector_of_vertices.end(); iterator++) {
     fcc::GenVertex vertex = vertices->create();
     vertex.Position() = (*iterator)->Position();
+    vertex.Ctau( (*iterator)->Ctau() ); 
+
+    std::cout << "GenVertex info "
+              << " X " << vertex.Position().X
+              << " Y " << vertex.Position().Y
+              << " Z " << vertex.Position().Z <<  std::endl;
+
+    /*
+    for (auto& iterator_part=m_particles.begin(); iterator_part!=m_particles.end(); iterator_part++) { 
+      if (iterator_part.StartVertex()==(*iterator_part)->StartVertex()) iterator_part.StartVertex(vertex);
+      if (iterator_part.EndVertex()==(*iterator_part)->EndVertex()) iterator_part.EndVertex(vertex);
+    }
+    */
+
   }
     
   return StatusCode::SUCCESS;

@@ -37,12 +37,12 @@ void SingleParticleGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         
     double particleEnergy = CLHEP::RandFlat::shoot(eMin,eMax);
     
-    // std::cout << "particle energy = "<<particleEnergy<<std::endl;
+    std::cout << "particle energy = "<<particleEnergy<<std::endl;
 	
     double eta = CLHEP::RandFlat::shoot(etaMin,etaMax);
     double phi = CLHEP::RandFlat::shoot(phiMin,phiMax);
     
-    // std::cout << "particle eta,phi  = "<<eta<<" "<<phi<<std::endl;
+    std::cout << "particle eta,phi  = "<<eta<<" "<<phi<<std::endl;
     
     double theta = std::atan(std::exp(-eta))*2.;
     double randomX = std::sin(theta)*std::cos(phi);

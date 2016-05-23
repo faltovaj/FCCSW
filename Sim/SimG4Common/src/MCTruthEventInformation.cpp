@@ -45,25 +45,22 @@ void MCTruthEventInformation::AddParticle(const G4LorentzVector& aMom, const G4L
     core.Type = aPDGcode;
     core.Status = aStatus;
 
-    //Check if the vertex is already in the collection of vertices
-    //if so, leave the loop
-    //if not, add it
+    //Check if the vertex is already in the vector of vertices
+    //if so, add the vertex as StartVertex or EndVertex and leave the loop
+    //if not, add it to the vector if vertices
     bool findInitVertex = false;
     bool findEndVertex = false;
     for (auto iterator = m_vector_genvertex.begin(); iterator != m_vector_genvertex.end(); iterator++)  {
-      //fcc::Position& position = (*iterator)->Position();
-      if ( (aInitVertex.x()==(*iterator)->Position().X)
-	   && (aInitVertex.y()==(*iterator)->Position().Y)
-	   && (aInitVertex.z()==(*iterator)->Position().Z)  ) {
+      if ( SameVertex(aInitVertex, (*iterator)->Position()) ) {
 	findInitVertex = true;
 	edmMCparticle->StartVertex( **iterator ); 
+	//std::cout << "findInitVertex!!!!!!!!!!!" << std::endl;
       }
-      if ( (aEndVertex.x()==(*iterator)->Position().X)
-           && (aEndVertex.y()==(*iterator)->Position().Y)
-	   && (aEndVertex.z()==(*iterator)->Position().Z)  ) {
-        findEndVertex = true;
+      if ( SameVertex(aEndVertex, (*iterator)->Position()) ) {        
+	findEndVertex = true;
 	edmMCparticle->EndVertex( **iterator );
-      } 
+	//std::cout <<"findEndVertex!!!!!!!!!!!" << std::endl;
+      }
       if (findInitVertex && findEndVertex) break;
     }
 
@@ -97,6 +94,16 @@ const std::vector<fcc::MCParticle*> MCTruthEventInformation::GetVectorOfParticle
 
 const std::vector<fcc::GenVertex*> MCTruthEventInformation::GetVectorOfVertices() {
     return m_vector_genvertex;
+}
+
+bool MCTruthEventInformation::SameVertex(const G4LorentzVector& g4lorentzVertex, fcc::Point& fccPoint) {
+  //std::cout << "In SameVertex function: distance " << sqrt(pow(g4lorentzVertex.x()*sim::g42edm::length-fccPoint.X,2)+pow(g4lorentzVertex.y()*sim::g42edm::length-fccPoint.Y,2)+pow(g4lorentzVertex.z()*sim::g42edm::length-fccPoint.Z,2)) << std::endl;
+  if ( fabs(g4lorentzVertex.x()*sim::g42edm::length-fccPoint.X)<epsilon_dist 
+       && fabs(g4lorentzVertex.y()*sim::g42edm::length-fccPoint.Y)<epsilon_dist
+       && fabs(g4lorentzVertex.z()*sim::g42edm::length-fccPoint.Z)<epsilon_dist  ) {
+    return true;
+  }
+  return false;
 }
 
   /*
