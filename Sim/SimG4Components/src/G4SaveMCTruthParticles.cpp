@@ -69,12 +69,13 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
               << " px " << particle.Core().P4.Px
               << " py " << particle.Core().P4.Py
               << " pz " << particle.Core().P4.Pz
-	      << " Start vertex x " << particle.StartVertex().Position().X 
+      	      << " Start vertex x " << particle.StartVertex().Position().X 
 	      << " y " << particle.StartVertex().Position().X
 	      << " z " << particle.StartVertex().Position().Z 
 	      << " End vertex x " << particle.EndVertex().Position().X
               << " y " << particle.EndVertex().Position().Y
-              << " z " << particle.EndVertex().Position().Z << std::endl;
+              << " z " << particle.EndVertex().Position().Z 
+	      << std::endl;
 
     /*
     fcc::GenVertex *vertex_test = new fcc::GenVertex();
