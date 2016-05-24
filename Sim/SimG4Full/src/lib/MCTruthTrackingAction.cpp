@@ -65,6 +65,9 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
                   aTrack->GetTrackID(),
                   aTrack->GetParentID(), mcinf->GetDirectParent());
     */
+
+    std::cout << "Stored particle: PDG " << pdgCode  << " name " << dynamicparticle->GetDefinition()->GetParticleName() << std::endl;
+
   }
   else
   {

@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 1
-EVTMAX = 5
+EVTMAX = 3
 
 from Gaudi.Configuration import *
 
@@ -34,14 +34,7 @@ particleGenerator=G4SingleParticleGeneratorTool("G4SingleParticleGeneratorTool",
                 ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25),
                 actions="G4MCTruthActions") 
 
-# reads an HepMC::GenEvent from the data service and writes a collection of EDM Particles
-#from Configurables import HepMCConverter
-#hepmc_converter = HepMCConverter("Converter")
-#hepmc_converter.DataInputs.hepmc.Path="hepmc"
-#hepmc_converter.DataOutputs.genparticles.Path="allGenParticles"
-#hepmc_converter.DataOutputs.genvertices.Path="allGenVertices"
 
- 
 # Geant4 algorithm
 # Translates EDM to G4Event, passes the event to G4, writes out outputs via tools
 from Configurables import G4SimAlg, G4SaveCalHits, G4SaveMCTruthParticles
@@ -70,8 +63,7 @@ out.outputCommands = ["keep *"]
 
 # ApplicationMgr
 from Configurables import ApplicationMgr
-ApplicationMgr( #TopAlg = [hepmc_converter, geantsim, out],
-                TopAlg = [geantsim, out],
+ApplicationMgr( TopAlg = [geantsim, out],
                 EvtSel = 'NONE',
                 EvtMax   = EVTMAX,
                 # order is important, as GeoSvc is needed by G4SimSvc
