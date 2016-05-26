@@ -11,8 +11,6 @@
 
 namespace sim {
 MCTruthEventInformation::MCTruthEventInformation() {
-  //  m_vector_mcparticle.clear();
-  //  m_vector_genvertex.clear();
 }
 
 MCTruthEventInformation::~MCTruthEventInformation() {}
@@ -20,6 +18,7 @@ MCTruthEventInformation::~MCTruthEventInformation() {}
 void MCTruthEventInformation::Print() const {
   
   std::cout << "MCTruthEventInformation: Number of MC truth particles stored: " <<  m_vector_mcparticle.size() << std::endl;
+  std::cout << "MCTruthEventInformation: Number of MC gen vertices stored: " <<  m_vector_genvertex.size() << std::endl;
   /*
   for (unsigned int i = 0; i<m_vector_mcparticle.size(); i++) {
     std::cout << "stored particle info " 

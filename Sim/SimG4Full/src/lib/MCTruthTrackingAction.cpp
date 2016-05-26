@@ -66,9 +66,12 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
                   aTrack->GetParentID(), mcinf->GetDirectParent());
     */
 
-    std::cout << "Stored particle: PDG " << pdgCode  << " name " << dynamicparticle->GetDefinition()->GetParticleName() << std::endl;
-
-  }
+    std::cout << "Stored particle: PDG " << pdgCode  << " name " << dynamicparticle->GetDefinition()->GetParticleName() << " vertex r " << sqrt(pow(prodPosition.x(),2)+pow(prodPosition.x(),2)) << " vertex z " << prodPosition.z() << " kinE " << sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)) << " trackID " << aTrack->GetTrackID() << " mother ID " << aTrack->GetParentID();
+    if (aTrack->GetParentID()!=0) {
+      std::cout << " process " << aTrack->GetCreatorProcess()->GetProcessName() << std::endl;
+    }
+    std::cout << std::endl;
+    }
   else
   {
     // If track is not to be stored, propagate it's parent ID (stored)
@@ -102,9 +105,10 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
 
   bool pass = true;  
 
-  double MinE = 10.;
+  double MinE = -1000;
   // check energy
   double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
+ 
   if (kinE < MinE) {
     // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
     pass = false;

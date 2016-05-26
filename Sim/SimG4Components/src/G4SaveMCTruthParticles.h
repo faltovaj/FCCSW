@@ -12,6 +12,9 @@
 namespace fcc {
 class MCParticleCollection;
 class GenVertexCollection;
+class MCParticle;
+class GenVertex;
+class ConstGenVertex;
 }
 
 /** @class G4SaveMCTruthParticles 
@@ -41,12 +44,16 @@ public:
    *   @return status code
    */
   virtual StatusCode saveOutput(const G4Event& aEvent) final;
+
+  bool SameVertex(const fcc::GenVertex& genVertex1, const fcc::ConstGenVertex& genVertex2);
+
 private:
   /// Handle for the particles to be written
   DataHandle<fcc::MCParticleCollection> m_particles;
   //Handle for the vertices to be written
   DataHandle<fcc::GenVertexCollection> m_vertices;
   /// Handle for the associations between particles and MC particles to be written
+  float epsilon_dist = 1e-4;
 
 };
 
