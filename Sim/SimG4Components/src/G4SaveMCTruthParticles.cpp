@@ -56,12 +56,14 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
   auto vector_of_vertices = mcevinf->GetVectorOfVertices();
   std::cout << "G4SaveMCTruthParticles:saveOutput, number of GenVertices to be stored: " << vector_of_vertices.size() << std::endl;
 
+  auto iterator_genvert_actual = vector_of_vertices.begin();
+
   for (auto iterator = vector_of_particles.begin(); iterator != vector_of_particles.end(); iterator++) {
    
     //Create new particle
     fcc::MCParticle particle = particles->create();
     particle.Core() = (*iterator)->Core();
-    
+
     //Add StartVertex
     fcc::GenVertex vertex = vertices->create();
     vertex.Position() = (*iterator)->StartVertex().Position();

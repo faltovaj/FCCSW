@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 1
-EVTMAX = 3
+EVTMAX = 500
 
 from Gaudi.Configuration import *
 
@@ -12,7 +12,7 @@ podioevent = FCCDataSvc("EventDataSvc")
 # Magnetic field
 from Configurables import G4ConstantMagneticFieldTool
 if BFIELD==1:
-    field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=True)
+    field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=True,IntegratorStepper="ClassicalRK4")
 else: 
     field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=False)
 

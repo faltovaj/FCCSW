@@ -12,7 +12,7 @@ podioevent = FCCDataSvc("EventDataSvc")
 # Magnetic field
 from Configurables import G4ConstantMagneticFieldTool
 if BFIELD==1:
-    field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=True)
+    field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=True,IntegratorStepper="ClassicalRK4")
 else: 
     field = G4ConstantMagneticFieldTool("G4ConstantMagneticFieldTool",FieldOn=False)
 
