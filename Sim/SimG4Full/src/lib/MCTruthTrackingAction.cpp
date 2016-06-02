@@ -71,6 +71,22 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
       std::cout << " process " << aTrack->GetCreatorProcess()->GetProcessName() << std::endl;
     }
     std::cout << std::endl;
+  std::cout << "step prestep z " << aTrack->GetStep()->GetPreStepPoint()->GetPosition().z() << " poststep z " << aTrack->GetStep()->GetPostStepPoint()->GetPosition().z() << std::endl;
+    
+  /*                                                                                                                                
+  G4TrackVector* secondaries = fpTrackingManager->GimmeSecondaries() ;
+
+  for( unsigned int index = 0 ; index < secondaries->size() ; ++index )
+    {
+      G4Track* sTr = (*secondaries)[index] ;
+
+      prodPosition = (sTr->GetGlobalTime() - sTr->GetLocalTime(), sTr->GetVertexPosition());
+      endPosition = (sTr->GetGlobalTime(), sTr->GetPosition());
+
+      std::cout << "=== Secondaries PDG " <<  sTr->GetDynamicParticle()->GetPDGcode() << " prod z  " << prodPosition.z()  << " end z " << endPosition.z() << std::endl;
+
+    }
+  */  
     }
   else
   {
@@ -106,6 +122,7 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
   bool pass = true;  
 
   double MinE = -1000;
+  double MinE_eioni = 1;
   // check energy
   double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
  
@@ -114,6 +131,17 @@ bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
     pass = false;
   }
   
+
+  G4String process_name = "eIoni";
+  if (aTrack->GetParentID()!=0) {
+    if ((aTrack->GetCreatorProcess()->GetProcessName()==process_name) && (kinE<MinE_eioni)) {
+      pass = false;
+    }
+    if (aTrack->GetCreatorProcess()->GetProcessName()=="annihil") {
+      pass = false;
+    }
+  }
+
   //where is the track?
   double rInit = sqrt( pow(prodPosition.x()*sim::g42edm::length,2)+pow(prodPosition.y()*sim::g42edm::length,2) );
   double rmin = 2600;

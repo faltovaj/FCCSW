@@ -1,6 +1,7 @@
 #include "SimG4Full/MCTruthActions.h"
 
 //FCCSW
+#include "SimG4Full/MCTruthSteppingAction.h"
 #include "SimG4Full/MCTruthTrackingAction.h"
 #include "SimG4Full/MCTruthEventAction.h"
 
@@ -11,7 +12,8 @@ MCTruthActions::MCTruthActions():
 MCTruthActions::~MCTruthActions() {}
 
 void MCTruthActions::Build() const {
-  SetUserAction(new MCTruthTrackingAction);
+  // SetUserAction(new MCTruthTrackingAction);
+  SetUserAction(new MCTruthSteppingAction);
   SetUserAction(new MCTruthEventAction);
 }
 }
