@@ -8,7 +8,7 @@ gaudi_depends_on_subdirs(GaudiAlg FWCore Sim/SimG4Common DetectorDescription/Det
 
 find_package(Geant4)
 include(${Geant4_USE_FILE})
-find_package(DD4hep COMPONENTS DDG4)
+find_package(DD4hep COMPONENTS DDG4 DDRec)
 find_package(ROOT COMPONENTS MathCore GenVector Geom REQUIRED)
 
 gaudi_install_headers(SimG4Components)
@@ -16,8 +16,8 @@ gaudi_install_headers(SimG4Components)
 gaudi_add_module(SimG4Components
                  src/*.cpp
                  INCLUDE_DIRS Geant4 FWCore SimG4Common SimG4Interface DD4hep ROOT
-                 LINK_LIBRARIES GaudiAlgLib Geant4 FWCore SimG4Common DD4hep ROOT)
-
+                 LINK_LIBRARIES GaudiAlgLib Geant4 FWCore SimG4Common DD4hep ROOT
+ 		 ${DD4hep_COMPONENT_LIBRARIES})
 
 include(CTest)
 gaudi_add_test(GeantFullSimHCal
