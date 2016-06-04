@@ -47,7 +47,7 @@ StatusCode G4SaveCalHits::saveOutput(const G4Event& aEvent) {
   G4HCofThisEvent* collections = aEvent.GetHCofThisEvent();
   G4VHitsCollection* collect;
   DD4hep::Simulation::Geant4CalorimeterHit* hit;
-  DD4hep::DDRec::IDDecoder& decoder = DD4hep::DDRec::IDDecoder::getInstance();
+  //DD4hep::DDRec::IDDecoder& decoder = DD4hep::DDRec::IDDecoder::getInstance();
 
   if(collections != nullptr) {
     fcc::CaloClusterCollection* edmClusters = new fcc::CaloClusterCollection();
@@ -67,7 +67,7 @@ StatusCode G4SaveCalHits::saveOutput(const G4Event& aEvent) {
           debug() << hit->position.y() << " ";
           debug() << hit->position.z() << endmsg;
 
-	  debug() << "position: " << decoder.position(hit->cellID) << endmsg;
+	  //debug() << "position: " << decoder.position(hit->cellID) << endmsg;
 
           fcc::CaloHit edmHit = edmHits->create();
           fcc::CaloCluster edmCluster = edmClusters->create();

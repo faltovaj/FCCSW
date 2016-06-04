@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 0
-EVTMAX = 3
+EVTMAX = 1
 
 from Gaudi.Configuration import *
 
@@ -19,7 +19,7 @@ else:
 # DD4hep geometry service
 # Parses the given xml file
 from Configurables import GeoSvc
-geoservice = GeoSvc("GeoSvc", detectors=[ 'file:DetectorDescription/Detectors/compact/FCChh_DectMaster.xml',
+geoservice = GeoSvc("GeoSvc", detectors=[# 'file:DetectorDescription/Detectors/compact/FCChh_DectMaster.xml',
                                           'file:DetectorDescription/Detectors/compact/FCChh_ECalBarrel_Mockup.xml'
                                         ],
                     OutputLevel = INFO)
@@ -47,7 +47,7 @@ saveecaltool.DataOutputs.caloHits.Path = "ECalHits"
 # next, create the G4 algorithm, giving the list of names of tools ("XX/YY")
 pgun=G4SingleParticleGeneratorTool("G4SingleParticleGeneratorTool",
                 particleName="e-",energyMin=ENE,energyMax=ENE,etaMin=0.25,etaMax=0.25,
-                OutputLevel = DEBUG)
+                OutputLevel = INFO)
 geantsim = G4SimAlg("G4SimAlg",
                        outputs= ["G4SaveCalHits/saveECalHits"],
                        eventGenerator=pgun)
@@ -55,8 +55,9 @@ geantsim = G4SimAlg("G4SimAlg",
 # PODIO algorithm
 from Configurables import PodioOutput
 out = PodioOutput("out",
-                   OutputLevel=DEBUG)
+                   OutputLevel=INFO)
 out.outputCommands = ["keep *"]
+out.filename = "output_test.root"
 
 # ApplicationMgr
 from Configurables import ApplicationMgr
@@ -65,5 +66,5 @@ ApplicationMgr( TopAlg = [geantsim, out],
                 EvtMax   = EVTMAX,
                 # order is important, as GeoSvc is needed by G4SimSvc
                 ExtSvc = [podioevent, geoservice, geantservice],
-                OutputLevel=DEBUG
+                OutputLevel=INFO
 )

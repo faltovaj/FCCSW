@@ -18,6 +18,13 @@
   </info>
 
   <define>
+
+        <constant name="world_size" value="80*m"/>
+        <constant name="world_x" value="world_size"/>
+        <constant name="world_y" value="world_size"/>
+        <constant name="world_z" value="world_size"/>  
+
+
     <!-- ECAL dimensions -->
     <!-- cryostat description -->
     <constant name="BarECal_rmin" value="2600*mm"/>
@@ -32,20 +39,17 @@
   </define>
 
   <display>
-    <vis name="ecal_envelope" r="0.1" g="0.2" b="0.6" alpha="1" showDaughers="false" visible="true" />
+    <vis name="ecal_envelope" r="0.6" g="0.8" b="0.6" alpha="1" showDaughers="true" visible="false" />
+    <vis name="ecal_caloVol_vis" r="0.8" g="0.3" b="0.3" alpha="1" showDaughters="false" visible="true" drawingStyle="solid" />
   </display>
 
   <readouts>
     <readout name="BarECal_Readout">
-<<<<<<< HEAD
       <!-- Cell definition via segmentation: CartisianGrid or PolarGrid -->
       <segmentation type="CartesianGridXY" grid_size_x="0.5*mm" grid_size_y="0.5*mm"/>
       <!-- <segmentation type="PolarGridRPhi" grid_size_r="5.0*mm" grid_size_phi="0.1*rad"/> -->
       <!-- Volume identifier: first 32 bits for volume ID + 32 bits for cell ID -->
-=======
-      <segmentation type="CartesianGridXY" grid_size_x="0.5*mm" grid_size_y="0.5*mm"/>
->>>>>>> upstream/master
-      <id>system:3,ECAL_Cryo:1,active:1,EM_barrel:1,layer:7,x:32:-16,y:-16</id>
+      <id>system:3,ECAL_Cryo:1,active:1,EM_barrel:1,r_layer:10,z_layer:10,x:32:-16,y:-16</id>
     </readout>
   </readouts>
 
