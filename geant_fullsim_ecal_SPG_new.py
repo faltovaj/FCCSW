@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 0
-EVTMAX = 100
+EVTMAX = 5
 
 from Gaudi.Configuration import *
 
