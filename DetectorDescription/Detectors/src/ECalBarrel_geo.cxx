@@ -34,7 +34,7 @@ static DD4hep::Geometry::Ref_t createECal (DD4hep::Geometry::LCDD& lcdd,xml_h xm
   // Invisibility seems to be broken in visualisation tags, have to hardcode that
   // envelopeVolume.setVisAttributes(lcdd, dimensions.visStr());
   envelopeVolume.setVisAttributes(lcdd.invisible());
-  
+
   xml_comp_t cryostat = xmlElement.child("cryostat");
   Dimension cryo_dims(cryostat.dimensions());
   double cryo_thickness=cryo_dims.thickness();
@@ -51,6 +51,16 @@ static DD4hep::Geometry::Ref_t createECal (DD4hep::Geometry::LCDD& lcdd,xml_h xm
   xml_comp_t passive = calo.child("passive_layers");
   std::string passive_mat=passive.materialStr();
   double passive_tck=passive.thickness();  
+
+  //segmentation in Z direction
+  xml_comp_t caloZmodule = calo.child("caloZmodule");
+  double halfz_cell = caloZmodule.thickness();
+
+  if (halfz_cell>calo_dims.dz()) {
+    lLog << MSG::WARNING <<"Overlay in ECal construction!!!!! Redefining the boundaries" << endmsg;
+    lLog << MSG::WARNING <<" Problem in Z segmentation: calorimeter half_z "<< calo_dims.dz() << ", required calorimeter half_z " << caloZmodule.thickness() <<endmsg;
+    halfz_cell = calo_dims.dz();
+  }
 
   // Step 1 : cryostat
   
@@ -75,71 +85,73 @@ static DD4hep::Geometry::Ref_t createECal (DD4hep::Geometry::LCDD& lcdd,xml_h xm
   // Step 3 : create the actual calorimeter
 
   int n_samples_r= (calo_dims.rmax()-  calo_dims.rmin() - passive_tck)/(passive_tck+active_tck);
-  lLog << MSG::INFO <<"++++++++++++++++++++++++++ nSamplings in r"<<n_samples_r<<endmsg;
-
-  //double halfz_cell = calo_dims.dz();
-  double halfz_cell = calo_dims.width();  
-
-  lLog << MSG::INFO << "Cell size in z" << 2*halfz_cell << endmsg;
+  lLog << MSG::INFO <<"++++++++++++++++++++++++++ nSamplings in r "<<n_samples_r<<endmsg;
 
   int n_samples_z = calo_dims.dz()/halfz_cell;
+  lLog << MSG::INFO << "Cell size in z " << 2*halfz_cell << endmsg;
   lLog << MSG::INFO <<"++++++++++++++++++++++++++ nSamplings in z "<<n_samples_z<<endmsg;
 
   //Real dimensions defined by the size of the cells/layers  
   double calo_tck=n_samples_r*(active_tck+passive_tck)+passive_tck;
   double calo_halfz=n_samples_z*halfz_cell;
 
-  //JANA: commented out
-  //DetElement caloDet(calo_name, calo_id);
+  double rmin_calo = calo_dims.rmin();
+  double rmax_calo = calo_dims.rmin()+calo_tck;
 
-  if ( (calo_dims.rmin()<(cryo_dims.rmin()+cryo_thickness)) || 
-       ((calo_dims.rmin()+calo_tck)>(cryo_dims.rmax()-cryo_thickness)) ) {
-    lLog << MSG::WARNING <<"Overlay in ECal construction!!!!!" << endmsg;
+  //Check the calorimeter dimensions
+  if ( (rmin_calo<(cryo_dims.rmin()+cryo_thickness)) || 
+       (rmax_calo>(cryo_dims.rmax()-cryo_thickness)) ) {
+    lLog << MSG::WARNING <<"Overlay in ECal construction!!!!! Redefining the boundaries" << endmsg;
     lLog << MSG::WARNING <<" Cryo boundaries "<< cryo_dims.rmin()+cryo_thickness << " , " << cryo_dims.rmax()-cryo_thickness <<endmsg;
-    lLog << MSG::WARNING <<" Calo volume from " << calo_dims.rmin() << " to " << calo_dims.rmin()+calo_tck <<endmsg;
+    lLog << MSG::WARNING <<" Calo volume required from " << rmin_calo << " to " << rmax_calo <<endmsg;
+    rmin_calo = cryo_dims.rmin()+cryo_thickness;
+    rmax_calo = cryo_dims.rmax()-cryo_thickness;
   }
 
-  DD4hep::Geometry::Tube caloShape(calo_dims.rmin(), calo_dims.rmin()+calo_tck, halfz_cell);
-  lLog << MSG::INFO << "ECAL: Building the actual calorimeter from " << calo_dims.rmin() << " to " <<   calo_dims.rmin()+calo_tck << endmsg;
+  DetElement caloDet(calo_name, calo_id);
+  DD4hep::Geometry::Tube caloShape(rmin_calo, rmax_calo, halfz_cell);
+  lLog << MSG::INFO << "ECAL: Building the actual calorimeter from " << rmin_calo << " to " << rmax_calo << endmsg;
   Volume caloVol(passive_mat, caloShape, lcdd.material(passive_mat));
-  //JANA:commented
-  //PlacedVolume placedCalo = bathVol.placeVolume(caloVol);
-  //placedCalo.addPhysVolID("EM_barrel", calo_id);
-  //caloDet.setPlacement(placedCalo);
-  //JANA: How to make the detector parts visible?
-  //xml_comp_t xCaloVol = xmlElement.child("caloVol");
-  //caloVol.setVisAttributes(lcdd,xCaloVol.visStr());
-  
+  PlacedVolume placedCalo = bathVol.placeVolume(caloVol);
+  placedCalo.addPhysVolID("EM_barrel", calo_id);
+  caloDet.setPlacement(placedCalo);
+
+  //xml_comp_t xcaloVol = calo.child("caloVol");
+  //caloVol.setVisAttributes(lcdd,xcaloVol.visStr());
+
   // set the sensitive detector type to the DD4hep calorimeter
   sensDet.setType("Geant4Calorimeter");
 
   // loop on the sensitive layers
   
   for (int i=0;i<n_samples_r;i++)
-  {
-  	double layer_r=calo_dims.rmin()+passive_tck+i*(passive_tck+active_tck);
-  	DetElement caloLayer(active_mat+"_sensitive", i+1);
-  	DD4hep::Geometry::Tube layerShape(layer_r , layer_r+active_tck, calo_halfz);
-	// lLog << MSG::DEBUG << "ECAL senst. layers :  #" << i << " from " << layer_r << " to " <<  layer_r+active_tck << endmsg;
-  	Volume layerVol(active_mat, layerShape, lcdd.material(active_mat));
-  	PlacedVolume placedLayer = caloVol.placeVolume(layerVol);
-	placedLayer.addPhysVolID("r_layer", i+1);
-  	caloLayer.setPlacement(placedLayer);
-	layerVol.setSensitiveDetector(sensDet);
-  }
+    {
+      double layer_r=rmin_calo+passive_tck+i*(passive_tck+active_tck);
+      DetElement caloLayer(active_mat+"_sensitive", i+1);
+      DD4hep::Geometry::Tube layerShape(layer_r , layer_r+active_tck, calo_halfz);
+      // lLog << MSG::DEBUG << "ECAL senst. layers :  #" << i << " from " << layer_r << " to " <<  layer_r+active_tck << endmsg;
+      Volume layerVol(active_mat, layerShape, lcdd.material(active_mat));
+      PlacedVolume placedLayer = caloVol.placeVolume(layerVol);
+      placedLayer.addPhysVolID("r_layer", i+1);
+      caloLayer.setPlacement(placedLayer);
+      layerVol.setSensitiveDetector(sensDet);
+      //layerVol.setVisAttributes(lcdd,active.visStr());
+      caloLayer.setVisAttributes(lcdd,active.visStr(),layerVol); 
+    }
   
-  //n_samples_z = 1;
+  // n_samples_z = 1;
   for (int i=0;i<n_samples_z;i++)
     {
       double zOffset = -calo_halfz+(2*i+1)*halfz_cell;
-      lLog << MSG::INFO <<"=== zOffset " << zOffset << endmsg;
+      //lLog << MSG::DEBUG <<"=== zOffset " << zOffset << endmsg;
       DD4hep::Geometry::Position offset(0, 0, zOffset);
-      DetElement caloZDet("calo_cells_inz", i+1);
+      DetElement caloZMod("calo_cells_inz", i+1);
       PlacedVolume placedCaloZVolume = bathVol.placeVolume(caloVol, offset);
       placedCaloZVolume.addPhysVolID("z_layer", i+1);
-      caloZDet.setPlacement(placedCaloZVolume);
+      caloZMod.setPlacement(placedCaloZVolume);
+      caloZMod.setVisAttributes(lcdd,caloZmodule.visStr(),caloVol);  
     }
- 
+  
  
   //Place envelope (or barrel) volume
   Volume motherVol = lcdd.pickMotherVolume(eCal);

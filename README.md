@@ -26,7 +26,15 @@ Test
 
 You should see an HepMC printout.
 
+Visualisation
+-------------
+
+export LIBGL_ALWAYS_INDIRECT=1
+
+./run geoDisplay DetectorDescription/Detectors/compact/FCChh_ECalBarrel_Mockup.xml
+
+
 Documentation
-----
+-------------
 
 Please consult [FCCSW documentation](http://fccsw.web.cern.ch/fccsw/)

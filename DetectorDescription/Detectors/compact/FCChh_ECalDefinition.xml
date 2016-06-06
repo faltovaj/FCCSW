@@ -4,8 +4,9 @@
     <dimensions rmin="BarECal_rmin" rmax="BarECal_rmax" dz="BarECal_dz" thickness="50*mm" />
   </cryostat>
   <calorimeter id="1" name="EM_barrel" > 
-    <dimensions rmin="EMBarrel_rmin" rmax="EMBarrel_rmax" dz="EMBarrel_dz" width="100*mm" />
-    <active_layers thickness="4.24*mm" material="LAr" />
-    <passive_layers thickness="2.44*mm" material="Lead" /> 
+    <dimensions rmin="EMBarrel_rmin" rmax="EMBarrel_rmax" dz="EMBarrel_dz" />
+    <active_layers thickness="4.24*mm" material="LAr" sensitive="true" vis="ecal_active_vis" />
+    <passive_layers thickness="2.44*mm" material="Lead" sensitive="false" vis="ecal_passive_vis" />
+    <caloZmodule thickness="100*mm" vis="ecal_caloZmodule_vis" />
   </calorimeter>
 </detector>
