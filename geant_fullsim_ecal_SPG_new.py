@@ -19,7 +19,7 @@ else:
 # DD4hep geometry service
 # Parses the given xml file
 from Configurables import GeoSvc
-geoservice = GeoSvc("GeoSvc", detectors=[# 'file:DetectorDescription/Detectors/compact/FCChh_DectMaster.xml',
+geoservice = GeoSvc("GeoSvc", detectors=[ 'file:DetectorDescription/Detectors/compact/FCChh_DectMaster.xml',
                                           'file:DetectorDescription/Detectors/compact/FCChh_ECalBarrel_Mockup.xml'
                                         ],
                     OutputLevel = INFO)
