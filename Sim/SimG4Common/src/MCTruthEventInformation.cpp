@@ -129,7 +129,7 @@ void MCTruthEventInformation::AddParticle(const G4LorentzVector& aMom, const G4L
       //Check if the vertex is already in the vector of vertices
       //if so, add the vertex as StartVertex or EndVertex and leave the loop
       //if not, add it to the vector if vertices
-      G4ThreeVector EmptyEndPosition(10e6,10e6,10e6);
+      G4ThreeVector EmptyEndPosition(1e6,1e6,1e6);
       CheckAndAddVertex( (*iterator)->GetPosition(), EmptyEndPosition, edmMCparticle);
 
       m_vector_mcparticle.push_back(edmMCparticle);
