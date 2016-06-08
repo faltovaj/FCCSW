@@ -107,9 +107,9 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
       vertex.Ctau( (*iterator)->EndVertex().Ctau() );
       particle.EndVertex( vertex );
       std::cout << "EndVertex info "
-              << " X " << vertex.Position().X
-              << " Y " << vertex.Position().Y
-              << " Z " << vertex.Position().Z <<  std::endl;
+		<< " x " << vertex.Position().X
+		<< " y " << vertex.Position().Y
+		<< " Z " << vertex.Position().Z <<  std::endl;
     }
  
     std::cout << "MCparticle info "

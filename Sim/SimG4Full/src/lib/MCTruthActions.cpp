@@ -12,8 +12,8 @@ MCTruthActions::MCTruthActions():
 MCTruthActions::~MCTruthActions() {}
 
 void MCTruthActions::Build() const {
-  // SetUserAction(new MCTruthTrackingAction);
   SetUserAction(new MCTruthSteppingAction);
+  //SetUserAction(new MCTruthTrackingAction);
   SetUserAction(new MCTruthEventAction);
 }
 }

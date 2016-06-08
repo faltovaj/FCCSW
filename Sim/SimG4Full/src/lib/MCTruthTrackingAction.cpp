@@ -58,21 +58,9 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
     MCTruthEventInformation* mcevinf = (MCTruthEventInformation*) aEvent->GetUserInformation();
     mcevinf->AddParticle(aInitMom, prodPosition, endPosition, pdgCode, charge, status);
 
-    /*
-    MCTruthManager::GetInstance()->
-      AddParticle(fmom, prodpos, endpos,
-                  aTrack->GetDefinition()->GetPDGEncoding(),
-                  aTrack->GetTrackID(),
-                  aTrack->GetParentID(), mcinf->GetDirectParent());
-    */
 
-    std::cout << "Stored particle: PDG " << pdgCode  << " name " << dynamicparticle->GetDefinition()->GetParticleName() << " vertex r " << sqrt(pow(prodPosition.x(),2)+pow(prodPosition.x(),2)) << " vertex z " << prodPosition.z() << " kinE " << sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)) << " trackID " << aTrack->GetTrackID() << " mother ID " << aTrack->GetParentID();
-    if (aTrack->GetParentID()!=0) {
-      std::cout << " process " << aTrack->GetCreatorProcess()->GetProcessName() << std::endl;
-    }
-    std::cout << std::endl;
-  std::cout << "step prestep z " << aTrack->GetStep()->GetPreStepPoint()->GetPosition().z() << " poststep z " << aTrack->GetStep()->GetPostStepPoint()->GetPosition().z() << std::endl;
-    
+    std::cout << "Primary particle: PDG " << pdgCode  << " name " << dynamicparticle->GetDefinition()->GetParticleName() << " vertex r " << sqrt(pow(prodPosition.x(),2)+pow(prodPosition.x(),2)) << " vertex z " << prodPosition.z() << " kinE " << sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)) << " trackID " << aTrack->GetTrackID() << " mother ID " << aTrack->GetParentID();
+ 
   /*                                                                                                                                
   G4TrackVector* secondaries = fpTrackingManager->GimmeSecondaries() ;
 
@@ -119,63 +107,70 @@ void MCTruthTrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 bool MCTruthTrackingAction::trackToBeStored(const G4Track* aTrack)
 {
 
-  bool pass = true;  
+  //Save primary particles
+  if (aTrack->GetParentID()==0) {
+    return true;
+  }
+  else {
+    return false;
+  }
 
-  double MinE = -1000;
-  double MinE_eioni = 1;
-  // check energy
-  double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
+//   bool pass = true;  
+
+//   double MinE = -1000;
+//   double MinE_eioni = 1;
+//   // check energy
+//   double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
  
-  if (kinE < MinE) {
-    // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
-    pass = false;
-  }
+//   if (kinE < MinE) {
+//     // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
+//     pass = false;
+//   }
+
+//   if (aTrack->GetParentID()!=0) {
+//     if ((aTrack->GetCreatorProcess()->GetProcessName()==process_name) && (kinE<MinE_eioni)) {
+//       pass = false;
+//     }
+//     if (aTrack->GetCreatorProcess()->GetProcessName()=="annihil") {
+//       pass = false;
+//     }
+//   }
+
+//   //where is the track?
+//   double rInit = sqrt( pow(prodPosition.x()*sim::g42edm::length,2)+pow(prodPosition.y()*sim::g42edm::length,2) );
+//   double rmin = 2600;
+//   double zmax = 4000;  
+//   if ( (rInit>rmin) || (prodPosition.z()*sim::g42edm::length>zmax)) {
+//     pass = false;
+//   }
+//   else {
+//     // if (kinE>MinE) std::cout << "rInit " << rInit << " z " << prodPosition.z()*sim::g42edm::length << std::endl;
+//   }
+
+//   /*
+//   //which volume?
+//   if (aTrack->GetMaterial()->GetName()!="Air") {
+//     pass = false;
+//   }
+//   else {
+//     std::cout << "In Air" << std::endl;
+//   }
+//   */
+
+//   /*
+//   // particle type
+//   std::vector<G4int> types = config->GetParticleTypes();
   
+//   if(std::find( types.begin(), types.end(),
+//                 track->GetDefinition()->GetPDGEncoding())
+//      != types.end()) return true;
 
-  G4String process_name = "eIoni";
-  if (aTrack->GetParentID()!=0) {
-    if ((aTrack->GetCreatorProcess()->GetProcessName()==process_name) && (kinE<MinE_eioni)) {
-      pass = false;
-    }
-    if (aTrack->GetCreatorProcess()->GetProcessName()=="annihil") {
-      pass = false;
-    }
-  }
-
-  //where is the track?
-  double rInit = sqrt( pow(prodPosition.x()*sim::g42edm::length,2)+pow(prodPosition.y()*sim::g42edm::length,2) );
-  double rmin = 2600;
-  double zmax = 4000;  
-  if ( (rInit>rmin) || (prodPosition.z()*sim::g42edm::length>zmax)) {
-    pass = false;
-  }
-  else {
-    // if (kinE>MinE) std::cout << "rInit " << rInit << " z " << prodPosition.z()*sim::g42edm::length << std::endl;
-  }
-
-  /*
-  //which volume?
-  if (aTrack->GetMaterial()->GetName()!="Air") {
-    pass = false;
-  }
-  else {
-    std::cout << "In Air" << std::endl;
-  }
-  */
-
-  /*
-  // particle type
-  std::vector<G4int> types = config->GetParticleTypes();
+//   // creator process
+//   */
+//   // etc...
   
-  if(std::find( types.begin(), types.end(),
-                track->GetDefinition()->GetPDGEncoding())
-     != types.end()) return true;
-
-  // creator process
-  */
-  // etc...
-  
-  return pass;
+//   return pass;
 }
 
 }
+

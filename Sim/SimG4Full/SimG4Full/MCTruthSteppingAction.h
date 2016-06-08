@@ -10,6 +10,8 @@
 #include "G4LorentzVector.hh"
 #include "G4TrackStatus.hh"
 #include "G4Track.hh"
+#include "G4TrackVector.hh"
+
 
 /**
  *
@@ -30,14 +32,10 @@ public:
    */
   virtual void UserSteppingAction(const G4Step*) final;
 private:
-  G4LorentzVector aInitMom;
-  G4LorentzVector prodPosition;
-  G4LorentzVector endPosition;
-  G4TrackStatus statusTrack;
-  G4int pdgCode;
-  G4int charge;
-  G4int status;
-  bool trackToBeStored(const G4Step* aStep);
+  
+  G4TrackVector secondaries_toBeStored;
+
+  bool bremstralung_processToBeStored(const G4Step* aStep);
 };
 }
 
