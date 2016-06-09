@@ -41,10 +41,11 @@ public:
   /** 
    *  
    */
-  void AddParticle(const G4LorentzVector& aMom,const G4LorentzVector& aInitVertex, const G4LorentzVector& aEndVertex,
-		   G4int aPDGcode, G4int aCharge, G4int aStatus);
+  void AddParticle(const G4Track *aTrack, const G4LorentzVector& aMom, const G4int aStatus);
 
-  void AddVertex(G4Track* aTrack, G4StepPoint* postStepPoint, G4TrackVector& secondaries_toBeStored); 
+  void AddVertex(const G4Track* aTrack, const G4StepPoint* postStepPoint, const G4TrackVector& secondaries_toBeStored); 
+
+  void trackToParticle(const G4Track* aTrack, fcc::MCParticle* edmMCparticle, G4ThreeVector& inVertex, G4ThreeVector& outVertex);
 
   const std::vector<fcc::MCParticle*> GetVectorOfParticles();
 
@@ -52,9 +53,8 @@ public:
 
 
 private:
-  void CheckAndAddVertex(G4ThreeVector g4threeVector_in, G4ThreeVector g4threeVector_out, fcc::MCParticle* edmMCparticle);
-  bool SameVertex_4vector(const G4LorentzVector& g4lorentzVertex, fcc::Point& fccPoint); 
-  bool SameVertex_3vector(const G4ThreeVector& g4threeVertex, fcc::Point& fccPoint);
+  void CheckAndAddVertex(const G4ThreeVector g4threeVector_in, const G4ThreeVector g4threeVector_out, fcc::MCParticle* edmMCparticle);
+  bool SameVertex(const G4ThreeVector& g4threeVertex, const fcc::Point& fccPoint);
 
   /// EDM MC particle
   std::vector<fcc::MCParticle*> m_vector_mcparticle;

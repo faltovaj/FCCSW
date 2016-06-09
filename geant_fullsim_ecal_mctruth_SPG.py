@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 1
-EVTMAX = 300
+EVTMAX = 100
 
 from Gaudi.Configuration import *
 
@@ -50,8 +50,8 @@ savemcparticlestool.DataOutputs.vertices.Path = "GenVertices"
 
 # next, create the G4 algorithm, giving the list of names of tools ("XX/YY")
 geantsim = G4SimAlg("G4SimAlg",
-                       outputs= ["G4SaveCalHits/saveECalHits", "G4SaveMCTruthParticles/saveMCTruthParticles"])
-#                    outputs= ["G4SaveCalHits/saveECalHits"])
+                    outputs= ["G4SaveCalHits/saveECalHits", "G4SaveMCTruthParticles/saveMCTruthParticles"])
+#                   outputs= ["G4SaveCalHits/saveECalHits"])
 
 geantsim.DataInputs.genParticles.Path="allGenParticles"
 

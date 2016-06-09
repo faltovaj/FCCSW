@@ -36,6 +36,7 @@ private:
   G4TrackStatus statusTrack;
   G4int pdgCode;
   G4int charge;
+  G4int bits;
   G4int status;
   bool trackToBeStored(const G4Track* aTrack);
 };

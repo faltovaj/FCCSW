@@ -113,6 +113,9 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
     }
  
     std::cout << "MCparticle info "
+	      << " pdg " << particle.Core().Type
+	      << " status (1:primary, 10: bremstral, 20: bremstral secondary) " <<  particle.Core().Status
+              << " trackID " <<  particle.Core().Bits
               << " px " << particle.Core().P4.Px
               << " py " << particle.Core().P4.Py
               << " pz " << particle.Core().P4.Pz
