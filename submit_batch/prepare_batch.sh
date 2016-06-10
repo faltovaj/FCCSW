@@ -52,10 +52,10 @@ cat ${JOB}
 
 export detector_xml="DetectorDescription/Detectors/compact/FCChh_ECalBarrel_Mockup.xml"
 
-sed -e "s/1700/$((${NEWDIM}+100))/" ${detector_xml} > test_setup0.xml
-sed -e "s/1600/${NEWDIM}/"     test_setup0.xml > test_setup1.xml
-sed -e "s/2500/$((${NEWDIM}+900))/" test_setup1.xml > test_setup2.xml
-sed -e "s/2400/$((${NEWDIM}+800))/" test_setup2.xml > test_setup.xml
+sed -e "s/2700/$((${NEWDIM}+100))/" ${detector_xml} > test_setup0.xml
+sed -e "s/2600/${NEWDIM}/"     test_setup0.xml > test_setup1.xml
+sed -e "s/3500/$((${NEWDIM}+900))/" test_setup1.xml > test_setup2.xml
+sed -e "s/3400/$((${NEWDIM}+800))/" test_setup2.xml > test_setup.xml
 
 cp test_setup.xml ${detector_xml}
 
