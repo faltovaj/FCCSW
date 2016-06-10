@@ -1,16 +1,19 @@
 #!/bin/bash
 
-export NEVT=500
+export NEVT=10
 
-export BFIELD=0
+export BFIELD=1
+
+export ENE=50
+
 
 #option -n 8 -R "span[hosts=1]" for running in parallel
-for ENE in 500 1000 5000 10000
+for NEWDIM in 2600 1600 600 0
 do
 if [ ${ENE} -le 500 ]
 then
-    bsub -q 1nw prepare_batch.sh geant_fullsim_ecal_SPG_batch.py ${NEVT} ${ENE} ${BFIELD}
+    bsub -q 1nw prepare_batch.sh geant_fullsim_ecal_SPG_batch.py ${NEVT} ${ENE} ${BFIELD} ${NEWDIM}
 else 
-    bsub -q 1nw -n 8 -R "span[hosts=1]" prepare_batch.sh geant_fullsim_ecal_SPG_batch.py ${NEVT} ${ENE} ${BFIELD}
+    bsub -q 1nw -n 8 -R "span[hosts=1]" prepare_batch.sh geant_fullsim_ecal_SPG_batch.py ${NEVT} ${ENE} ${BFIELD} ${NEWDIM}
 fi
 done

@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
 BFIELD = 1
-EVTMAX = 100
+EVTMAX = 300
 
 from Gaudi.Configuration import *
 
@@ -30,8 +30,8 @@ from Configurables import G4SimSvc, G4SingleParticleGeneratorTool
 # Configures the Geant simulation: geometry, physics list and user actions
 geantservice = G4SimSvc("G4SimSvc", detector='G4DD4hepDetector', physicslist="G4FtfpBert",
 particleGenerator=G4SingleParticleGeneratorTool("G4SingleParticleGeneratorTool",
-#                ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25,phiMin=0.0,phiMax=3.14,VertexX=0,VertexY=2600,VertexZ=0),
-                ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25),
+                ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25,phiMin=-0.1,phiMax=0.1,VertexX=0,VertexY=0,VertexZ=0),
+#                ParticleName="e-",eMin=ENE,eMax=ENE,etaMin=0.25,etaMax=0.25),
                 actions="G4MCTruthActions") 
 
 
@@ -60,6 +60,7 @@ from Configurables import PodioOutput
 out = PodioOutput("out",
                    OutputLevel=INFO)
 out.outputCommands = ["keep *"]
+out.filename = "output_300ev_e50_phi-01-01.root"
 
 # ApplicationMgr
 from Configurables import ApplicationMgr

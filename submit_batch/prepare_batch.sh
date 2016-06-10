@@ -10,6 +10,7 @@ export ENEGEV=$3
 #Conversion from GeV to MeV (energy must be in MeV for DD4hep)                                                                                            
 export ENEMEV=$(($ENEGEV * 1000))
 export BFIELD=$4
+export NEWDIM=$5
 
 mkdir MyWorkDir
 cd MyWorkDir 
@@ -49,6 +50,18 @@ sed -i '1s/^/BFIELD='${BFIELD}'\n/' ${JOB}
 echo "Joboption file content:"
 cat ${JOB}
 
+export detector_xml="DetectorDescription/Detectors/compact/FCChh_ECalBarrel_Mockup.xml"
+
+sed -e "s/1700/$((${NEWDIM}+100))/" ${detector_xml} > test_setup0.xml
+sed -e "s/1600/${NEWDIM}/"     test_setup0.xml > test_setup1.xml
+sed -e "s/2500/$((${NEWDIM}+900))/" test_setup1.xml > test_setup2.xml
+sed -e "s/2400/$((${NEWDIM}+800))/" test_setup2.xml > test_setup.xml
+
+cp test_setup.xml ${detector_xml}
+
+echo "Detector xml:"
+cat ${detector_xml}
+
 # Setup & compile
 echo "Setting the enviroment"
 source init.sh
@@ -59,10 +72,14 @@ make -j 8
 # Run the job
 ./run gaudirun.py ${JOB} | tee myjob.log
 
+export EOS_MGM_URL="root://eospublic.cern.ch"
+source /afs/cern.ch/project/eos/installation/client/etc/setup.sh
+
+
 # Copy out the results if exist
 if [ -e output.root ] ; then
-xrdcp output.root root://eosatlas//eos/atlas/user/n/novaj/FCC/April1/hits_fccsw_ecal_bfield${BFIELD}_e${ENEGEV}GeV_v1.root
-xrdcp myjob.log root://eosatlas//eos/atlas/user/n/novaj/FCC/April1/myjob_ecal_bfield${BFIELD}_e${ENEGEV}GeV_v1.log
+xrdcp output.root root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/hits_fccsw_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_v1.root
+xrdcp myjob.log root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/myjob_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_v1.log
 fi
  
 # Clean workspace before exit

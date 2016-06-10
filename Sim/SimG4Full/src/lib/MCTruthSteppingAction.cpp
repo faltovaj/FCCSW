@@ -51,15 +51,13 @@ bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
 
   bool pass = true;  
 
-  double MinE = 1;
-  double MinE_eioni = 1;
-  // check energy
-  //double kinE = sqrt(std::pow(aInitMom.x(),2)+std::pow(aInitMom.y(),2)+std::pow(aInitMom.z(),2)); 
-  double kinE = aStep->GetPostStepPoint()->GetMomentum().mag();
-  double trackKinE = aStep->GetPreStepPoint()->GetMomentum().perp();
+  double minE = 10.;
+  double minE_secondaries = 1.;
 
-  if (kinE < MinE) {
-    // std::cout << "Track accepted px " << aInitMom.x() << " py " << aInitMom.y() << " pz " << aInitMom.z() << std::endl;
+  //check energy(momentum)
+  double momentum = aStep->GetPostStepPoint()->GetMomentum().mag();
+  
+  if (momentum < minE) {
     pass = false;
   }
   
@@ -68,18 +66,16 @@ bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
   
   G4String processType = aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
 
+  //save only bremstralung process
   if ( (processType != process_name) ) {
     pass = false;
   }
-  //where is the track?
+  //is the track in the volume before Ecal?
   double rInit = aStep->GetPostStepPoint()->GetPosition().perp()*sim::g42edm::length;
   double rmin = 2600;
   double zmax = 4000;  
   if ( (rInit>rmin) || (aStep->GetPostStepPoint()->GetPosition().z()*sim::g42edm::length>zmax)) {
     pass = false;
-  }
-  else {
-    // if (kinE>MinE) std::cout << "rInit " << rInit << " z " << prodPosition.z()*sim::g42edm::length << std::endl;
   }
   
   if (pass) {
@@ -119,7 +115,9 @@ bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
 		    << " init vertex z " <<(*iterator_sec)->GetPosition().z()
 		    << " trackE " << (*iterator_sec)->GetMomentum().mag()
 		    << std::endl;
-	  secondaries_toBeStored.push_back( (*iterator_sec));
+	  if ((*iterator_sec)->GetMomentum().mag() > minE_secondaries) {
+	    secondaries_toBeStored.push_back( (*iterator_sec));
+	  }
       }
     }
   }

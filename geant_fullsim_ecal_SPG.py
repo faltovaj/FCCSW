@@ -1,7 +1,7 @@
 #JANA: variables ENE (energy in MeV!!!!), BFIELD (0,1), EVTMAX (number of events) to be defined before running
 ENE = 50000
-BFIELD = 0
-EVTMAX = 3
+BFIELD = 1
+EVTMAX = 500
 
 from Gaudi.Configuration import *
 
@@ -63,6 +63,7 @@ from Configurables import PodioOutput
 out = PodioOutput("out",
                    OutputLevel=INFO)
 out.outputCommands = ["keep *"]
+out.filename = "output_test_b1_r1.6-2.5.root"
 
 # ApplicationMgr
 from Configurables import ApplicationMgr
