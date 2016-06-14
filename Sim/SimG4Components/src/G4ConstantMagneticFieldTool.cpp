@@ -29,7 +29,7 @@ DECLARE_COMPONENT( G4ConstantMagneticFieldTool )
 //=============================================================================
 G4ConstantMagneticFieldTool::G4ConstantMagneticFieldTool( const std::string& type,
                                     const std::string& nam,const IInterface* parent )
-  				  : GaudiTool ( type, nam , parent ),m_field(0)
+  				  : GaudiTool ( type, nam , parent ),m_field(nullptr)
 {
 	declareInterface< IG4MagneticFieldTool >( this ) ;
 	
@@ -55,6 +55,7 @@ G4ConstantMagneticFieldTool::G4ConstantMagneticFieldTool( const std::string& typ
 
 G4ConstantMagneticFieldTool::~G4ConstantMagneticFieldTool()
 {
+  if (nullptr != m_field) delete m_field;
 }
 
 //=============================================================================

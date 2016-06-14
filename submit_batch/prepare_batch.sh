@@ -20,7 +20,6 @@ mkdir FCCSW
 cd FCCSW
 cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/Algebra .
 cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/DetectorDescription .
-cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/DataObjects .
 cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/FWCore .
 cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/Generation .
 cp -r /afs/cern.ch/work/n/novaj/HEP-FCC/FCCSW/RecoGeometry .
@@ -78,8 +77,8 @@ source /afs/cern.ch/project/eos/installation/client/etc/setup.sh
 
 # Copy out the results if exist
 if [ -e output.root ] ; then
-xrdcp output.root root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/hits_fccsw_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_v1.root
-xrdcp myjob.log root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/myjob_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_v1.log
+xrdcp output.root root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/hits_fccsw_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_mctruthbranch.root
+xrdcp myjob.log root://eospublic//eos/fcc/users/n/novaj/June10_ecalShifted/myjob_ecal_bfield${BFIELD}_e${ENEGEV}GeV_dim${NEWDIM}_mctruthbranch.log
 fi
  
 # Clean workspace before exit

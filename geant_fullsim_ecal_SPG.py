@@ -63,7 +63,7 @@ from Configurables import PodioOutput
 out = PodioOutput("out",
                    OutputLevel=INFO)
 out.outputCommands = ["keep *"]
-out.filename = "output_test_b1_r1.6-2.5.root"
+out.filename = "output_b1_e50_n500_mctruthbranc_classicalrk4_mfieldfix.root"
 
 # ApplicationMgr
 from Configurables import ApplicationMgr

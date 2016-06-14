@@ -1,10 +1,10 @@
 #!/bin/bash
 
-export NEVT=10
+export NEVT=1000
 
 export BFIELD=1
 
-export ENE=50
+export ENE=100
 
 
 #option -n 8 -R "span[hosts=1]" for running in parallel
