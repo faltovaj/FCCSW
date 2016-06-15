@@ -35,7 +35,7 @@ private:
   
   G4TrackVector secondaries_toBeStored;
 
-  bool bremstralung_processToBeStored(const G4Step* aStep);
+  bool bremsstrahlung_processToBeStored(const G4Step* aStep);
 };
 }
 

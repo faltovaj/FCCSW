@@ -61,6 +61,7 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
   auto vector_of_vertices = mcevinf->GetVectorOfVertices();
   std::cout << "G4SaveMCTruthParticles:saveOutput, number of GenVertices to be stored: " << vector_of_vertices.size() << std::endl;
 
+  
   for (auto iterator = vector_of_particles.begin(); iterator != vector_of_particles.end(); ++iterator) {
    
     //Create new particle
@@ -82,13 +83,13 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
       }
       
       if ( SameVertex(*iterator_vertex, (*iterator)->EndVertex()) ) {
-	findInitVertex = true;
+	findEndVertex = true;
 	particle.EndVertex( *iterator_vertex ); 
-	std::cout << "findInitVertex!!!!!!!!!!!" << std::endl;
+	std::cout << "findEndVertex!!!!!!!!!!!" << std::endl;
       } 
       if (findInitVertex && findEndVertex) break;
     }
-    
+      
     if (!findInitVertex) {
       //Add StartVertex
       fcc::GenVertex vertex = vertexCollection->create();
@@ -120,7 +121,7 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
               << " py " << particle.Core().P4.Py
               << " pz " << particle.Core().P4.Pz
 	      << " Start vertex x " << particle.StartVertex().Position().X 
-	      << " y " << particle.StartVertex().Position().X
+	      << " y " << particle.StartVertex().Position().Y
 	      << " z " << particle.StartVertex().Position().Z 
 	      << " End vertex x " << particle.EndVertex().Position().X
               << " y " << particle.EndVertex().Position().Y
@@ -128,7 +129,7 @@ StatusCode G4SaveMCTruthParticles::saveOutput(const G4Event& aEvent) {
 	      << std::endl;
 
   }
-
+  
   m_vertices.put(vertexCollection);
   m_particles.put(particleCollection);
 

@@ -34,9 +34,7 @@ void MCTruthEventInformation::AddParticle(const G4Track* aTrack, const G4Lorentz
   fcc::MCParticle* edmMCparticle = new fcc::MCParticle();
   fcc::BareParticle& core = edmMCparticle->Core();
 
-  G4ThreeVector aInitVertex, aEndVertex;
-
-  trackToParticle(aTrack, edmMCparticle, aInitVertex, aEndVertex);
+  trackToParticle(aTrack, edmMCparticle, true);
 
   //Momentum at the beginning of the track
   core.P4.Px = aMom.px()*sim::g42edm::energy;
@@ -47,7 +45,7 @@ void MCTruthEventInformation::AddParticle(const G4Track* aTrack, const G4Lorentz
   //Check if the vertex is already in the vector of vertices
   //if so, add the vertex as StartVertex or EndVertex and leave the loop
   //if not, add it to the vector if vertices
-  CheckAndAddVertex( aInitVertex, aEndVertex, edmMCparticle);
+  //CheckAndAddVertex( aInitVertex, aEndVertex, edmMCparticle);
   
   m_vector_mcparticle.push_back(edmMCparticle);
   //m_collection_mcparticle.push_back(edmMCparticle);        
@@ -56,27 +54,28 @@ void MCTruthEventInformation::AddParticle(const G4Track* aTrack, const G4Lorentz
 
   void MCTruthEventInformation::AddVertex(const G4Track* aTrack, const G4StepPoint* postStepPoint, const G4TrackVector& secondaries) {
 
-    fcc::MCParticle* edmMCparticle = new fcc::MCParticle();
-    fcc::BareParticle& core = edmMCparticle->Core();
-    core.P4.Px = postStepPoint->GetMomentum().x()*sim::g42edm::energy;
-    core.P4.Py = postStepPoint->GetMomentum().y()*sim::g42edm::energy;
-    core.P4.Pz = postStepPoint->GetMomentum().z()*sim::g42edm::energy;
+    fcc::MCParticle* edmMCparticle_out = new fcc::MCParticle();
+    fcc::BareParticle& core_out = edmMCparticle_out->Core();
+    core_out.P4.Px = postStepPoint->GetMomentum().x()*sim::g42edm::energy;
+    core_out.P4.Py = postStepPoint->GetMomentum().y()*sim::g42edm::energy;
+    core_out.P4.Pz = postStepPoint->GetMomentum().z()*sim::g42edm::energy;
 
-    G4ThreeVector aInitVertex, aEndVertex;
-    trackToParticle(aTrack, edmMCparticle, aInitVertex, aEndVertex);
+    bool is_incoming = false;
+    //Add information about MCParticle and GenVertex from G4Track information
+    trackToParticle(aTrack, edmMCparticle_out, is_incoming);
     //set Status to 10 for bremstralung
-    core.Status = 10;
-
+    core_out.Status = 10;
+    m_vector_mcparticle.push_back(edmMCparticle_out);
+    
+    
+    fcc::MCParticle* edmMCparticle_in = new fcc::MCParticle();
+    fcc::BareParticle& core_in = edmMCparticle_in->Core();
+    is_incoming = true;
+    trackToParticle(aTrack, edmMCparticle_in, is_incoming);
+    //set Status to 10 for bremstralung
+    core_in.Status = 11;
     //std::cout << "== Control: endvertex " << aEndVertex.x() << " postStep " <<  postStepPoint->GetPosition().x() << std::endl;
-
-    //Check if the vertex is already in the vector of vertices
-    //if so, add the vertex as StartVertex or EndVertex and leave the loop
-    //if not, add it to the vector if vertices
-    //CheckAndAddVertex( aTrack->GetVertexPosition(), postStepPoint->GetPosition(), edmMCparticle);
-    CheckAndAddVertex( aInitVertex, aEndVertex, edmMCparticle);
-
-    m_vector_mcparticle.push_back(edmMCparticle);
-    //m_collection_mcparticle.push_back(edmMCparticle); 
+    m_vector_mcparticle.push_back(edmMCparticle_in);
 
     //Store secondaries
     for (auto iterator = secondaries.begin(); iterator!=secondaries.end(); iterator++) {
@@ -86,29 +85,20 @@ void MCTruthEventInformation::AddParticle(const G4Track* aTrack, const G4Lorentz
       core.P4.Px =  (*iterator)->GetMomentum().x()*sim::g42edm::energy;
       core.P4.Py =  (*iterator)->GetMomentum().y()*sim::g42edm::energy;
       core.P4.Pz =  (*iterator)->GetMomentum().z()*sim::g42edm::energy;
-
-      trackToParticle(*iterator, edmMCparticle, aInitVertex, aEndVertex);
+      is_incoming = false;
+      trackToParticle(*iterator, edmMCparticle, is_incoming);
       //set Status to 20 for bremstralung secondaries
       core.Status = 20;
-      
-      //Check if the vertex is already in the vector of vertices
-      //if so, add the vertex as StartVertex or EndVertex and leave the loop
-      //if not, add it to the vector if vertices
-      G4ThreeVector EmptyEndPosition(1e6,1e6,1e6);
-      CheckAndAddVertex( aEndVertex, EmptyEndPosition, edmMCparticle);
-
-      //std::cout << "== Control: endvertex " << aEndVertex.x() << " initVertex " <<  aInitVertex.x() << std::endl;
-
       m_vector_mcparticle.push_back(edmMCparticle);
 
     }
-
 
   }
 
 
 void MCTruthEventInformation::CheckAndAddVertex(const G4ThreeVector g4threeVector_in, const G4ThreeVector g4threeVector_out, fcc::MCParticle* edmMCparticle)
   {
+    std::cout << "CheckAndAddVertex" << std::endl;
     bool findInitVertex = false;
     bool findEndVertex = false;
     for (auto iterator = m_vector_genvertex.begin(); iterator != m_vector_genvertex.end(); iterator++)  {
@@ -146,23 +136,51 @@ void MCTruthEventInformation::CheckAndAddVertex(const G4ThreeVector g4threeVecto
     }
  }
 
-  void MCTruthEventInformation::trackToParticle(const G4Track* aTrack, fcc::MCParticle* edmMCparticle, G4ThreeVector& inVertex, G4ThreeVector& outVertex) {
+  void MCTruthEventInformation::trackToParticle(const G4Track* aTrack, fcc::MCParticle* edmMCparticle, bool is_incoming) {
 
    fcc::BareParticle& core = edmMCparticle->Core();
 
     core.P4.Mass = aTrack->GetDynamicParticle()->GetDefinition()->GetPDGMass()*sim::g42edm::energy;
-
-    core.Vertex.X = aTrack->GetVertexPosition().x()*sim::g42edm::length;
-    core.Vertex.Y = aTrack->GetVertexPosition().y()*sim::g42edm::length;
-    core.Vertex.Z = aTrack->GetVertexPosition().z()*sim::g42edm::length;
 
     core.Charge = aTrack->GetDynamicParticle()->GetCharge();
     core.Type = aTrack->GetDynamicParticle()->GetPDGcode();
     //trackID in Bits
     core.Bits = aTrack->GetTrackID();
 
-    inVertex = aTrack->GetVertexPosition()*sim::g42edm::length;
-    outVertex = aTrack->GetPosition()*sim::g42edm::length;
+    G4ThreeVector aInitVertex;
+    G4ThreeVector aEndVertex;
+
+    if (is_incoming) {
+      double momentum_amplitude = sqrt(pow(aTrack->GetVertexKineticEnergy(),2)+2*aTrack->GetVertexKineticEnergy()*aTrack->GetDynamicParticle()->GetDefinition()->GetPDGMass()) ;
+      
+      //momentum_amplitude = 1.0;
+      core.P4.Px = momentum_amplitude*aTrack->GetVertexMomentumDirection().x()*sim::g42edm::energy;
+      core.P4.Py = momentum_amplitude*aTrack->GetVertexMomentumDirection().y()*sim::g42edm::energy;
+      core.P4.Pz = momentum_amplitude*aTrack->GetVertexMomentumDirection().z()*sim::g42edm::energy;
+      
+      core.Vertex.X = aTrack->GetVertexPosition().x()*sim::g42edm::length;
+      core.Vertex.Y = aTrack->GetVertexPosition().y()*sim::g42edm::length;
+      core.Vertex.Z = aTrack->GetVertexPosition().z()*sim::g42edm::length;
+      
+      aInitVertex = aTrack->GetVertexPosition()*sim::g42edm::length;
+      aEndVertex = aTrack->GetPosition()*sim::g42edm::length;
+      std::cout << " init x " << aTrack->GetVertexPosition().x() << " end x " << aTrack->GetPosition().x() << std::endl;
+    }
+    else {
+      core.Vertex.X = aTrack->GetPosition().x()*sim::g42edm::length;
+      core.Vertex.Y = aTrack->GetPosition().y()*sim::g42edm::length;
+      core.Vertex.Z = aTrack->GetPosition().z()*sim::g42edm::length;
+
+      aInitVertex = aTrack->GetPosition()*sim::g42edm::length;
+      G4ThreeVector EmptyEndPosition(1e6,1e6,1e6);
+      //aEndVertex = aTrack->GetPosition()*sim::g42edm::length;
+      aEndVertex = EmptyEndPosition;
+    }
+
+    //Check if the vertex is already in the vector of vertices
+    //if so, add the vertex as StartVertex or EndVertex and leave the loop
+    //if not, add it to the vector if vertices
+    CheckAndAddVertex(aInitVertex, aEndVertex, edmMCparticle);
 
   }
 
@@ -187,9 +205,4 @@ bool MCTruthEventInformation::SameVertex(const G4ThreeVector& g4threeVertex, con
   return false;
 }
 
-  /*
-const fcc::MCParticleCollection MCTruthEventInformation::GetCollectionOfParticles() {
-    return m_collection_mcparticle;
-}
-  */
 }

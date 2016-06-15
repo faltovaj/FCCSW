@@ -45,7 +45,7 @@ public:
 
   void AddVertex(const G4Track* aTrack, const G4StepPoint* postStepPoint, const G4TrackVector& secondaries_toBeStored); 
 
-  void trackToParticle(const G4Track* aTrack, fcc::MCParticle* edmMCparticle, G4ThreeVector& inVertex, G4ThreeVector& outVertex);
+  void trackToParticle(const G4Track* aTrack, fcc::MCParticle* edmMCparticle, bool is_incoming);
 
   const std::vector<fcc::MCParticle*> GetVectorOfParticles();
 

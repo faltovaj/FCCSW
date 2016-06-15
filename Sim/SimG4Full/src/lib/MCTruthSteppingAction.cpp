@@ -25,7 +25,7 @@ MCTruthSteppingAction::~MCTruthSteppingAction() {}
 
 void MCTruthSteppingAction::UserSteppingAction(const G4Step* aStep) {
  
-  if ( bremstralung_processToBeStored(aStep) ) {
+  if ( bremsstrahlung_processToBeStored(aStep) ) {
    
    G4Track* aTrack = aStep->GetTrack();
    G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
@@ -46,7 +46,7 @@ void MCTruthSteppingAction::UserSteppingAction(const G4Step* aStep) {
   return;
 }
 
-bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
+bool MCTruthSteppingAction::bremsstrahlung_processToBeStored(const G4Step* aStep)
 {
 
   bool pass = true;  
@@ -104,7 +104,9 @@ bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
     std::cout << "N of secondaries: " << secondaries.size() <<  std::endl;
 
     for (auto iterator_sec = secondaries.begin(); iterator_sec!=secondaries.end(); iterator_sec++) {
-      if ( (*iterator_sec)->GetCreatorProcess()->GetProcessName() == process_name ) { 
+      if ( ((*iterator_sec)->GetCreatorProcess()->GetProcessName() == process_name)  && 
+	   ((*iterator_sec)->GetMomentum().mag() > minE_secondaries) )
+	{
 	  std::cout << "secondaries: PDG " << (*iterator_sec)->GetDynamicParticle()->GetPDGcode()
 		    << " trackID " << (*iterator_sec)->GetTrackID() 
 		    << " mother ID " << (*iterator_sec)->GetParentID()
@@ -115,10 +117,8 @@ bool MCTruthSteppingAction::bremstralung_processToBeStored(const G4Step* aStep)
 		    << " init vertex z " <<(*iterator_sec)->GetPosition().z()
 		    << " trackE " << (*iterator_sec)->GetMomentum().mag()
 		    << std::endl;
-	  if ((*iterator_sec)->GetMomentum().mag() > minE_secondaries) {
-	    secondaries_toBeStored.push_back( (*iterator_sec));
-	  }
-      }
+	  secondaries_toBeStored.push_back( (*iterator_sec));
+	}
     }
   }
 
