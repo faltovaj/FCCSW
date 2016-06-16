@@ -14,6 +14,8 @@
 #include "G4ThreeVector.hh"
 #include "G4TrackVector.hh"
 #include "G4VUserTrackInformation.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4TouchableHandle.hh"
 #include "G4StepPoint.hh"
 
 namespace sim {
@@ -29,13 +31,12 @@ void MCTruthSteppingAction::UserSteppingAction(const G4Step* aStep) {
    
    G4Track* aTrack = aStep->GetTrack();
    G4StepPoint* postStepPoint = aStep->GetPostStepPoint();
-
+   
     MCTruthTrackInformation* mcinf = (MCTruthTrackInformation*) aTrack->GetUserInformation();
     const G4Event *aEvent = (G4EventManager::GetEventManager())->GetConstCurrentEvent();
     MCTruthEventInformation* mcevinf = (MCTruthEventInformation*) aEvent->GetUserInformation();
    
-    mcevinf->AddVertex(aTrack, postStepPoint, secondaries_toBeStored);
-   
+    mcevinf->AddVertex(aTrack, postStepPoint, secondaries_toBeStored); 
   }
   else
   {
@@ -54,11 +55,13 @@ bool MCTruthSteppingAction::bremsstrahlung_processToBeStored(const G4Step* aStep
   double minE = 10.;
   double minE_secondaries = 1.;
 
+  G4StepPoint *postStep = aStep->GetPostStepPoint();
+
   //check energy(momentum)
-  double momentum = aStep->GetPostStepPoint()->GetMomentum().mag();
+  double momentum = postStep->GetMomentum().mag();
   
   if (momentum < minE) {
-    pass = false;
+    return false;
   }
   
   G4String process_name = "eBrem";
@@ -68,14 +71,17 @@ bool MCTruthSteppingAction::bremsstrahlung_processToBeStored(const G4Step* aStep
 
   //save only bremstralung process
   if ( (processType != process_name) ) {
-    pass = false;
+    return false;
   }
   //is the track in the volume before Ecal?
-  double rInit = aStep->GetPostStepPoint()->GetPosition().perp()*sim::g42edm::length;
-  double rmin = 2600;
-  double zmax = 4000;  
-  if ( (rInit>rmin) || (aStep->GetPostStepPoint()->GetPosition().z()*sim::g42edm::length>zmax)) {
-    pass = false;
+  G4TouchableHandle postTouch = postStep->GetTouchableHandle();
+  G4VPhysicalVolume* postVolume = postTouch->GetVolume();
+
+  if (postVolume->GetName() != "world_volume_1") {
+    return false;
+  }
+  else {
+    std::cout << "***** Volume name *****" <<  postVolume->GetName() << std::endl;
   }
   
   if (pass) {
@@ -88,6 +94,7 @@ bool MCTruthSteppingAction::bremsstrahlung_processToBeStored(const G4Step* aStep
 	      << " track vertex r " << aTrack->GetVertexPosition().perp() 
 	      << " track position r " << aTrack->GetPosition().perp()
 	      << " prestep r " << aStep->GetPreStepPoint()->GetPosition().perp()
+
 	      << " poststep r " << aStep->GetPostStepPoint()->GetPosition().perp()
 	      << " trackE " <<  aTrack->GetMomentum().mag() 
 	      << " track P from kinE " <<  sqrt(aTrack->GetKineticEnergy()*(aTrack->GetKineticEnergy()+aTrack->GetDynamicParticle()->GetDefinition()->GetPDGMass()))
@@ -123,7 +130,7 @@ bool MCTruthSteppingAction::bremsstrahlung_processToBeStored(const G4Step* aStep
   }
 
  
-  return pass;
+  return true;
 }
 
 }

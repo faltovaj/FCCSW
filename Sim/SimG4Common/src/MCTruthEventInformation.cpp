@@ -98,7 +98,7 @@ void MCTruthEventInformation::AddParticle(const G4Track* aTrack, const G4Lorentz
 
 void MCTruthEventInformation::CheckAndAddVertex(const G4ThreeVector g4threeVector_in, const G4ThreeVector g4threeVector_out, fcc::MCParticle* edmMCparticle)
   {
-    std::cout << "CheckAndAddVertex" << std::endl;
+    //std::cout << "CheckAndAddVertex" << std::endl;
     bool findInitVertex = false;
     bool findEndVertex = false;
     for (auto iterator = m_vector_genvertex.begin(); iterator != m_vector_genvertex.end(); iterator++)  {
@@ -147,6 +147,8 @@ void MCTruthEventInformation::CheckAndAddVertex(const G4ThreeVector g4threeVecto
     //trackID in Bits
     core.Bits = aTrack->GetTrackID();
 
+    std::cout << "trackToParticle pdg " << aTrack->GetDynamicParticle()->GetPDGcode() << " trackID " << aTrack->GetTrackID() << " mother ID " << aTrack->GetParentID() << std::endl;
+
     G4ThreeVector aInitVertex;
     G4ThreeVector aEndVertex;
 
@@ -164,7 +166,7 @@ void MCTruthEventInformation::CheckAndAddVertex(const G4ThreeVector g4threeVecto
       
       aInitVertex = aTrack->GetVertexPosition()*sim::g42edm::length;
       aEndVertex = aTrack->GetPosition()*sim::g42edm::length;
-      std::cout << " init x " << aTrack->GetVertexPosition().x() << " end x " << aTrack->GetPosition().x() << std::endl;
+      //std::cout << " init x " << aTrack->GetVertexPosition().x() << " end x " << aTrack->GetPosition().x() << std::endl;
     }
     else {
       core.Vertex.X = aTrack->GetPosition().x()*sim::g42edm::length;
