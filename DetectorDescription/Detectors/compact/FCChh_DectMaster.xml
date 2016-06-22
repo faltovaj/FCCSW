@@ -19,10 +19,10 @@
 
 
    <define>
-        <constant name="world_size" value="80*m"/>
-        <constant name="world_x" value="world_size"/>
-        <constant name="world_y" value="world_size"/>
-        <constant name="world_z" value="world_size"/>  
+        <constant name="world_size" value="4100*mm"/>
+        <constant name="world_x" value="3600*mm"/>
+        <constant name="world_y" value="3600*mm"/>
+        <constant name="world_z" value="4100*mm "/>  
     </define>
 
 </lccdd>
