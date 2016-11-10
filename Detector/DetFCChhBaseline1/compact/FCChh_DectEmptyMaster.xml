@@ -6,6 +6,7 @@
   <includes>
     <gdmlFile  ref="../../DetCommon/compact/elements.xml"/>
     <gdmlFile  ref="../../DetCommon/compact/materials.xml"/>
+    <gdmlFile  ref="./estimates/materials.xml"/>
   </includes>
 
   <info name="FCCDectMaster"
