@@ -22,7 +22,7 @@ merge = MergeLayers("mergeLayers",
                    identifier = "active_layer",
                    # how many cells to merge
                    # merge first 20 into new cell (id=0), next 50 into second cell (id=1), ...
-                   merge = [22,83,11],
+                   merge = [19,71,9],
                    volumeName = "LAr_sensitive",
                    OutputLevel = INFO)
 merge.DataInputs.inhits.Path = "ECalHits"
