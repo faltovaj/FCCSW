@@ -4,6 +4,7 @@ RecCalorimeter package
 Information about calorimeter reconstruction software within FCCSW. The software is designed for ECAL, but should be general enough to be used for other calorimeters.
 
 ECAL calorimeter description in Detector/DetFCChhECalSimple:
+
 * Tube geometry with alternating layers of active and passive materials
 * Using phi-eta segmentation
 * Calorimeter cells defined by a layer in R + phi-eta segment
@@ -27,7 +28,7 @@ Output: Calorimeter cells (EDM: CaloHitCollection)
 
 **Configurables:**
 * hits (input data)
-* cells (output data)	
+* cells (output data)
 * doCellCalibration (bool, calibrate energy to EM scale?)
 * addCellNoise (bool, add noise to cells?)
 * filterCellNoise (bool, save only cells with energy above threshold?)
@@ -43,11 +44,13 @@ More details can be found in [Doxygen documentation] (http://fccsw.web.cern.ch/f
 # Example
 
 Example script which runs ECAL cell reconstruction is [here] (https://github.com/HEP-FCC/FCCSW/blob/master/Reconstruction/RecCalorimeter/options/runEcalReconstruction.py).
+
 * Read input file with Geant4 hits
 * Produce calo cells (CreateCaloCells)
 * Store cells as CaloHits with cellID (produced by CreateCaloCells) and as CaloClusters with position (produced by CreatePositionedHit)
 
 How to run the script (loading of libDetSegmentation.so necessary because of the phi-eta segmenation usage):
+
 ~~~{.sh}
 LD_PRELOAD=build.$BINARY_TAG/lib/libDetSegmentation.so ./run gaudirun.py Reconstruction/RecCalorimeter/options/runEcalReconstruction.py
 ~~~
