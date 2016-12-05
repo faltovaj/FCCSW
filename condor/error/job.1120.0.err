@@ -1,31 +1,0 @@
-WARNING : using environment variable VO_LHCB_SW_DIR for sharedarea
-Traceback (most recent call last):
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1081, in <module>
-    sys.exit(LbLoginScript(usage="%prog [options] [debug]").run())
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbUtils/Script.py", line 107, in run
-    rc = self.main()
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1070, in main
-    self.setEnv(debug)
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1025, in setEnv
-    self.setCMTPath()
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 840, in setCMTPath
-    self.setHomeDir()
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 662, in setHomeDir
-    homedir = ev["HOME"]
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbUtils/Env.py", line 47, in __getitem__
-    return self.env[key]
-  File "/usr/lib64/python2.6/UserDict.py", line 22, in __getitem__
-    raise KeyError(key)
-KeyError: 'HOME'
-Info in <TGeoManager::TGeoManager>: Geometry world, LCDD Geometry created
-Info in <TGeoManager::SetTopVolume>: Top volume is world_volume. Master volume is world_volume
-Info in <TGeoNavigator::BuildCache>: --- Maximum geometry depth set to 100
-Info in <TGeoManager::CheckGeometry>: Fixing runtime shapes...
-Info in <TGeoManager::CheckGeometry>: ...Nothing to fix
-Info in <TGeoManager::CloseGeometry>: Counting nodes...
-Info in <TGeoManager::Voxelize>: Voxelizing...
-Info in <TGeoManager::CloseGeometry>: Building cache...
-Info in <TGeoManager::CountLevels>: max level = 1, max placements = 0
-Info in <TGeoManager::CloseGeometry>: 1 nodes/ 1 volume UID's in LCDD Geometry
-Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
-[16MB/1.011GB][  1%][>                                                 ][8MB/s]  [80MB/1.011GB][  7%][===>                                              ][26.67MB/s]  [208MB/1.011GB][ 20%][==========>                                       ][52MB/s]  [304MB/1.011GB][ 29%][==============>                                   ][60.8MB/s]  [400MB/1.011GB][ 38%][===================>                              ][66.67MB/s]  [512MB/1.011GB][ 49%][========================>                         ][73.14MB/s]  [592MB/1.011GB][ 57%][============================>                     ][74MB/s]  [608MB/1.011GB][ 58%][=============================>                    ][67.56MB/s]  [720MB/1.011GB][ 69%][==================================>               ][72MB/s]  [816MB/1.011GB][ 78%][=======================================>          ][74.18MB/s]  [896MB/1.011GB][ 86%][===========================================>      ][74.67MB/s]  [976MB/1.011GB][ 94%][===============================================>  ][75.08MB/s]  [1.011GB/1.011GB][100%][==================================================][79.62MB/s]  [1.011GB/1.011GB][100%][==================================================][69.01MB/s]  

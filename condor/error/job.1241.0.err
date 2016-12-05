@@ -1,40 +1,0 @@
-Traceback (most recent call last):
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 48, in <module>
-    from SetupProject import SetupProject
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/SetupProject.py", line 10, in <module>
-    from LbConfiguration import createProjectMakefile, createEclipseConfiguration
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/__init__.py", line 3, in <module>
-    import Project
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/Project.py", line 4, in <module>
-    from LbConfiguration.Repository import getRepositories
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/Repository.py", line 4, in <module>
-    from LbUtils.VCS import SVNReposInfo, CVSReposInfo
-  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbUtils/__init__.py", line 3, in <module>
-    import optparse
-  File "/usr/lib64/python2.6/optparse.py", line 418, in <module>
-    _builtin_cvt = { "int" : (_parse_int, _("integer")),
-  File "/usr/lib64/python2.6/gettext.py", line 568, in gettext
-    return dgettext(_current_domain, message)
-  File "/usr/lib64/python2.6/gettext.py", line 532, in dgettext
-    codeset=_localecodesets.get(domain))
-  File "/usr/lib64/python2.6/gettext.py", line 467, in translation
-    mofiles = find(domain, localedir, languages, all=1)
-  File "/usr/lib64/python2.6/gettext.py", line 439, in find
-    for nelang in _expand_lang(lang):
-  File "/usr/lib64/python2.6/gettext.py", line 132, in _expand_lang
-    locale = normalize(locale)
-  File "/usr/lib64/python2.6/locale.py", line 364, in normalize
-    norm_encoding = encodings.normalize_encoding(encoding)
-AttributeError: 'module' object has no attribute 'normalize_encoding'
-Info in <TGeoManager::TGeoManager>: Geometry world, LCDD Geometry created
-Info in <TGeoManager::SetTopVolume>: Top volume is world_volume. Master volume is world_volume
-Info in <TGeoNavigator::BuildCache>: --- Maximum geometry depth set to 100
-Info in <TGeoManager::CheckGeometry>: Fixing runtime shapes...
-Info in <TGeoManager::CheckGeometry>: ...Nothing to fix
-Info in <TGeoManager::CloseGeometry>: Counting nodes...
-Info in <TGeoManager::Voxelize>: Voxelizing...
-Info in <TGeoManager::CloseGeometry>: Building cache...
-Info in <TGeoManager::CountLevels>: max level = 1, max placements = 0
-Info in <TGeoManager::CloseGeometry>: 1 nodes/ 1 volume UID's in LCDD Geometry
-Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
-[16MB/119.7MB][ 13%][======>                                           ][16MB/s]  [96MB/119.7MB][ 80%][========================================>         ][96MB/s]  [112MB/119.7MB][ 93%][==============================================>   ][37.33MB/s]  [119.7MB/119.7MB][100%][==================================================][11.97MB/s]  [119.7MB/119.7MB][100%][==================================================][2.659MB/s]  

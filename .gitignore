@@ -2,7 +2,7 @@
 *.pyc
 *.root
 *.log
-*.output
+*.out
 *.err
 
 build.*.log
