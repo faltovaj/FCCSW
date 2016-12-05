@@ -1,0 +1,28 @@
+Traceback (most recent call last):
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 48, in <module>
+    from SetupProject import SetupProject
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/SetupProject.py", line 10, in <module>
+    from LbConfiguration import createProjectMakefile, createEclipseConfiguration
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/__init__.py", line 2, in <module>
+    import Platform
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/Platform.py", line 3, in <module>
+    import sys, platform, os
+  File "/usr/lib64/python2.6/platform.py", line 115, in <module>
+    import sys,string,os,re
+  File "/usr/lib64/python2.6/string.py", line 124, in <module>
+    class Template:
+  File "/usr/lib64/python2.6/string.py", line 118, in __init__
+    'delim' : _re.escape(cls.delimiter),
+AttributeError: 'module' object has no attribute 'escape'
+Info in <TGeoManager::TGeoManager>: Geometry world, LCDD Geometry created
+Info in <TGeoManager::SetTopVolume>: Top volume is world_volume. Master volume is world_volume
+Info in <TGeoNavigator::BuildCache>: --- Maximum geometry depth set to 100
+Info in <TGeoManager::CheckGeometry>: Fixing runtime shapes...
+Info in <TGeoManager::CheckGeometry>: ...Nothing to fix
+Info in <TGeoManager::CloseGeometry>: Counting nodes...
+Info in <TGeoManager::Voxelize>: Voxelizing...
+Info in <TGeoManager::CloseGeometry>: Building cache...
+Info in <TGeoManager::CountLevels>: max level = 1, max placements = 0
+Info in <TGeoManager::CloseGeometry>: 1 nodes/ 1 volume UID's in LCDD Geometry
+Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
+[16MB/238.6MB][  6%][===>                                              ][16MB/s]  [128MB/238.6MB][ 53%][==========================>                       ][64MB/s]  [224MB/238.6MB][ 93%][==============================================>   ][74.67MB/s]  [238.6MB/238.6MB][100%][==================================================][79.54MB/s]  [238.6MB/238.6MB][100%][==================================================][79.54MB/s]  

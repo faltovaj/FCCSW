@@ -1,0 +1,44 @@
+000 (1194.000.000) 11/30 08:48:57 Job submitted from host: <128.142.196.38:9618?addrs=128.142.196.38-9618+[2001-1458-301-e2--100-20]-9618&noUDP&sock=164236_d05c_3>
+...
+007 (1194.000.000) 11/30 08:49:44 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1194.000.000) 11/30 08:49:56 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1194.000.000) 11/30 08:49:58 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1194.000.000) 11/30 08:49:59 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1194.000.000) 11/30 08:50:00 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+001 (1194.000.000) 11/30 08:51:20 Job executing on host: <188.185.189.181:9618?addrs=188.185.189.181-9618+[--1]-9618&noUDP&sock=2723_9c95_3>
+...
+006 (1194.000.000) 11/30 08:51:30 Image size of job updated: 684
+	1  -  MemoryUsage of job (MB)
+	684  -  ResidentSetSize of job (KB)
+...
+005 (1194.000.000) 11/30 11:05:28 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 01:43:35, Sys 0 00:02:21  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 01:43:35, Sys 0 00:02:21  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	1567  -  Run Bytes Sent By Job
+	294948  -  Run Bytes Received By Job
+	1567  -  Total Bytes Sent By Job
+	294948  -  Total Bytes Received By Job
+...

@@ -1,0 +1,64 @@
+000 (1074.000.000) 11/28 09:38:42 Job submitted from host: <128.142.196.38:9618?addrs=128.142.196.38-9618+[2001-1458-301-e2--100-20]-9618&noUDP&sock=164236_d05c_3>
+...
+007 (1074.000.000) 11/28 09:39:13 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1074.000.000) 11/28 09:39:18 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1074.000.000) 11/28 09:39:19 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1074.000.000) 11/28 09:39:19 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+007 (1074.000.000) 11/28 09:39:20 Shadow exception!
+	Can no longer talk to condor_starter <188.185.129.219:9618>
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+...
+001 (1074.000.000) 11/28 09:40:03 Job executing on host: <188.185.192.198:9618?addrs=188.185.192.198-9618+[--1]-9618&noUDP&sock=7509_1871_3>
+...
+006 (1074.000.000) 11/28 09:40:12 Image size of job updated: 688
+	1  -  MemoryUsage of job (MB)
+	688  -  ResidentSetSize of job (KB)
+...
+006 (1074.000.000) 11/28 09:50:13 Image size of job updated: 692
+	1  -  MemoryUsage of job (MB)
+	692  -  ResidentSetSize of job (KB)
+...
+006 (1074.000.000) 11/28 10:00:15 Image size of job updated: 43640
+	32  -  MemoryUsage of job (MB)
+	32308  -  ResidentSetSize of job (KB)
+...
+006 (1074.000.000) 11/28 10:05:16 Image size of job updated: 235540
+	202  -  MemoryUsage of job (MB)
+	206596  -  ResidentSetSize of job (KB)
+...
+006 (1074.000.000) 11/28 10:10:16 Image size of job updated: 250864
+	217  -  MemoryUsage of job (MB)
+	221916  -  ResidentSetSize of job (KB)
+...
+005 (1074.000.000) 11/28 10:12:03 Job terminated.
+	(1) Normal termination (return value 0)
+		Usr 0 00:10:20, Sys 0 00:04:53  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:10:20, Sys 0 00:04:53  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	300021  -  Run Bytes Sent By Job
+	1510  -  Run Bytes Received By Job
+	300021  -  Total Bytes Sent By Job
+	1510  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated
+	   Cpus                 :                 1         1
+	   Disk (KB)            :   764830        2    613887
+	   Memory (MB)          :      217     2000      2000
+...

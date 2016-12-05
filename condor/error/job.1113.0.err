@@ -1,0 +1,31 @@
+WARNING : using environment variable VO_LHCB_SW_DIR for sharedarea
+Traceback (most recent call last):
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1081, in <module>
+    sys.exit(LbLoginScript(usage="%prog [options] [debug]").run())
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbUtils/Script.py", line 107, in run
+    rc = self.main()
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1070, in main
+    self.setEnv(debug)
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 1025, in setEnv
+    self.setCMTPath()
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 840, in setCMTPath
+    self.setHomeDir()
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbConfiguration/LbLogin.py", line 662, in setHomeDir
+    homedir = ev["HOME"]
+  File "/afs/cern.ch/lhcb/software/releases/LBSCRIPTS/LBSCRIPTS_v8r5p3/InstallArea/python/LbUtils/Env.py", line 47, in __getitem__
+    return self.env[key]
+  File "/usr/lib64/python2.6/UserDict.py", line 22, in __getitem__
+    raise KeyError(key)
+KeyError: 'HOME'
+Info in <TGeoManager::TGeoManager>: Geometry world, LCDD Geometry created
+Info in <TGeoManager::SetTopVolume>: Top volume is world_volume. Master volume is world_volume
+Info in <TGeoNavigator::BuildCache>: --- Maximum geometry depth set to 100
+Info in <TGeoManager::CheckGeometry>: Fixing runtime shapes...
+Info in <TGeoManager::CheckGeometry>: ...Nothing to fix
+Info in <TGeoManager::CloseGeometry>: Counting nodes...
+Info in <TGeoManager::Voxelize>: Voxelizing...
+Info in <TGeoManager::CloseGeometry>: Building cache...
+Info in <TGeoManager::CountLevels>: max level = 1, max placements = 0
+Info in <TGeoManager::CloseGeometry>: 1 nodes/ 1 volume UID's in LCDD Geometry
+Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
+[16MB/491.8MB][  3%][=>                                                ][287.4kB/s]  [32MB/491.8MB][  6%][===>                                              ][250.1kB/s]  [48MB/491.8MB][  9%][====>                                             ][348.6kB/s]  [64MB/491.8MB][ 13%][======>                                           ][358.1kB/s]  [80MB/491.8MB][ 16%][========>                                         ][364.1kB/s]  [96MB/491.8MB][ 19%][=========>                                        ][323.4kB/s]  [112MB/491.8MB][ 22%][===========>                                      ][344.4kB/s]  [128MB/491.8MB][ 26%][=============>                                    ][348.6kB/s]  [144MB/491.8MB][ 29%][==============>                                   ][373.3kB/s]  [160MB/491.8MB][ 32%][================>                                 ][397.7kB/s]  [176MB/491.8MB][ 35%][=================>                                ][428.1kB/s]  [192MB/491.8MB][ 39%][===================>                              ][456.2kB/s]  [208MB/491.8MB][ 42%][=====================>                            ][477.6kB/s]  [224MB/491.8MB][ 45%][======================>                           ][484.9kB/s]  [240MB/491.8MB][ 48%][========================>                         ][497.5kB/s]  [256MB/491.8MB][ 52%][==========================>                       ][507kB/s]  [272MB/491.8MB][ 55%][===========================>                      ][529.5kB/s]  [288MB/491.8MB][ 58%][=============================>                    ][546.1kB/s]  [304MB/491.8MB][ 61%][==============================>                   ][557.9kB/s]  [320MB/491.8MB][ 65%][================================>                 ][574.9kB/s]  [336MB/491.8MB][ 68%][==================================>               ][596.3kB/s]  [352MB/491.8MB][ 71%][===================================>              ][623.6kB/s]  [368MB/491.8MB][ 74%][=====================================>            ][635.5kB/s]  [384MB/491.8MB][ 78%][=======================================>          ][651kB/s]  [400MB/491.8MB][ 81%][========================================>         ][656.4kB/s]  [416MB/491.8MB][ 84%][==========================================>       ][668.7kB/s]  [432MB/491.8MB][ 87%][===========================================>      ][677.4kB/s]  [448MB/491.8MB][ 91%][=============================================>    ][701.5kB/s]  [491.8MB/491.8MB][100%][==================================================][770.1kB/s]  [491.8MB/491.8MB][100%][==================================================][768.9kB/s]  
