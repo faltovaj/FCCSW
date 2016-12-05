@@ -1,6 +1,9 @@
 *~
 *.pyc
 *.root
+*.log
+*.output
+*.err
 
 build.*.log
 Makefile
