@@ -44,14 +44,14 @@ def SubmitToBatch(cmd,nbtrials):
 if __name__=="__main__":
     nbjobsSub=0
     NJOBS=10
-    EVTMAX=500
+    EVTMAX=100
     BFIELD=1
   
     for i in xrange(NJOBS):
         print i
         os.system('sed -i \"2s/.*/arguments             = %i %i %i \$\(ClusterID\) \$\(ProcId\)/g\"  submit_minbias.sub'%(EVTMAX, BFIELD, i))
         print 'sed -i \"2s/.*/arguments             = %i %i %i \$\(ClusterID\) \$\(ProcId\)/g\"  submit_minbias.sub'%(EVTMAX, BFIELD, i)
-        cmdBatch="condor_submit submit.sub"
+        cmdBatch="condor_submit submit_minbias.sub"
         job=SubmitToBatch(cmdBatch,10)
         nbjobsSub+=job
 
