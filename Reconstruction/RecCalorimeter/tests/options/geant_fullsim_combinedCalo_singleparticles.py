@@ -145,7 +145,7 @@ positionsEcal.positionedHits.Path = "ECalPositions"
 
 out = PodioOutput("out", 
                   OutputLevel=DEBUG)
-out.outputCommands = ["keep *"]
+out.outputCommands = ["keep *", "drop ECalHits", "drop HCalHits", "drop HCalCells", "drop HCalPositions", "drop ECalCells", "drop newHCalCells"]
 out.filename = "output_combCalo_"+str(particleType)+str(int(energy/1e3))+"GeV_part"+str(i)+".root"
 
 #CPU information

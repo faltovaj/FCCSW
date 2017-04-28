@@ -67,9 +67,43 @@ resegmentHcal = RedoSegmentation("ReSegmentationHcal",
                              outhits = "HCalCellsForSW")
 
 
-# clusters are needed, with deposit position and cellID in bits
+#Create calo clusters
+from Configurables import CreateCaloClustersSlidingWindow, SingleCaloTowerTool, CombinedCaloTowerTool
+from GaudiKernel.PhysicalConstants import pi
+towersEcal = SingleCaloTowerTool("towersEcal",
+                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/524.,
+                             readoutName = ecalReadoutNameOffset,
+                             OutputLevel = DEBUG)
+towersEcal.cells.Path = "ECalCellsForSW"
+
+towers = CombinedCaloTowerTool("towers",
+                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/524.,
+                             ecalReadoutName = ecalReadoutNameOffset,
+                             hcalReadoutName = hcalReadoutNameOffset,
+                             OutputLevel = DEBUG)
+towers.ecalCells.Path = "ECalCellsForSW"
+towers.hcalCells.Path = "HCalCellsForSW"
 
 
+createEcalClusters = CreateCaloClustersSlidingWindow("CreateEcalClusters",
+                                                 towerTool = towersEcal,
+                                                 nEtaWindow = 7, nPhiWindow = 15,
+                                                 nEtaPosition = 5, nPhiPosition = 11,
+                                                 nEtaDuplicates = 5, nPhiDuplicates = 11,
+                                                 nEtaFinal = 7, nPhiFinal = 15,
+                                                 energyThreshold = 8,
+                                                 OutputLevel = DEBUG)
+createEcalClusters.clusters.Path = "EcalClusters"
+
+createCombinedClusters = CreateCaloClustersSlidingWindow("CreateCombinedClusters",
+                                                 towerTool = towers,
+                                                 nEtaWindow = 7, nPhiWindow = 15,
+                                                 nEtaPosition = 5, nPhiPosition = 11,
+                                                 nEtaDuplicates = 5, nPhiDuplicates = 11,
+                                                 nEtaFinal = 7, nPhiFinal = 15,
+                                                 energyThreshold = 8,
+                                                 OutputLevel = DEBUG)
+createCombinedClusters.clusters.Path = "CombinedClusters"
 
 out = PodioOutput("out", filename = "output_combCalo_reconstructionSW.root",
                   OutputLevel=DEBUG)
@@ -86,8 +120,10 @@ out.AuditExecute = True
 
 ApplicationMgr(
     TopAlg = [podioinput,
-              resegmentHcal,
               resegmentEcal,
+              resegmentHcal,
+              createEcalClusters,
+              createCombinedClusters,
               out
               ],
     EvtSel = 'NONE',
