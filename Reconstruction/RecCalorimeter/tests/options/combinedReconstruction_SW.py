@@ -1,15 +1,16 @@
 num_events = 10
-particleType = "pi"
+energy = 50
+particleType = "e"
 
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, FCCDataSvc, PodioOutput
 
-podioevent = FCCDataSvc("EventDataSvc", input="output_combCalo_"+particleType+"-100GeV_part1.root")
+podioevent = FCCDataSvc("EventDataSvc", input="output_combCalo_e-50GeV_part1.root")
 
 # reads HepMC text file and write the HepMC::GenEvent to the data service
 from Configurables import PodioInput
-podioinput = PodioInput("PodioReader", collections = ["ECalPositions", "newHCalPositions"], OutputLevel = DEBUG)
+podioinput = PodioInput("PodioReader", collections = ["ECalPositions", "newHCalPositions", "GenParticles"], OutputLevel = DEBUG)
 
 from Configurables import GeoSvc
 geoservice = GeoSvc("GeoSvc", detectors=[  'file:Detector/DetFCChhBaseline1/compact/FCChh_DectEmptyMaster.xml',
@@ -105,7 +106,7 @@ createCombinedClusters = CreateCaloClustersSlidingWindow("CreateCombinedClusters
                                                  OutputLevel = DEBUG)
 createCombinedClusters.clusters.Path = "CombinedClusters"
 
-out = PodioOutput("out", filename = "output_combCalo_reconstructionSW.root",
+out = PodioOutput("out", filename = "output_combCalo_reconstructionSW_"+particleType+"-"+str(energy)+"GeV_"+str(num_events)+"events.root",
                   OutputLevel=DEBUG)
 out.outputCommands = ["keep *","drop ECalHits", "drop HCalHits"]
 
@@ -130,4 +131,3 @@ ApplicationMgr(
     EvtMax   = int(num_events),
     ExtSvc = [podioevent, audsvc],
  )
-

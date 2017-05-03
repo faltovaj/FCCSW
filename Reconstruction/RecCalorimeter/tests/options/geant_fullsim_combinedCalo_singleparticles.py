@@ -5,11 +5,11 @@ import numpy as np
 #seed_array = np.loadtxt('/afs/cern.ch/user/c/cneubuse/FCCSW/condor/seeds.txt',dtype='int',delimiter=',')
 
 #set these in the .sh script                                                                                                                                                                                                                
-energy=100e3
+energy=50e3
 num_events=10
 magnetic_field=0
 i=1
-particle=1
+particle=0
 
 particleType = "pi-"
 if particle==0:
