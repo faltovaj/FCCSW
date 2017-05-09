@@ -55,6 +55,7 @@ StatusCode MergeLayers::initialize() {
             << endmsg;
     return StatusCode::FAILURE;
   }
+  /*
   // check sizes of new volumes in the list - it must sum to the total number of volumes
   unsigned int sumCells = std::accumulate(m_listToMerge.begin(), m_listToMerge.end(), 0);
   auto highestVol = gGeoManager->GetTopVolume();
@@ -65,6 +66,7 @@ StatusCode MergeLayers::initialize() {
             << endmsg;
     return StatusCode::FAILURE;
   }
+  */
   info() << "Field description: " << m_descriptor.fieldDescription() << endmsg;
   info() << "Merging volumes named: " << m_volumeName << endmsg;
   info() << "Merging volumes for identifier: " << m_idToMerge << endmsg;
@@ -104,11 +106,12 @@ StatusCode MergeLayers::execute() {
         break;
       }
     }
+    (*decoder)[field_id] = value;
     if (debugIter < m_debugPrint) {
       debug() << "new ID = " << value << endmsg;
+      debug() << decoder->valueString() << endmsg;
       debugIter++;
     }
-    (*decoder)[field_id] = value;
     newHit.cellId(decoder->getValue());
   }
   m_outHits.put(outHits);

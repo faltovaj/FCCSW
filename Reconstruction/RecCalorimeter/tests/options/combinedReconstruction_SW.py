@@ -1,16 +1,17 @@
-num_events = 10
-energy = 50
-particleType = "e"
+num_events = 500
+energy=500
+parti=19
 
 from Gaudi.Configuration import *
 
 from Configurables import ApplicationMgr, FCCDataSvc, PodioOutput
 
-podioevent = FCCDataSvc("EventDataSvc", input="output_combCalo_e-50GeV_part1.root")
+#podioevent = FCCDataSvc("EventDataSvc", input="/localscratch3/novaj/FCCSW/caloForBerlin/output_combCalo_e"+str(energy)+"GeV_part"+str(parti)+"_v3.root")
+podioevent = FCCDataSvc("EventDataSvc", input="root://eospublic//eos/fcc/users/n/novaj/combCaloForBerlin/output_combCalo_e"+str(energy)+"GeV_part"+str(parti)+"_v3.root")
 
 # reads HepMC text file and write the HepMC::GenEvent to the data service
 from Configurables import PodioInput
-podioinput = PodioInput("PodioReader", collections = ["ECalPositions", "newHCalPositions", "GenParticles"], OutputLevel = DEBUG)
+podioinput = PodioInput("PodioReader", collections = ["ECalPositions", "newHCalCells", "GenParticles"], OutputLevel = DEBUG)
 
 from Configurables import GeoSvc
 geoservice = GeoSvc("GeoSvc", detectors=[  'file:Detector/DetFCChhBaseline1/compact/FCChh_DectEmptyMaster.xml',
@@ -21,7 +22,7 @@ geoservice = GeoSvc("GeoSvc", detectors=[  'file:Detector/DetFCChhBaseline1/comp
 # common ECAL specific information
 # readout name
 ecalReadoutName = "ECalHitsEta"
-ecalReadoutNameOffset = "ECalHitsPhiEta_offset"
+ecalReadoutNameOffset = "ECalHitsPhiEta"
 # active material identifier name
 ecalIdentifierName = "active_layer"
 # active material volume name
@@ -30,17 +31,14 @@ ecalVolumeName = "LAr_sensitive"
 ecalFieldNames=["system","ECAL_Cryo","bath","EM_barrel"]
 ecalFieldValues=[5,1,1,1]
 # common HCAL specific information
-# readout name
-hcalReadoutName = "BarHCal_Readout"
 # active material identifier name
-hcalIdentifierName = ["module","row","layer","tile"]
+#hcalIdentifierName = ["module","row","layer","tile"]
 # active material volume name
-hcalVolumeName = ["module","wedge","layer","tile"]
-# ECAL bitfield names & values
-hcalFieldNames=["system"]
+#hcalVolumeName = ["module","wedge","layer","tile"]
+# HCAL bitfield names & values
+#hcalFieldNames=["system"]
 # readout name
-newHcalReadoutName = hcalReadoutName + "_phieta"
-hcalReadoutNameOffset = hcalReadoutName + "_phieta" + "_offset"
+hcalReadoutNameOffset = "BarHCal_Readout_phieta"
 
 # Configure tools for calo reconstruction                                                                                                
 
@@ -49,64 +47,53 @@ resegmentEcal = RedoSegmentation("ReSegmentationEcal",
                              # old bitfield (readout)
                              oldReadoutName = ecalReadoutName,
                              # # specify which fields are going to be altered (deleted/rewritten)
-                             oldSegmentationIds = ["eta","phi"],
+                             oldSegmentationIds = ["module"],
                              # new bitfield (readout), with new segmentation
                              newReadoutName = ecalReadoutNameOffset,
                              OutputLevel = INFO,
                              inhits = "ECalPositions",
                              outhits = "ECalCellsForSW")
 
-resegmentHcal = RedoSegmentation("ReSegmentationHcal",
-                             # old bitfield (readout)
-                             oldReadoutName = newHcalReadoutName,
-                             # # specify which fields are going to be altered (deleted/rewritten)
-                             oldSegmentationIds = ["eta","phi"],
-                             # new bitfield (readout), with new segmentation
-                             newReadoutName = hcalReadoutNameOffset,
-                             OutputLevel = INFO,
-                             inhits = "newHCalPositions",
-                             outhits = "HCalCellsForSW")
-
 
 #Create calo clusters
 from Configurables import CreateCaloClustersSlidingWindow, SingleCaloTowerTool, CombinedCaloTowerTool
 from GaudiKernel.PhysicalConstants import pi
 towersEcal = SingleCaloTowerTool("towersEcal",
-                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/524.,
+                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/512.,
                              readoutName = ecalReadoutNameOffset,
                              OutputLevel = DEBUG)
 towersEcal.cells.Path = "ECalCellsForSW"
 
 towers = CombinedCaloTowerTool("towers",
-                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/524.,
+                             deltaEtaTower = 0.01, deltaPhiTower = 2*pi/512.,
                              ecalReadoutName = ecalReadoutNameOffset,
                              hcalReadoutName = hcalReadoutNameOffset,
                              OutputLevel = DEBUG)
 towers.ecalCells.Path = "ECalCellsForSW"
-towers.hcalCells.Path = "HCalCellsForSW"
+towers.hcalCells.Path = "newHCalCells"
 
 
 createEcalClusters = CreateCaloClustersSlidingWindow("CreateEcalClusters",
                                                  towerTool = towersEcal,
-                                                 nEtaWindow = 7, nPhiWindow = 15,
-                                                 nEtaPosition = 5, nPhiPosition = 11,
-                                                 nEtaDuplicates = 5, nPhiDuplicates = 11,
-                                                 nEtaFinal = 7, nPhiFinal = 15,
-                                                 energyThreshold = 8,
+                                                 nEtaWindow = 13, nPhiWindow = 13,
+                                                 nEtaPosition = 7, nPhiPosition = 7,
+                                                 nEtaDuplicates = 5, nPhiDuplicates = 5,
+                                                 nEtaFinal = 15, nPhiFinal = 19,
+                                                 energyThreshold = 10,
                                                  OutputLevel = DEBUG)
 createEcalClusters.clusters.Path = "EcalClusters"
 
 createCombinedClusters = CreateCaloClustersSlidingWindow("CreateCombinedClusters",
                                                  towerTool = towers,
-                                                 nEtaWindow = 7, nPhiWindow = 15,
-                                                 nEtaPosition = 5, nPhiPosition = 11,
-                                                 nEtaDuplicates = 5, nPhiDuplicates = 11,
-                                                 nEtaFinal = 7, nPhiFinal = 15,
-                                                 energyThreshold = 8,
+                                                 nEtaWindow = 13, nPhiWindow = 13,
+                                                 nEtaPosition = 7, nPhiPosition = 7,
+                                                 nEtaDuplicates = 5, nPhiDuplicates = 5,
+                                                 nEtaFinal = 15, nPhiFinal = 19,
+                                                 energyThreshold = 10,
                                                  OutputLevel = DEBUG)
 createCombinedClusters.clusters.Path = "CombinedClusters"
 
-out = PodioOutput("out", filename = "output_combCalo_reconstructionSW_"+particleType+"-"+str(energy)+"GeV_"+str(num_events)+"events.root",
+out = PodioOutput("out", filename = "/localscratch3/novaj/FCCSW/caloForBerlin/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_part"+str(parti)+".root",
                   OutputLevel=DEBUG)
 out.outputCommands = ["keep *","drop ECalHits", "drop HCalHits"]
 
@@ -116,18 +103,18 @@ chra = ChronoAuditor()
 audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 resegmentEcal.AuditExecute = True
-resegmentHcal.AuditExecute = True
+createEcalClusters.AuditExecute = True
+createCombinedClusters.AuditExecute= True
 out.AuditExecute = True
 
 ApplicationMgr(
     TopAlg = [podioinput,
               resegmentEcal,
-              resegmentHcal,
               createEcalClusters,
               createCombinedClusters,
               out
               ],
     EvtSel = 'NONE',
     EvtMax   = int(num_events),
-    ExtSvc = [podioevent, audsvc],
+    ExtSvc = [geoservice, podioevent, audsvc],
  )

@@ -78,7 +78,9 @@ StatusCode TubeLayerPhiEtaCaloTool::prepareEmptyCells(std::unordered_map<uint64_
     uint64_t volumeId = decoder->getValue();
 
     // Get number of segmentation cells within the active volume
-    auto numCells = det::utils::numberOfCells(volumeId, *segmentation);
+    //auto numCells = det::utils::numberOfCells(volumeId, *segmentation);
+    //Temporary fix for inclined Ecal
+    std::array<uint, 2> numCells = {segmentation->phiBins(), (uint)(2*fabs(segmentation->offsetEta())/segmentation->gridSizeEta())};
     debug() << "Number of segmentation cells in (phi,eta): " << numCells << endmsg;
     // Loop over segmenation cells
     for (unsigned int iphi = 0; iphi < numCells[0]; iphi++) {
