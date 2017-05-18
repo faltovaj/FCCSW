@@ -47,9 +47,11 @@ public:
   double getNoiseConstantPerCell(int64_t aCellID);
 
 private:
-  /// Add pileup contribution to the electronics noise? (only if read from file)
+  /// Consider pileup contribution?
   Gaudi::Property<bool> m_addPileup{this, "addPileup", true,
-                                    "Add pileup contribution to the electronics noise? (only if read from file)"};
+                                    "Add pileup contribution to the electronics noise?"};
+  /// Consider electronic noise?                                                                                                 
+  Gaudi::Property<bool> m_addElecNoise{this, "addElecNoise", true, "Add electronics noise?"};
   /// Name of the file with noise constants
   Gaudi::Property<std::string> m_noiseFileName{this, "noiseFileName", "", "Name of the file with noise constants"};
   /// Name of the detector readout

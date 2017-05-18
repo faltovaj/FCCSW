@@ -1,8 +1,9 @@
 num_events = 500
-energy=1000
+energy=100
 parti=19
-bfield=0
+bfield=1
 suffix="_eta0_v2"
+suffix2="_eta0_v21"
 
 from Gaudi.Configuration import *
 
@@ -54,8 +55,21 @@ resegmentEcal = RedoSegmentation("ReSegmentationEcal",
                              newReadoutName = ecalReadoutNameOffset,
                              OutputLevel = INFO,
                              inhits = "ECalPositions",
-                             outhits = "ECalCellsForSW")
+                             outhits = "ECalCellsStep1")
 
+from Configurables import CreateCaloCells, CalibrateInLayersTool
+calibEcells = CalibrateInLayersTool("Calibrate",
+                                    # sampling fraction obtained using SamplingFractionInLayers from DetStudies package
+                                    samplingFraction = [0] + [0.1645/0.168]*4 + [0.1736/0.176]*4 + [0.179/0.184]*4 + [0.1837/0.191]*4 + [0.1877/0.198]*4 + [0.1919/0.204]*4 + [0.1958/0.210]*4 + [0.1982/0.215]*4,
+                                    readoutName = ecalReadoutNameOffset,
+                                    layerFieldName = "cell")
+recalibCellsEcal = CreateCaloCells("CreateCaloCellsEcal",
+                                  doCellCalibration = True,
+                                  calibTool = calibEcells,
+                                  addCellNoise = False, filterCellNoise = False,
+                                  OutputLevel = DEBUG)
+recalibCellsEcal.hits.Path = "ECalCellsStep1"
+recalibCellsEcal.cells.Path = "ECalCellsForSW"
 
 #Create calo clusters
 from Configurables import CreateCaloClustersSlidingWindow, SingleCaloTowerTool, CombinedCaloTowerTool
@@ -95,7 +109,8 @@ createCombinedClusters = CreateCaloClustersSlidingWindow("CreateCombinedClusters
                                                  OutputLevel = DEBUG)
 createCombinedClusters.clusters.Path = "CombinedClusters"
 
-out = PodioOutput("out", filename = "/localscratch3/novaj/FCCSW/caloForBerlin/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_bfield"+str(bfield)+"_part"+str(parti)+suffix+".root",
+#out = PodioOutput("out", filename = "/localscratch3/novaj/FCCSW/caloForBerlin/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_bfield"+str(bfield)+"_part"+str(parti)+suffix+".root",
+out = PodioOutput("out", filename = "/tmp/novaj/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_bfield"+str(bfield)+"_part"+str(parti)+suffix2+".root",    
                   OutputLevel=DEBUG)
 #out = PodioOutput("out", filename = "output_combCalo_reconstructionSW_e"+str(energy)+"GeV_part"+str(parti)+".root",          
 #                  OutputLevel=DEBUG)       
@@ -114,6 +129,7 @@ out.AuditExecute = True
 ApplicationMgr(
     TopAlg = [podioinput,
               resegmentEcal,
+              recalibCellsEcal,
               createEcalClusters,
               createCombinedClusters,
               out
