@@ -1,6 +1,6 @@
 num_events = 500
-energy=100
-parti=19
+energy=20
+parti=3
 bfield=1
 suffix="_eta0_v2"
 suffix2="_eta0_pileup"

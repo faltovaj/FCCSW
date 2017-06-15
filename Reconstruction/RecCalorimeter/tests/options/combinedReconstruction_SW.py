@@ -1,8 +1,8 @@
 num_events = 500
 energy=1000
 parti=19
-bfield=0
-suffix="_eta0_v2"
+bfield=1
+suffix="_tracker_correctCalib_eta0_v1"
 
 from Gaudi.Configuration import *
 
@@ -95,8 +95,7 @@ createCombinedClusters = CreateCaloClustersSlidingWindow("CreateCombinedClusters
                                                  OutputLevel = DEBUG)
 createCombinedClusters.clusters.Path = "CombinedClusters"
 
-out = PodioOutput("out", filename = "/localscratch3/novaj/FCCSW/caloForBerlin/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_bfield"+str(bfield)+"_part"+str(parti)+suffix+".root",
-                  OutputLevel=DEBUG)
+out = PodioOutput("out", filename = "/tmp/novaj/output_combCalo_reconstructionSW_e"+str(energy)+"GeV_bfield"+str(bfield)+"_part"+str(parti)+suffix+".root", OutputLevel=DEBUG)
 #out = PodioOutput("out", filename = "output_combCalo_reconstructionSW_e"+str(energy)+"GeV_part"+str(parti)+".root",          
 #                  OutputLevel=DEBUG)       
 out.outputCommands = ["keep *","drop ECalHits", "drop HCalHits"]

@@ -2,7 +2,7 @@
 
 export jobOption=Reconstruction/RecCalorimeter/tests/options/combinedReconstruction_SW_pileup.py
 
-export ENERGY=100
+export ENERGY=20
 export BFIELD=1
 
 for i in `seq 0 19`; do
