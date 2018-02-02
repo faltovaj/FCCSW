@@ -62,7 +62,7 @@ StatusCode PreparePileup::initialize() {
     m_energyVsAbsEta.push_back(
 			    new TH2F((m_histogramName + std::to_string(i)).c_str(),
 				     ("energy per cell vs fabs cell eta in layer " + std::to_string(i)).c_str(),
-				     60, 0, 6.0, 5000, -1, m_maxEnergy) );
+				     120, -6.0, 6.0, 5000, -1, m_maxEnergy) );
     if (m_histSvc
 	->regHist("/rec/" + m_histogramName + std::to_string(i), m_energyVsAbsEta.back())
 	.isFailure()) {
@@ -72,7 +72,7 @@ StatusCode PreparePileup::initialize() {
     m_energyAllEventsVsAbsEta.push_back(
 					new TH2F((m_histogramName + std::to_string(i) + "AllEvents").c_str(),
 						 ("sum of energy per cell in all events vs fabs cell eta in layer " + std::to_string(i)).c_str(),
-						 60, 0, 6.0, 5000, -1, m_maxEnergy*20) );
+						 120, -6.0, 6.0, 5000, -1, m_maxEnergy*20) );
     if (m_histSvc
 	->regHist("/rec/" + m_histogramName + std::to_string(i) + "AllEvents", m_energyAllEventsVsAbsEta.back())
 	.isFailure()) {
@@ -113,7 +113,7 @@ StatusCode PreparePileup::execute() {
     m_cellsMap[hit.core().cellId] += hit.core().energy;
     m_sumEnergyCellsMap[hit.core().cellId] += hit.core().energy;
   }
-  debug() << "Number of calorimeter cells after merging of hits: " << m_cellsMap.size() << endmsg;
+  info() << "Number of calorimeter cells after merging of hits: " << m_cellsMap.size() << endmsg;
 
   //Fill 2D histogram per layer
   for (const auto& cell : m_cellsMap) {
@@ -130,7 +130,9 @@ StatusCode PreparePileup::execute() {
 
     }
     double cellEta = m_segmentation->eta(cellId);
-    m_energyVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+    //m_energyVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+    //JN: fill eta, not abs eta    
+    m_energyVsAbsEta[layerId]->Fill(cellEta, cellEnergy);
   }
   
   return StatusCode::SUCCESS;
@@ -153,7 +155,9 @@ StatusCode PreparePileup::finalize() {
 
     }
     double cellEta = m_segmentation->eta(cellId);
-    m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+    //m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+    //JN: fill eta, not abs eta
+    m_energyAllEventsVsAbsEta[layerId]->Fill(cellEta, cellEnergy);  
   }
 
 return GaudiAlgorithm::finalize(); 

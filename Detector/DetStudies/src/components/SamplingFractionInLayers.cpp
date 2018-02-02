@@ -4,7 +4,8 @@
 #include "DetInterface/IGeoSvc.h"
 
 // datamodel
-#include "datamodel/PositionedCaloHitCollection.h"
+//#include "datamodel/PositionedCaloHitCollection.h"
+#include "datamodel/CaloHitCollection.h"   
 
 #include "CLHEP/Vector/ThreeVector.h"
 #include "GaudiKernel/ITHistSvc.h"
