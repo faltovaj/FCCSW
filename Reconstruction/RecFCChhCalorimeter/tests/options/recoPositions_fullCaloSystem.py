@@ -8,12 +8,12 @@ ecalBarrelReadoutNamePhiEta = "ECalBarrelPhiEta"
 ecalEndcapReadoutName = "EMECPhiEtaReco"
 ecalFwdReadoutName = "EMFwdPhiEtaReco"
 # HCAL readouts
-hcalBarrelReadoutName = "BarHCal_Readout"
-hcalBarrelReadoutVolume = "HCalBarrel"
-hcalExtBarrelReadoutName = "ExtBarHCal_Readout"
-hcalExtBarrelReadoutVolume = "HCalExtBarrel"
-hcalEndcapReadoutName = "HECPhiEtaReco"
-hcalFwdReadoutName = "HFwdPhiEtaReco"
+hcalBarrelReadoutName = "HCalBarrel"
+#hcalBarrelReadoutVolume = "HCalBarrel"
+hcalExtBarrelReadoutName = "HCalExtBarrel"
+#hcalExtBarrelReadoutVolume = "HCalExtBarrel"
+hcalEndcapReadoutName = "HECPhiEta"
+hcalFwdReadoutName = "HFwdPhiEta"
 # Tail Catcher readout
 tailCatcherReadoutName = "Muons_Readout"
 # Number of events
@@ -37,83 +37,33 @@ detectors_to_use=['file:Detector/DetFCChhBaseline1/compact/FCChh_DectEmptyMaster
 
 geoservice = GeoSvc("GeoSvc", detectors = detectors_to_use, OutputLevel = WARNING)
 
-from Configurables import RewriteBitfield
-rewrite = RewriteBitfield("Rewrite",
-                          # old bitfield (readout)
-                          oldReadoutName = hcalBarrelReadoutName,
-                          newReadoutName = hcalBarrelReadoutVolume,
-                          # specify if segmentation is removed
-                          removeIds = ["tile","eta","phi"],
-#                          rmSegmentation = True,
-                          # new bitfield (readout), with new segmentation
-                          debugPrint = 10,
-                          OutputLevel = DEBUG)
-# clusters are needed, with deposit position and cellID in bits
-rewrite.inhits.Path = "HCalBarrelCells"
-rewrite.outhits.Path = "HCalBarrelCellsVol"
-rewriteExt = RewriteBitfield("RewriteExt",
-                          # old bitfield (readout)
-                          oldReadoutName = hcalExtBarrelReadoutName,
-                          newReadoutName = hcalExtBarrelReadoutVolume,
-                          # specify if segmentation is removed
-                          removeIds = ["tile","eta","phi"],
-#                          rmSegmentation = True,
-                          # new bitfield (readout), with new segmentation
-                          debugPrint = 10,
-                          OutputLevel = DEBUG)
-# clusters are needed, with deposit position and cellID in bits
-rewriteExt.inhits.Path = "HCalExtBarrelCells"
-rewriteExt.outhits.Path = "HCalExtBarrelCellsVol"
-
-# Merge cells according to CellId
-from Configurables import CreateCaloCells
-createNewHcells = CreateCaloCells("CreateNewHCaloCells",
-                               doCellCalibration=False,
-                               addCellNoise=False, filterCellNoise=False,
-                               OutputLevel=DEBUG,
-                               hits="HCalBarrelCellsVol",
-                               cells="HCalBarrelCellsForTopo")
-createNewExtHcells = CreateCaloCells("CreateNewExtHCaloCells",
-                               doCellCalibration=False,
-                               addCellNoise=False, filterCellNoise=False,
-                               OutputLevel=DEBUG,
-                               hits="HCalExtBarrelCellsVol",
-                               cells="HCalExtBarrelCellsForTopo")
-
 #Configure tools for calo cell positions
-from Configurables import CellPositionsECalBarrelTool, CellPositionsHCalBarrelTool, CellPositionsHCalBarrelNoSegTool, CellPositionsCaloDiscsTool, CellPositionsTailCatcherTool 
+from Configurables import CellPositionsECalBarrelTool, CellPositionsHCalBarrelTool, CellPositionsCaloDiscsTool, CellPositionsTailCatcherTool 
 ECalBcells = CellPositionsECalBarrelTool("CellPositionsECalBarrel", 
                                          readoutName = ecalBarrelReadoutNamePhiEta, 
                                          OutputLevel = INFO)
 EMECcells = CellPositionsCaloDiscsTool("CellPositionsEMEC", 
-                                       readoutName = ecalEndcapReadoutName, 
-                                       OutputLevel = INFO)
+                                    readoutName = ecalEndcapReadoutName, 
+                                    OutputLevel = INFO)
 ECalFwdcells = CellPositionsCaloDiscsTool("CellPositionsECalFwd", 
-                                          readoutName = ecalFwdReadoutName, 
-                                          OutputLevel = INFO)
+                                        readoutName = ecalFwdReadoutName, 
+                                        OutputLevel = INFO)
 HCalBcells = CellPositionsHCalBarrelTool("CellPositionsHCalBarrel", 
-                                         readoutName = hcalBarrelReadoutName, 
-                                         OutputLevel = INFO)
+                                    readoutName = hcalBarrelReadoutName, 
+                                    OutputLevel = INFO)
 HCalExtBcells = CellPositionsHCalBarrelTool("CellPositionsHCalExtBarrel", 
-                                            readoutName = hcalExtBarrelReadoutName, 
-                                            OutputLevel = INFO)
-HCalBcellVols = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalBarrelVols", 
-                                                 readoutName = hcalBarrelReadoutVolume, 
-                                                 OutputLevel = INFO)
-HCalExtBcellVols = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalExtBarrelVols", 
-                                                    readoutName = hcalExtBarrelReadoutVolume, 
-                                                    OutputLevel = INFO)
+                                       readoutName = hcalExtBarrelReadoutName, 
+                                       OutputLevel = INFO)
 HECcells = CellPositionsCaloDiscsTool("CellPositionsHEC", 
-                                      readoutName = hcalEndcapReadoutName, 
-                                      OutputLevel = INFO)
+                                   readoutName = hcalEndcapReadoutName, 
+                                   OutputLevel = INFO)
 HCalFwdcells = CellPositionsCaloDiscsTool("CellPositionsHCalFwd", 
-                                          readoutName = hcalFwdReadoutName, 
-                                          OutputLevel = INFO)
+                                        readoutName = hcalFwdReadoutName, 
+                                        OutputLevel = INFO)
 TailCatchercells = CellPositionsTailCatcherTool("CellPositionsTailCatcher", 
                                                 readoutName = tailCatcherReadoutName, 
                                                 centralRadius = 901.5,
                                                 OutputLevel = INFO)
-
 # cell positions
 from Configurables import CreateCellPositions
 positionsEcalBarrel = CreateCellPositions("positionsEcalBarrel", 
@@ -130,16 +80,6 @@ positionsHcalExtBarrel = CreateCellPositions("positionsHcalExtBarrel",
                                           positionsTool=HCalExtBcells, 
                                           hits = "HCalExtBarrelCells", 
                                           positionedHits = "HCalExtBarrelCellPositions", 
-                                          OutputLevel = INFO)
-positionsHcalBarrelVol = CreateCellPositions("positionsHcalBarrelVol", 
-                                          positionsTool=HCalBcellVols, 
-                                          hits = "HCalBarrelCellsForTopo", 
-                                          positionedHits = "HCalBarrelCellForTopoPositions", 
-                                          OutputLevel = INFO)
-positionsHcalExtBarrelVol = CreateCellPositions("positionsHcalExtBarrelVol", 
-                                          positionsTool=HCalExtBcellVols, 
-                                          hits = "HCalExtBarrelCellsForTopo", 
-                                          positionedHits = "HCalExtBarrelCellForTopoPositions", 
                                           OutputLevel = INFO)
 positionsEcalEndcap = CreateCellPositions("positionsEcalEndcap", 
                                           positionsTool=EMECcells, 
@@ -168,8 +108,8 @@ positionsTailCatcher = CreateCellPositions("positionsTailCatcher",
                                           OutputLevel = INFO)
 
 out = PodioOutput("out", OutputLevel=DEBUG)
-out.filename = "digi_cellPostions_pim_100GeV.root"
-out.outputCommands = ["keep *","drop ECalBarrelCells","drop ECalEndcapCells","drop ECalFwdCells","drop HCalBarrelCellsVol","drop HCalBarrelCellsForTopo","drop HCalBarrelCells","drop HCalExtBarrelCellsForTopo", "drop HCalExtBarrelCellsVol", "drop HCalExtBarrelCells", "drop HCalEndcapCells", "drop HCalFwdCells", "drop TailCatcherCells"]
+out.filename = "~/FCCSW/digi_cellPostions_50GeVelectrons.root"
+out.outputCommands = ["keep *","drop ECalBarrelCells","drop ECalEndcapCells","drop ECalFwdCells","drop HCalBarrelCells", "drop HCalExtBarrelCells", "drop HCalEndcapCells", "drop HCalFwdCells", "drop TailCatcherCells"]
 
 #CPU information
 from Configurables import AuditorSvc, ChronoAuditor
@@ -177,17 +117,11 @@ chra = ChronoAuditor()
 audsvc = AuditorSvc()
 audsvc.Auditors = [chra]
 podioinput.AuditExecute = True
-rewrite.AuditExecute = True
-rewriteExt.AuditExecute = True
-createNewHcells.AuditExecute = True
-createNewExtHcells.AuditExecute = True
 positionsEcalBarrel.AuditExecute = True
 positionsEcalEndcap.AuditExecute = True
 positionsEcalFwd.AuditExecute = True
 positionsHcalBarrel.AuditExecute = True
 positionsHcalExtBarrel.AuditExecute = True
-positionsHcalBarrelVol.AuditExecute = True
-positionsHcalExtBarrelVol.AuditExecute = True
 positionsHcalEndcap.AuditExecute = True
 positionsHcalFwd.AuditExecute = True
 positionsTailCatcher.AuditExecute = True
@@ -195,17 +129,11 @@ out.AuditExecute = True
 
 ApplicationMgr(
 TopAlg = [    podioinput,
-              rewrite,
-              rewriteExt,
-              createNewHcells,
-              createNewExtHcells,
               positionsEcalBarrel,
               positionsEcalEndcap,
               positionsEcalFwd, 
               positionsHcalBarrel, 
               positionsHcalExtBarrel,
-              positionsHcalBarrelVol,
-              positionsHcalExtBarrelVol,
               positionsHcalEndcap, 
               positionsHcalFwd,
               positionsTailCatcher,
