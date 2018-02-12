@@ -12,8 +12,8 @@ hcalBarrelReadoutName = "HCalBarrel"
 #hcalBarrelReadoutVolume = "HCalBarrel"
 hcalExtBarrelReadoutName = "HCalExtBarrel"
 #hcalExtBarrelReadoutVolume = "HCalExtBarrel"
-hcalEndcapReadoutName = "HECPhiEta"
-hcalFwdReadoutName = "HFwdPhiEta"
+hcalEndcapReadoutName = "HECPhiEtaReco"
+hcalFwdReadoutName = "HFwdPhiEtaReco"
 # Tail Catcher readout
 tailCatcherReadoutName = "Muons_Readout"
 # Number of events
@@ -38,7 +38,7 @@ detectors_to_use=['file:Detector/DetFCChhBaseline1/compact/FCChh_DectEmptyMaster
 geoservice = GeoSvc("GeoSvc", detectors = detectors_to_use, OutputLevel = WARNING)
 
 #Configure tools for calo cell positions
-from Configurables import CellPositionsECalBarrelTool, CellPositionsHCalBarrelTool, CellPositionsCaloDiscsTool, CellPositionsTailCatcherTool 
+from Configurables import CellPositionsECalBarrelTool, CellPositionsHCalBarrelNoSegTool, CellPositionsCaloDiscsTool, CellPositionsTailCatcherTool 
 ECalBcells = CellPositionsECalBarrelTool("CellPositionsECalBarrel", 
                                          readoutName = ecalBarrelReadoutNamePhiEta, 
                                          OutputLevel = INFO)
@@ -48,10 +48,10 @@ EMECcells = CellPositionsCaloDiscsTool("CellPositionsEMEC",
 ECalFwdcells = CellPositionsCaloDiscsTool("CellPositionsECalFwd", 
                                         readoutName = ecalFwdReadoutName, 
                                         OutputLevel = INFO)
-HCalBcells = CellPositionsHCalBarrelTool("CellPositionsHCalBarrel", 
+HCalBcells = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalBarrel", 
                                     readoutName = hcalBarrelReadoutName, 
                                     OutputLevel = INFO)
-HCalExtBcells = CellPositionsHCalBarrelTool("CellPositionsHCalExtBarrel", 
+HCalExtBcells = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalExtBarrel", 
                                        readoutName = hcalExtBarrelReadoutName, 
                                        OutputLevel = INFO)
 HECcells = CellPositionsCaloDiscsTool("CellPositionsHEC", 
@@ -108,7 +108,7 @@ positionsTailCatcher = CreateCellPositions("positionsTailCatcher",
                                           OutputLevel = INFO)
 
 out = PodioOutput("out", OutputLevel=DEBUG)
-out.filename = "~/FCCSW/digi_cellPostions_50GeVelectrons.root"
+out.filename = "~/FCCSW/digi_cellPositions_50GeVelectrons.root"
 out.outputCommands = ["keep *","drop ECalBarrelCells","drop ECalEndcapCells","drop ECalFwdCells","drop HCalBarrelCells", "drop HCalExtBarrelCells", "drop HCalEndcapCells", "drop HCalFwdCells", "drop TailCatcherCells"]
 
 #CPU information
