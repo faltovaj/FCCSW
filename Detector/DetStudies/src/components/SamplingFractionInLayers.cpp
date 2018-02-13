@@ -16,6 +16,9 @@
 #include "DD4hep/Detector.h"
 #include "DD4hep/Readout.h"
 
+#include <math.h>
+#include <iostream> 
+
 DECLARE_ALGORITHM_FACTORY(SamplingFractionInLayers)
 
 SamplingFractionInLayers::SamplingFractionInLayers(const std::string& aName, ISvcLocator* aSvcLoc)
@@ -26,6 +29,7 @@ SamplingFractionInLayers::SamplingFractionInLayers(const std::string& aName, ISv
       m_totalActiveEnergy(nullptr),
       m_sf(nullptr) {
   declareProperty("deposits", m_deposits, "Energy deposits in sampling calorimeter (input)");
+  declareProperty("hcalCells", m_hcalCells, "hcal cells (input)");
 }
 SamplingFractionInLayers::~SamplingFractionInLayers() {}
 
@@ -42,14 +46,14 @@ StatusCode SamplingFractionInLayers::initialize() {
   for (uint i = 0; i < m_numLayers; i++) {
     m_totalEnLayers.push_back(new TH1F(("ecal_totalEnergy_layer" + std::to_string(i)).c_str(),
                                        ("Total deposited energy in layer " + std::to_string(i)).c_str(), 1000, 0,
-                                       1.2 * m_energy));
+                                       1.2 * m_beamEnergy));
     if (m_histSvc->regHist("/rec/ecal_total_layer" + std::to_string(i), m_totalEnLayers.back()).isFailure()) {
       error() << "Couldn't register histogram" << endmsg;
       return StatusCode::FAILURE;
     }
     m_activeEnLayers.push_back(new TH1F(("ecal_activeEnergy_layer" + std::to_string(i)).c_str(),
                                         ("Deposited energy in active material, in layer " + std::to_string(i)).c_str(),
-                                        1000, 0, 1.2 * m_energy));
+                                        1000, 0, 1.2 * m_beamEnergy));
     if (m_histSvc->regHist("/rec/ecal_active_layer" + std::to_string(i), m_activeEnLayers.back()).isFailure()) {
       error() << "Couldn't register histogram" << endmsg;
       return StatusCode::FAILURE;
@@ -61,12 +65,12 @@ StatusCode SamplingFractionInLayers::initialize() {
       return StatusCode::FAILURE;
     }
   }
-  m_totalEnergy = new TH1F("ecal_totalEnergy", "Total deposited energy", 1000, 0, 1.2 * m_energy);
+  m_totalEnergy = new TH1F("ecal_totalEnergy", "Total deposited energy", 1000, 0, 1.2 * m_beamEnergy);
   if (m_histSvc->regHist("/rec/ecal_total", m_totalEnergy).isFailure()) {
     error() << "Couldn't register histogram" << endmsg;
     return StatusCode::FAILURE;
   }
-  m_totalActiveEnergy = new TH1F("ecal_active", "Deposited energy in active material", 1000, 0, 1.2 * m_energy);
+  m_totalActiveEnergy = new TH1F("ecal_active", "Deposited energy in active material", 1000, 0, 1.2 * m_beamEnergy);
   if (m_histSvc->regHist("/rec/ecal_active", m_totalActiveEnergy).isFailure()) {
     error() << "Couldn't register histogram" << endmsg;
     return StatusCode::FAILURE;
@@ -76,12 +80,33 @@ StatusCode SamplingFractionInLayers::initialize() {
     error() << "Couldn't register histogram" << endmsg;
     return StatusCode::FAILURE;
   }
+  m_eOverPi_ecal = new TH1F("ecal_eOverPi", "e/pi in ECAL", 100, 0, 4.0);
+  if (m_histSvc->regHist("/rec/ecal_eOverPi", m_eOverPi_ecal).isFailure()) {
+    error() << "Couldn't register histogram" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  m_eOverPi_ecal10 = new TH1F("ecal_eOverPi10", "e/pi in ECAL, >10% of beam energy in ECAL", 100, 0, 4.0);
+  if (m_histSvc->regHist("/rec/ecal_eOverPi10", m_eOverPi_ecal10).isFailure()) {
+    error() << "Couldn't register histogram" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  m_eOverPi_ecal20 = new TH1F("ecal_eOverPi20", "e/pi in ECAL, >20% of beam energy in ECAL", 100, 0, 4.0);
+  if (m_histSvc->regHist("/rec/ecal_eOverPi20", m_eOverPi_ecal20).isFailure()) {
+    error() << "Couldn't register histogram" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  m_totalEnergy_hcal = new TH1F("hcal_totalEnergy", "Total deposited energy", 1000, 0, 2.0 * m_beamEnergy);
+  if (m_histSvc->regHist("/rec/hcal_total", m_totalEnergy_hcal).isFailure()) {
+    error() << "Couldn't register histogram" << endmsg;
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 StatusCode SamplingFractionInLayers::execute() {
   auto decoder = m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder();
   double sumE = 0.;
+  double sumE_ecal = 0.;
   std::vector<double> sumElayers;
   double sumEactive = 0.;
   std::vector<double> sumEactiveLayers;
@@ -90,6 +115,7 @@ StatusCode SamplingFractionInLayers::execute() {
 
   const auto deposits = m_deposits.get();
   for (const auto& hit : *deposits) {
+    sumE_ecal += hit.core().energy;
     decoder->setValue(hit.core().cellId);
     sumElayers[(*decoder)[m_layerFieldName]] += hit.core().energy;
     // check if energy was deposited in the calorimeter (active/passive material)
@@ -102,11 +128,32 @@ StatusCode SamplingFractionInLayers::execute() {
       }
     }
   }
+
+
+  // HCAL cells calibrated to hadronic scale!!! (Coralie)
+  double sumE_hcal = 0;
+  const auto hcalCells = m_hcalCells.get();
+  for (const auto& hit : *hcalCells) {
+    sumE_hcal += hit.core().energy;
+  }
+  // e/pi in ECAL - corrected for leakage into HCAL
+  // sumE - EM scale
+  double eOverPi_ecal = ( m_beamEnergy - sumE_hcal ) / sumE_ecal;
+  
   // Fill histograms
   m_totalEnergy->Fill(sumE);
   m_totalActiveEnergy->Fill(sumEactive);
+  m_totalEnergy_hcal->Fill(sumE_hcal);
   if (sumE > 0) {
+    m_eOverPi_ecal->Fill(eOverPi_ecal);
     m_sf->Fill(sumEactive / sumE);
+  }
+  if (sumE_ecal > 0.1 * m_beamEnergy) {
+    std::cout << " ecal e/pi " << eOverPi_ecal << " hcal E (hadronic scale) " << sumE_hcal << " ecal E " << sumE << std::endl;
+    m_eOverPi_ecal10->Fill(eOverPi_ecal);
+  }
+  if (sumE_ecal > 0.2 * m_beamEnergy) {
+    m_eOverPi_ecal20->Fill(eOverPi_ecal);
   }
   for (uint i = 0; i < m_numLayers; i++) {
     m_totalEnLayers[i]->Fill(sumElayers[i]);

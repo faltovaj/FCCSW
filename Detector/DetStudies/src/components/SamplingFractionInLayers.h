@@ -54,6 +54,8 @@ private:
   //DataHandle<fcc::PositionedCaloHitCollection> m_deposits{"rec/caloHits", Gaudi::DataHandle::Reader, this};
   //JN
   DataHandle<fcc::CaloHitCollection> m_deposits{"rec/caloHits", Gaudi::DataHandle::Reader, this};                        
+  //HCAL cells
+  DataHandle<fcc::CaloHitCollection> m_hcalCells{"rec/caloHits", Gaudi::DataHandle::Reader, this};
   /// Name of the active field
   Gaudi::Property<std::string> m_activeFieldName{this, "activeFieldName", "", "Identifier of active material"};
   /// Value of the active material
@@ -67,7 +69,7 @@ private:
   /// Name of the detector readout
   Gaudi::Property<std::string> m_readoutName{this, "readoutName", "", "Name of the detector readout"};
   // Maximum energy for the axis range
-  Gaudi::Property<double> m_energy{this, "energyAxis", 500, "Maximum energy for axis range"};
+  Gaudi::Property<double> m_beamEnergy{this, "beamEnergy", 500, "Beam energy"};
   // Histograms of total deposited energy within layer
   // Layers are numbered starting at 1. Layer 0 includes total energy deposited in cryostat and bath (in front and
   // behind calo)
@@ -83,5 +85,13 @@ private:
   std::vector<TH1F*> m_sfLayers;
   // Histogram of sampling fraction (active/total energy) calculated for the calorimeter (excluding cryostat and bath)
   TH1F* m_sf;
+  // Histogram of e/pi in ECAL
+  TH1F* m_eOverPi_ecal;
+  // Histogram of e/pi in ECAL - at least 10% of beam energy in ECAL
+  TH1F* m_eOverPi_ecal10;
+  // Histogram of e/pi in ECAL - at least 20% of beam energy in ECAL
+  TH1F* m_eOverPi_ecal20;
+  // Total energy in hcal at the hadronic scale
+  TH1F* m_totalEnergy_hcal;
 };
 #endif /* DETSTUDIES_SAMPLINGFRACTIONINLAYERS_H */
