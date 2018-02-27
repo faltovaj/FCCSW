@@ -200,7 +200,7 @@ void CaloTopoCluster::buildingProtoCluster(
     } else {
       // new cluster starts with seed
       // set cell Bits to 0 for seed cell
-      preClusterCollection[iSeeds].push_back(std::make_pair(seedId, 0));
+      preClusterCollection[iSeeds].push_back(std::make_pair(seedId, 1));
       uint clusterId = iSeeds;
       clusterOfCell[seedId] = clusterId;
 
@@ -272,8 +272,8 @@ CaloTopoCluster::searchForNeighbours(const uint64_t id,
         if (validatedNeighbour) {
           // retrieve the cell
           // add neighbour to cells for cluster
-          // set Bits to 1 for neighbour cell
-          preClusterCollection[clusterID].push_back(std::make_pair(neighbourID, 1));
+          // set Bits to 2 for neighbour cell
+          preClusterCollection[clusterID].push_back(std::make_pair(neighbourID, 2));
           clusterOfCell[neighbourID] = clusterID;
           addedNeighbourIds.push_back(std::make_pair(neighbourID, clusterID));
         }
