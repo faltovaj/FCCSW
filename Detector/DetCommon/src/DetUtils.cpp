@@ -278,7 +278,7 @@ std::array<double, 2> tubeEtaExtremes(uint64_t aVolumeId) {
   return {minEta, maxEta};
 }
 
-std::array<double, 2> envelopeEtaExtremes(uint64_t aVolumeId) {
+std::array<double, 2> envelopeEtaExtremes (uint64_t aVolumeId) {
   dd4hep::VolumeManager volMgr = dd4hep::Detector::getInstance().volumeManager();
   auto detelement = volMgr.lookupDetElement(aVolumeId);
   const auto& transformMatrix = detelement.nominal().worldTransformation();
