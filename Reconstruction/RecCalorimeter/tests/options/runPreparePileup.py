@@ -120,6 +120,7 @@ pileupHcalBarrel = PreparePileup("PreparePileupHcalBarrel",
                                  readoutName = hcalBarrelReadoutVolume,
                                  layerFieldName = "layer",
                                  histogramName ="hcalBarrelEnergyVsAbsEta",
+                                  xAxisMax = 600, # cm in z, binning is 10cm, 5 cells 
                                  numLayers = 10,
                                  OutputLevel = DEBUG)
 pileupHcalBarrel.hits.Path="HCalBarrelCellsVol"
@@ -129,10 +130,6 @@ THistSvc().PrintAll=True
 THistSvc().AutoSave=True
 THistSvc().AutoFlush=True
 THistSvc().OutputLevel=INFO
-
-#out = PodioOutput("output", filename = "output.root",
-#                   OutputLevel = DEBUG)
-#out.outputCommands = ["keep *"]
 
 #CPU information
 from Configurables import AuditorSvc, ChronoAuditor

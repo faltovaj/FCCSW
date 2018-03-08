@@ -23,6 +23,7 @@ DECLARE_ALGORITHM_FACTORY(PreparePileup)
 
 PreparePileup::PreparePileup(const std::string& name, ISvcLocator* svcLoc) : GaudiAlgorithm(name, svcLoc) {
   declareProperty("hits", m_hits, "Hits from which to create cells (input)");
+  declareProperty("xAxisMax", m_xAxisMax, "maximum in eta/z");
  
   declareProperty("geometryTool", m_geoTool, "Handle for the geometry tool");
   declareProperty("positionsTool", m_cellPositionsTool,
@@ -59,11 +60,12 @@ StatusCode PreparePileup::initialize() {
   }
   // Prepare histograms - 2D histograms per layer, abs(eta) on x-axis, energy in cell on y-axis
   // TODO: add similar histogram with energy in a cluster
-  for (uint i = 0; i < m_numLayers; i++) {
-    m_energyVsAbsEta.push_back(
+
+   for (uint i = 0; i < m_numLayers; i++) {
+     m_energyVsAbsEta.push_back(
 			    new TH2F((m_histogramName + std::to_string(i)).c_str(),
 				     ("energy per cell vs fabs cell eta in layer " + std::to_string(i)).c_str(),
-				     60, 0, 6.0, 5000, -1, m_maxEnergy) );
+				     60, 0, m_xAxisMax, 5000, -1, m_maxEnergy) );
     if (m_histSvc
 	->regHist("/rec/" + m_histogramName + std::to_string(i), m_energyVsAbsEta.back())
 	.isFailure()) {
@@ -73,7 +75,7 @@ StatusCode PreparePileup::initialize() {
     m_energyAllEventsVsAbsEta.push_back(
 					new TH2F((m_histogramName + std::to_string(i) + "AllEvents").c_str(),
 						 ("sum of energy per cell in all events vs fabs cell eta in layer " + std::to_string(i)).c_str(),
-						 60, 0, 6.0, 5000, -1, m_maxEnergy*20) );
+						 60, 0, m_xAxisMax, 5000, -1, m_maxEnergy*20) );
     if (m_histSvc
 	->regHist("/rec/" + m_histogramName + std::to_string(i) + "AllEvents", m_energyAllEventsVsAbsEta.back())
 	.isFailure()) {
@@ -132,9 +134,11 @@ StatusCode PreparePileup::execute() {
     }
     auto position =  m_cellPositionsTool->xyzPosition(cellId);
     auto cellEta = CLHEP::Hep3Vector(position.x(), position.y(), position.z()).eta();
-    
-    //   debug() << "Eta position of cell: " << cellEta << endmsg;
-    m_energyVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+
+    if(m_xAxisMax==600)
+      m_energyVsAbsEta[layerId]->Fill(fabs(position.z()), cellEnergy);
+    else
+      m_energyVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
   }
   
   return StatusCode::SUCCESS;
@@ -158,7 +162,10 @@ StatusCode PreparePileup::finalize() {
     }
     auto position =  m_cellPositionsTool->xyzPosition(cellId);
     auto cellEta = CLHEP::Hep3Vector(position.x(), position.y(), position.z()).eta();
-    m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
+    if(m_xAxisMax==600)
+      m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(position.z()), cellEnergy);
+    else
+      m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
   }
 
 return GaudiAlgorithm::finalize(); 

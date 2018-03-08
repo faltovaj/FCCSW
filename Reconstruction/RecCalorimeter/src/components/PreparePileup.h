@@ -79,7 +79,9 @@ private:
   std::vector<TH2F*> m_energyAllEventsVsAbsEta;
 
   /// Maximum energy in the m_energyVsAbsEta histogram, in GeV 
-  Gaudi::Property<uint> m_maxEnergy{this, "maxEnergy", 20., "Maximum energy in the pile-up plot"};
+  Gaudi::Property<uint> m_maxEnergy{this, "maxEnergy", 20, "Maximum energy in the pile-up plot"};
+  /// Maximum in the eta/z axis, used to identiy if x axis is eta or z 
+  Gaudi::Property<uint> m_xAxisMax{this, "xAxisMax", 6, "Maximum of x axis"};
   /// Name of the pileup histograms
   Gaudi::Property<std::string> m_histogramName{this, "histogramName", "energyVsAbsEta", "Name of 2D histogram"};
   /// Name of the layer field
