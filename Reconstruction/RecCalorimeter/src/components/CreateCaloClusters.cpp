@@ -7,6 +7,9 @@
 // DD4hep
 #include "DD4hep/Detector.h"
 
+#include "TH1F.h"
+#include "TH2F.h"
+
 // datamodel
 #include "datamodel/CaloCluster.h"
 #include "datamodel/CaloClusterCollection.h"
@@ -25,6 +28,7 @@ CreateCaloClusters::CreateCaloClusters(const std::string& name, ISvcLocator* svc
                   "Handle for tool to retrieve cell positions in HCal");
  
   declareProperty("calibrate", m_doCalibration, "Clusters are going to be calibrated");
+  declareProperty("cryoCorrection", m_doCryoCorrection, "Correction of lost energy between E and HCal");
   declareProperty("ehECal", m_ehECal, "e/h of the ECal");
   declareProperty("ehHCal", m_ehHCal, "e/h of the HCal");
 
@@ -35,14 +39,39 @@ CreateCaloClusters::CreateCaloClusters(const std::string& name, ISvcLocator* svc
 StatusCode CreateCaloClusters::initialize() {
   StatusCode sc = GaudiAlgorithm::initialize();
   if (sc.isFailure()) return sc;
+  m_geoSvc = service("GeoSvc");
+  if (!m_geoSvc) {
+    error() << "Unable to locate Geometry service." << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
+  // Histogram service
+  if (service("THistSvc", m_histSvc).isFailure()) {
+    error() << "Unable to locate Histogram Service" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  m_energyScale = new TH1F("energyScale", "energy scale of cluster", 3, 0., 3. );
+  if (m_histSvc->regHist("/rec/energyScale", m_energyScale).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_energyScaleVsClusterEnergy = new TH2F("energyScaleVsClusterEnergy", "energy scale of cluster versus energy of cluster", 3, 0., 3. , 10000, 0, 10000 ); 
+  if (m_histSvc->regHist("/rec/energyScaleVsClusterEnergy", m_energyScaleVsClusterEnergy).isFailure()) {
+    error() << "Couldn't register 2D hist" << endmsg;
+    return StatusCode::FAILURE;
+  }
 
-  info() << "CreateCaloClusters initialized" << endmsg;
-
+  m_decoderECal = m_geoSvc->lcdd()->readout(m_readoutECal).idSpec().decoder();  
+  m_decoderHCal = m_geoSvc->lcdd()->readout(m_readoutHCal).idSpec().decoder();  
   // // Pile-up noise tool
   // if (!m_ecalBarrelNoiseTool.retrieve() || !m_hcalBarrelNoiseTool.retrieve() ) {
   //   error() << "Unable to retrieve the calo clusters noise tool!!!" << endmsg;
   //   return StatusCode::FAILURE;
   //  }
+  
+  
+  info() << "CreateCaloClusters initialized" << endmsg;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -62,25 +91,36 @@ StatusCode CreateCaloClusters::execute() {
     for (auto& cluster : *clusters) {
       // 1. Identify clusters with cells in different sub-systems
       bool cellsInBoth = false;
-      float cellSystem = 0;
       std::map<uint,double> energyBoth;
+      double energyLastECal;
+      double energyFirstHCal;
+     // Loop over cluster cells 
       for (uint it = 0; it < cluster.hits_size(); it++){
 	auto cellId = cluster.hits(it).core().cellId;
 	auto cellEnergy = cluster.hits(it).core().energy;
 	m_decoder->setValue(cellId);
-	int systemId = (*m_decoder)["system"].value();
-	
-	if (systemId != cellSystem && cellSystem!=0){
-	  cellsInBoth = true;
-	  break;
-	}
-	cellSystem = systemId;
-	
+	uint systemId = (*m_decoder)["system"].value();
+	int layerId;
+	if (systemId == m_systemIdECal)
+	  layerId = (*m_decoderECal)["layer"].value();
+	else
+	  layerId = (*m_decoderHCal)["layer"].value();
+	  
 	energyBoth[systemId] += cellEnergy;
+
+	if( systemId == m_systemIdECal && layerId == m_lastECalLayer) {
+	  energyLastECal += cellEnergy;
+	}
+	else if (systemId == m_systemIdHCal && layerId == m_firstHCalLayer){
+	  energyFirstHCal += cellEnergy;	
+	} 
       }
       
+      if (energyBoth.size() > 1)
+	cellsInBoth = true;
+
       // check if cluster energy is equal to sum over cells
-      if (static_cast<int>(cluster.core().energy*1000.0) != static_cast<int>((energyBoth[m_systemIdECal] + energyBoth[m_systemIdHCal])*1000.0))
+      if (static_cast<int>(cluster.core().energy*100.0) != static_cast<int>((energyBoth[m_systemIdECal] + energyBoth[m_systemIdHCal])*100.0))
 	warning() << "The cluster energy is not equal to sum over cell energy: " << cluster.core().energy << ", " << (energyBoth[m_systemIdECal] + energyBoth[m_systemIdHCal]) << endmsg;
       
       // 2. Calibrate the cluster if it contains cells in both systems
@@ -88,12 +128,15 @@ StatusCode CreateCaloClusters::execute() {
 	sharedClusters ++;
 	// Calculate the fraction of energy in ECal
 	auto energyFraction = energyBoth[m_systemIdECal] / cluster.core().energy;
+	debug() << "Energy fraction in ECal : " << energyFraction << endmsg;
 	bool calibECal = false;
 	if (energyFraction >= m_fractionECal) {
 	  // calibrate HCal cells to EM scale
 	  // assuming HCal cells are calibrated to hadron scale
 	  energyBoth[m_systemIdHCal] = energyBoth[m_systemIdHCal] / m_ehHCal;
 	  clustersEM++;
+	  m_energyScale->Fill(0);
+	  m_energyScaleVsClusterEnergy->Fill(0.,cluster.core().energy);
 	}
 	else {
 	  // calibrate ECal cells to hadron scale
@@ -101,6 +144,8 @@ StatusCode CreateCaloClusters::execute() {
 	  energyBoth[m_systemIdECal] = energyBoth[m_systemIdECal] * m_ehECal;
 	  calibECal = true;
 	  clustersHad++;
+	  m_energyScale->Fill(1);
+	  m_energyScaleVsClusterEnergy->Fill(1.,cluster.core().energy);
 	}
 	// Create a new cluster
 	fcc::CaloCluster cluster;
@@ -119,7 +164,7 @@ StatusCode CreateCaloClusters::execute() {
 	  newCell.core().bits = cluster.hits(it).core().bits;
 	  
 	  m_decoder->setValue(cellId);
-	  int systemId = (*m_decoder)["system"].value();
+	  uint systemId = (*m_decoder)["system"].value();
 	  
 	  dd4hep::Position posCell;
 	  if (systemId == m_systemIdECal){  // ECAL system id
@@ -140,6 +185,12 @@ StatusCode CreateCaloClusters::execute() {
 	  cluster.addhits(newCell);
 	  edmClusterCells->push_back(newCell);
 	}
+	// Correct for lost energy in cryostat
+	if ( m_doCryoCorrection ){
+	  double corr = m_b*sqrt(abs(energyLastECal*m_a*energyFirstHCal));
+	  energy = energy + corr;
+	}
+
 	cluster.core().energy = energy;
 	cluster.core().position.x = posX / energy;
 	cluster.core().position.y = posY / energy;
@@ -161,11 +212,10 @@ StatusCode CreateCaloClusters::execute() {
       }
     }
   }
-  if (clusters->size() > 0)
-    info() << "Fraction of re-calibrated clusters      : " << sharedClusters/clusters->size()*100 << " % " << endmsg;
+  info() << "Number of re-calibrated clusters      : " << sharedClusters << endmsg;
   if (sharedClusters > 0){
-    info() << "Fraction of clusters on EM scale       : " << clustersEM/sharedClusters*100 << " % " << endmsg;
-    info() << "Fraction of clusters on hadron scale : " << clustersHad/sharedClusters*100 << " % " << endmsg;
+    info() << "Clusters calibrated to EM scale       : " << clustersEM/float(sharedClusters)*100 << " % " << endmsg;
+    info() << "Clusters calibrated to hadron scale : " << clustersHad/float(sharedClusters)*100 << " % " << endmsg;
   }
   debug() << "Output Cluster collection size: " << edmClusters->size() << endmsg;
   return StatusCode::SUCCESS;

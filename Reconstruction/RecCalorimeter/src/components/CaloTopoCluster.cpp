@@ -110,7 +110,7 @@ StatusCode CaloTopoCluster::execute() {
     double posY = 0.;
     double posZ = 0.;
     double energy = 0.;
-    int system = 0;
+    std::map<int,int> system;
 
     for (auto pair : i.second) {
       auto cellId = pair.first;
@@ -125,8 +125,7 @@ StatusCode CaloTopoCluster::execute() {
       // identify calo system
       m_decoder->setValue(cellId);
       auto systemId = (*m_decoder)["system"].value();
-      if (system != systemId && system != 0) clusterWithMixedCells++;
-      system = systemId;
+      system[int(systemId)]++;
       dd4hep::Position posCell;
       if (systemId == 5)  // ECAL BARREL system id
         posCell = m_cellPositionsECalBarrelTool->xyzPosition(cellId);
@@ -160,9 +159,11 @@ StatusCode CaloTopoCluster::execute() {
     checkTotEnergy += clusterCore.energy;
 
     edmClusters->push_back(cluster);
+    if (system.size() > 1)
+      clusterWithMixedCells++;
   }
   m_clusterCellsCollection.put(edmClusterCells);
-  info() << "Number of clusters will cells in E and HCal:        " << clusterWithMixedCells << endmsg;
+  info() << "Number of clusters with cells in E and HCal:        " << clusterWithMixedCells << endmsg;
   info() << "Total energy of clusters:                                      " << checkTotEnergy << endmsg;
   info() << "Leftover cells :                                                     " << m_allCells.size() << endmsg;
   return StatusCode::SUCCESS;
