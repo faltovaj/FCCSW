@@ -50,6 +50,21 @@ StatusCode CreateCaloClusters::initialize() {
     error() << "Unable to locate Histogram Service" << endmsg;
     return StatusCode::FAILURE;
   }
+  m_clusterEnergy = new TH1F("clusterEnergy", "energy of cluster",  10000, 0, 10000 );
+  if (m_histSvc->regHist("/rec/clusterEnergy", m_clusterEnergy).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_clusterEnergyCalibrated = new TH1F("clusterEnergyCalibrated", "energy of calibrated cluster",  10000, 0, 10000 );
+  if (m_histSvc->regHist("/rec/clusterEnergyCalibrated", m_clusterEnergyCalibrated).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_clusterEnergyBenchmark = new TH1F("clusterEnergyBenchmark", "energy of calibrated and energy loss corrected cluster",  10000, 0, 10000 );
+  if (m_histSvc->regHist("/rec/clusterEnergyBenchmark", m_clusterEnergyBenchmark).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
   m_energyScale = new TH1F("energyScale", "energy scale of cluster", 3, 0., 3. );
   if (m_histSvc->regHist("/rec/energyScale", m_energyScale).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
@@ -92,20 +107,28 @@ StatusCode CreateCaloClusters::execute() {
       // 1. Identify clusters with cells in different sub-systems
       bool cellsInBoth = false;
       std::map<uint,double> energyBoth;
-      double energyLastECal;
-      double energyFirstHCal;
-     // Loop over cluster cells 
+      // sum energies in E and HCal layers for benchmark correction
+      double energyLastECal = 0.;
+      double energyFirstHCal = 0.;
+
+      // Loop over cluster cells 
       for (uint it = 0; it < cluster.hits_size(); it++){
 	auto cellId = cluster.hits(it).core().cellId;
 	auto cellEnergy = cluster.hits(it).core().energy;
 	m_decoder->setValue(cellId);
 	uint systemId = (*m_decoder)["system"].value();
 	int layerId;
-	if (systemId == m_systemIdECal)
+	if (systemId == m_systemIdECal){
 	  layerId = (*m_decoderECal)["layer"].value();
-	else
+	  if( layerId == m_lastECalLayer) 
+	    energyLastECal += cellEnergy;
+	}
+	else{
 	  layerId = (*m_decoderHCal)["layer"].value();
-	  
+	  if ( layerId == m_firstHCalLayer)
+	    energyFirstHCal += cellEnergy;
+	}
+	
 	energyBoth[systemId] += cellEnergy;
 
 	if( systemId == m_systemIdECal && layerId == m_lastECalLayer) {
@@ -116,9 +139,12 @@ StatusCode CreateCaloClusters::execute() {
 	} 
       }
       
-      if (energyBoth.size() > 1)
+      if (energyBoth.size() > 1){
 	cellsInBoth = true;
-
+	// Fill histogram with un-calibrated energy
+	m_clusterEnergy->Fill(cluster.core().energy);
+      }
+      
       // check if cluster energy is equal to sum over cells
       if (static_cast<int>(cluster.core().energy*100.0) != static_cast<int>((energyBoth[m_systemIdECal] + energyBoth[m_systemIdHCal])*100.0))
 	warning() << "The cluster energy is not equal to sum over cell energy: " << cluster.core().energy << ", " << (energyBoth[m_systemIdECal] + energyBoth[m_systemIdHCal]) << endmsg;
@@ -148,7 +174,7 @@ StatusCode CreateCaloClusters::execute() {
 	  m_energyScaleVsClusterEnergy->Fill(1.,cluster.core().energy);
 	}
 	// Create a new cluster
-	fcc::CaloCluster cluster;
+	fcc::CaloCluster newCluster;
 	double posX = 0.;
 	double posY = 0.;
 	double posZ = 0.;
@@ -170,32 +196,37 @@ StatusCode CreateCaloClusters::execute() {
 	  if (systemId == m_systemIdECal){  // ECAL system id
 	    posCell = m_cellPositionsECalTool->xyzPosition(cellId);
 	    if (calibECal)
-	      cellEnergy = cellEnergy * m_ehECal;
+	      cellEnergy = cellEnergy / m_ehECal;
 	  }
 	  else if (systemId == m_systemIdHCal){  // HCAL system id
 	    posCell = m_cellPositionsHCalTool->xyzPosition(cellId);
 	    if (!calibECal)
-	      cellEnergy = cellEnergy / m_ehHCal;
+	      cellEnergy = cellEnergy * m_ehHCal;
 	  }
 	  newCell.core().energy = cellEnergy;
-	  energy += cellEnergy;
 	  posX += posCell.X() * cellEnergy;
 	  posY += posCell.Y() * cellEnergy;
 	  posZ += posCell.Z() * cellEnergy;
-	  cluster.addhits(newCell);
+	  newCluster.addhits(newCell);
 	  edmClusterCells->push_back(newCell);
+	  energy += cellEnergy;
 	}
+	// Fill histogram with calibrated energy
+	m_clusterEnergyCalibrated->Fill(energy);
+
 	// Correct for lost energy in cryostat
 	if ( m_doCryoCorrection ){
-	  double corr = m_b*sqrt(abs(energyLastECal*m_a*energyFirstHCal));
-	  energy = energy + corr;
+	  double corr = m_b*sqrt(fabs(energyLastECal*m_a*energyFirstHCal));
+	  energy += corr;
+	  // Fill histogram with corrected energy
+	  m_clusterEnergyBenchmark->Fill(energy);
 	}
 
-	cluster.core().energy = energy;
-	cluster.core().position.x = posX / energy;
-	cluster.core().position.y = posY / energy;
-	cluster.core().position.z = posZ / energy;
-	edmClusters->push_back(cluster);
+	newCluster.core().energy = energy;
+	newCluster.core().position.x = posX / energy;
+	newCluster.core().position.y = posY / energy;
+	newCluster.core().position.z = posZ / energy;
+	edmClusters->push_back(newCluster);
       }
       else { // Fill the unchanged cluster in output collection
 	auto newCluster = cluster.clone();
@@ -221,4 +252,11 @@ StatusCode CreateCaloClusters::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode CreateCaloClusters::finalize() { return GaudiAlgorithm::finalize(); }
+StatusCode CreateCaloClusters::finalize() { 
+  float allCalibCluster = m_clusterEnergy->GetEntries();
+  m_clusterEnergy->Scale(1/allCalibCluster);
+  m_clusterEnergyCalibrated->Scale(1/allCalibCluster);
+  m_clusterEnergyBenchmark->Scale(1/allCalibCluster);
+  m_energyScale->Scale(1/allCalibCluster);
+
+return GaudiAlgorithm::finalize(); }

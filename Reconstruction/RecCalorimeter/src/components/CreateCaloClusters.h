@@ -73,6 +73,9 @@ private:
 
   TH1F* m_energyScale;
   TH2F* m_energyScaleVsClusterEnergy;
+  TH1F* m_clusterEnergy;
+  TH1F* m_clusterEnergyCalibrated;
+  TH1F* m_clusterEnergyBenchmark;
 //  /// Handle for the cells noise tool in ECal
 //  ToolHandle<ICaloReadPileUpNoise> m_ecalNoiseTool{"ReadPileUpNoiseFromFileTool", this};
 //  /// Handle for the cells noise tool in HCal
