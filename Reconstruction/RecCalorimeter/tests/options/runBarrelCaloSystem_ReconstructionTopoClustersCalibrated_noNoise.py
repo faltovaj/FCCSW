@@ -133,6 +133,7 @@ calibrateClusters = CreateCaloClusters("CalibrateClusters",
                                        positionsHCalTool = HCalBcellVols,
                                        ehECal = 1.6,
                                        ehHCal = 1.1,
+                                       addPileupNoise = False,
                                        OutputLevel = DEBUG)
 
 THistSvc().Output = ["rec DATAFILE='clusterCalibration.root' TYP='ROOT' OPT='RECREATE'"]

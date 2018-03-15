@@ -4,7 +4,7 @@
 // FCCSW
 #include "FWCore/DataHandle.h"
 #include "RecInterface/ICalorimeterTool.h"
-// #include "RecInterface/ICaloReadPileUpNoise.h"
+#include "RecInterface/INoiseConstTool.h"
 #include "RecInterface/ICellPositionsTool.h"
 
 // DD4hep
@@ -69,6 +69,12 @@ private:
   /// Handle for tool to get positions in HCal Barrel and Ext Barrel, no Segmentation
   ToolHandle<ICellPositionsTool> m_cellPositionsHCalTool{"CellPositionsHCalBarrelNoSegTool", this};
 
+  /// ATTENTION!!!Used as input of pile-up noise scaling factors!!!
+  /// Handle for the calorimeter cells noise tool
+  ToolHandle<INoiseConstTool> m_noiseECalTool{"NoiseCaloCellsFlatTool", this};
+  /// Handle for the calorimeter cells noise tool
+  ToolHandle<INoiseConstTool> m_noiseHCalTool{"NoiseCaloCellsFlatTool", this};
+
   const char *types[2] = {"EM", "HAD"};
 
   TH1F* m_energyScale;
@@ -79,13 +85,12 @@ private:
   TH1F* m_clusterEnergy;
   TH1F* m_clusterEnergyCalibrated;
   TH1F* m_clusterEnergyBenchmark;
-//  /// Handle for the cells noise tool in ECal
-//  ToolHandle<ICaloReadPileUpNoise> m_ecalNoiseTool{"ReadPileUpNoiseFromFileTool", this};
-//  /// Handle for the cells noise tool in HCal
-//  ToolHandle<ICaloReadPileUpNoise> m_hcalNoiseTool{"ReadPileUpNoiseFromFileTool", this};
 
   /// bool if calibration is applied
   bool m_doCalibration =  true;
+  /// bool if calibration is applied                                                                                                                                                                                                      
+  bool m_addNoise;
+
  /// e/h of ECal
   double m_ehECal;
   /// e/h of HCal
