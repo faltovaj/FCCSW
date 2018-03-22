@@ -86,23 +86,21 @@ private:
   TH1F* m_clusterEnergyCalibrated;
   TH1F* m_clusterEnergyBenchmark;
 
-  /// bool if calibration is applied
-  bool m_doCalibration =  true;
-  /// bool if calibration is applied                                                                                                                                                                                                      
-  bool m_addNoise;
+  /// bool if additional pile-up noise is added                                                            
+  bool m_addNoise = false;
 
  /// e/h of ECal
   double m_ehECal;
   /// e/h of HCal
   double m_ehHCal;
-   /// bool if energy loss needs correction is applied
-  bool m_doCryoCorrection =  true;
 
   dd4hep::DDSegmentation::BitField64* m_decoder = new dd4hep::DDSegmentation::BitField64("system:4");
   dd4hep::DDSegmentation::BitField64* m_decoderECal;
   dd4hep::DDSegmentation::BitField64* m_decoderHCal;
 
   /// System id by default Barrel, EC(6,7), Fwd(10,11)
+  Gaudi::Property<bool> m_doCalibration(this, "calibrate", true, "Clusters are going to be calibrated");
+  Gaudi::Property<bool> m_doCryoCorrection(this, "cryoCorrection", true, "Correction of lost energy between E and HCal");
   Gaudi::Property<float> m_a{this, "a", 0.978, "scaling of ECal energy"};
   Gaudi::Property<float> m_b{this, "b", 0.479, "scaling of energy loss in cryostat"};
   Gaudi::Property<int> m_lastECalLayer{this, "lastECalLayer", 7, "Layer id of last ECal layer"};

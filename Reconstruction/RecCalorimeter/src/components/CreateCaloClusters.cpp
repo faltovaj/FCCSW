@@ -27,8 +27,6 @@ CreateCaloClusters::CreateCaloClusters(const std::string& name, ISvcLocator* svc
   declareProperty("positionsHCalTool", m_cellPositionsHCalTool,
                   "Handle for tool to retrieve cell positions in HCal");
  
-  declareProperty("calibrate", m_doCalibration, "Clusters are going to be calibrated");
-  declareProperty("cryoCorrection", m_doCryoCorrection, "Correction of lost energy between E and HCal");
   declareProperty("ehECal", m_ehECal, "e/h of the ECal");
   declareProperty("ehHCal", m_ehHCal, "e/h of the HCal");
 
@@ -223,7 +221,7 @@ StatusCode CreateCaloClusters::execute() {
 	  if (systemId == m_systemIdECal){  // ECAL system id
 	    posCell = m_cellPositionsECalTool->xyzPosition(cellId);
 	    if (calibECal)
-	      cellEnergy = cellEnergy / m_ehECal;
+	      cellEnergy = cellEnergy * m_ehECal;
 	    if ( m_addNoise ) {
 	      // Scale the cell energy by factor determined from he correlated pile-up studies
 	      cellEnergy = cellEnergy * m_noiseECalTool->getNoiseConstantPerCell(cellId);
@@ -231,8 +229,8 @@ StatusCode CreateCaloClusters::execute() {
 	  }
 	  else if (systemId == m_systemIdHCal){  // HCAL system id
 	    posCell = m_cellPositionsHCalTool->xyzPosition(cellId);
-	    if (!calibECal)
-	      cellEnergy = cellEnergy * m_ehHCal;
+	    // Calibrate HCal on EM scale 
+	    cellEnergy = cellEnergy / m_ehHCal;
 	    if ( m_addNoise ) {
 	      // Scale the cell energy by factor determined from he correlated pile-up studies
 	      cellEnergy = cellEnergy * m_noiseHCalTool->getNoiseConstantPerCell(cellId);
@@ -281,6 +279,10 @@ StatusCode CreateCaloClusters::execute() {
 	      cellEnergy = cellEnergy * m_noiseECalTool->getNoiseConstantPerCell(cellId);
 	    else 
 	      cellEnergy = cellEnergy * m_noiseHCalTool->getNoiseConstantPerCell(cellId);
+	  }
+	  else if (systemId == m_systemIdHCal){  // HCAL system id
+	    // Calibrate HCal on EM scale 
+	    cellEnergy = cellEnergy / m_ehHCal;
 	  }
 	  newCell.core().energy = cellEnergy;
 	  newCell.core().cellId = cellId;
