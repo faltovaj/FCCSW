@@ -11,10 +11,8 @@ hcalFwdCellsName = "HCalFwdCells"
 ecalBarrelReadoutName = "ECalBarrelPhiEta"
 ecalEndcapReadoutName = "EMECPhiEta"
 ecalFwdReadoutName = "EMFwdPhiEta"
-hcalBarrelReadoutName = "BarHCal_Readout"
-hcalBarrelReadoutVolume = "HCalBarrelReadout"
-hcalExtBarrelReadoutName = "ExtBarHCal_Readout"
-hcalExtBarrelReadoutVolume = "HCalExtBarrelReadout"
+hcalBarrelReadoutName = "HCalBarrelReadout"
+hcalExtBarrelReadoutName = "HCalExtBarrelReadout"
 hcalEndcapReadoutName = "HECPhiEta"
 hcalFwdReadoutName = "HFwdPhiEta"
 
@@ -57,10 +55,10 @@ ECalFwdcells = CellPositionsCaloDiscsTool("CellPositionsECalFwd",
                                           readoutName = ecalFwdReadoutName, 
                                           OutputLevel = INFO)
 HCalBcellVols = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalBarrelVols", 
-                                                 readoutName = hcalBarrelReadoutVolume, 
+                                                 readoutName = hcalBarrelReadoutName, 
                                                  OutputLevel = INFO)
 HCalExtBcellVols = CellPositionsHCalBarrelNoSegTool("CellPositionsHCalExtBarrel", 
-                                                    readoutName = hcalExtBarrelReadoutVolume, 
+                                                    readoutName = hcalExtBarrelReadoutName, 
                                                     OutputLevel = INFO)
 HECcells = CellPositionsCaloDiscsTool("CellPositionsHEC", 
                                       readoutName = hcalEndcapReadoutName, 
@@ -79,7 +77,7 @@ createTopoInput = CaloTopoClusterInputTool("CreateTopoInput",
                                            ecalBarrelReadoutName = ecalBarrelReadoutName,
                                            ecalEndcapReadoutName = "",
                                            ecalFwdReadoutName = "",
-                                           hcalBarrelReadoutName = hcalBarrelReadoutVolume,
+                                           hcalBarrelReadoutName = hcalBarrelReadoutName,
                                            hcalExtBarrelReadoutName = "",
                                            hcalEndcapReadoutName = "",
                                            hcalFwdReadoutName = "",
@@ -159,7 +157,7 @@ ApplicationMgr(
               out
               ],
     EvtSel = 'NONE',
-    EvtMax   = 10,
+    EvtMax   = 3,
     ExtSvc = [geoservice, podioevent, audsvc],
 #    OutputLevel=DEBUG
 )
