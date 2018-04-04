@@ -1,4 +1,4 @@
-#include "RewriteBitfield.h"
+#include "RewriteHCalBarrelBitfield.h"
 
 // FCCSW
 #include "DetInterface/IGeoSvc.h"
@@ -10,16 +10,18 @@
 #include "DD4hep/Detector.h"
 #include "DDSegmentation/Segmentation.h"
 
-DECLARE_ALGORITHM_FACTORY(RewriteBitfield)
+#include <math.h>
 
-RewriteBitfield::RewriteBitfield(const std::string& aName, ISvcLocator* aSvcLoc) : GaudiAlgorithm(aName, aSvcLoc) {
+DECLARE_ALGORITHM_FACTORY(RewriteHCalBarrelBitfield)
+
+RewriteHCalBarrelBitfield::RewriteHCalBarrelBitfield(const std::string& aName, ISvcLocator* aSvcLoc) : GaudiAlgorithm(aName, aSvcLoc) {
   declareProperty("inhits", m_inHits, "Hit collection with old segmentation (input)");
   declareProperty("outhits", m_outHits, "Hit collection with modified segmentation (output)");
 }
 
-RewriteBitfield::~RewriteBitfield() {}
+RewriteHCalBarrelBitfield::~RewriteHCalBarrelBitfield() {}
 
-StatusCode RewriteBitfield::initialize() {
+StatusCode RewriteHCalBarrelBitfield::initialize() {
   if (GaudiAlgorithm::initialize().isFailure()) return StatusCode::FAILURE;
   m_geoSvc = service("GeoSvc");
   if (!m_geoSvc) {
@@ -52,7 +54,7 @@ StatusCode RewriteBitfield::initialize() {
     }
   }
   std::vector<std::string> newFields;
-  m_newDecoder = m_geoSvc->lcdd()->readout(m_newReadoutName).idSpec().decoder();
+  m_newDecoder =  m_geoSvc->lcdd()->readout(m_newReadoutName).idSpec().decoder();
   for (uint itField = 0; itField < m_newDecoder->size(); itField++) {
     newFields.push_back((*m_newDecoder)[itField].name());
   }
@@ -71,18 +73,24 @@ StatusCode RewriteBitfield::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RewriteBitfield::execute() {
+StatusCode RewriteHCalBarrelBitfield::execute() {
   const auto inHits = m_inHits.get();
   auto outHits = m_outHits.createAndPut();
   // loop over positioned hits to get the energy deposits: position and cellID
   // cellID contains the volumeID that needs to be copied to the new id
   uint64_t oldid = 0;
   uint debugIter = 0;
+  //uint offsetPhiIds = 64; 
+  m_segmentation = dynamic_cast<dd4hep::DDSegmentation::FCCSWGridPhiEta*>(
+      m_geoSvc->lcdd()->readout(m_oldReadoutName).segmentation().segmentation());
+
   for (const auto& hit : *inHits) {
     fcc::CaloHit newHit = outHits->create();
     newHit.energy(hit.energy());
     newHit.time(hit.time());
     m_oldDecoder->setValue(hit.cellId());
+        
+    auto inSegPhi = m_segmentation->phi(hit.cellId());
     if (debugIter < m_debugPrint) {
       debug() << "OLD: " << m_oldDecoder->valueString() << endmsg;
     }
@@ -90,6 +98,20 @@ StatusCode RewriteBitfield::execute() {
     for (const auto& detectorField : m_detectorIdentifiers) {
       oldid = (*m_oldDecoder)[detectorField];
       (*m_newDecoder)[detectorField] = oldid;
+      if (detectorField == "module"){
+	// get phi id
+	auto phiId = (*m_oldDecoder)["phi"];
+	uint newModuleId = phiId;
+	(*m_newDecoder)[detectorField] = newModuleId;
+	if (debugIter < m_debugPrint) {
+	  debug() << "Phi of Cell   : " << inSegPhi << endmsg;
+	  debug() << "old module id : " << oldid << endmsg;
+	  debug() << "old phi    id : " << phiId << endmsg;
+	  debug() << "new module id : " << newModuleId << endmsg;
+	}
+      }else{ 
+	(*m_newDecoder)[detectorField] = oldid;
+      } 
     }
     newHit.cellId(m_newDecoder->getValue());
     if (debugIter < m_debugPrint) {
@@ -100,4 +122,4 @@ StatusCode RewriteBitfield::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RewriteBitfield::finalize() { return GaudiAlgorithm::finalize(); }
+StatusCode RewriteHCalBarrelBitfield::finalize() { return GaudiAlgorithm::finalize(); }
