@@ -171,12 +171,14 @@ StatusCode CaloTopoCluster::execute() {
 
 void CaloTopoCluster::findingSeeds(const std::map<uint64_t, double>& cells,
                                    int nSigma,
-                                   std::vector<std::pair<uint64_t, double>>& seeds) {
+                                   std::vector<std::pair<uint64_t, double> >& seeds) {
   for (const auto& cell : cells) {
-    // retrieve the noise const assigned to cell
+    // retrieve the noise const and offset assigned to cell
     double threshold = (m_noiseTool->noiseOffset(cell.first) + ( m_noiseTool->noiseRMS(cell.first) * nSigma) ) / dd4hep::MeV;
+    debug() << "noise offset    = " << m_noiseTool->noiseOffset(cell.first)/ dd4hep::MeV << "MeV " << endmsg;
+    debug() << "noise rms       = " << m_noiseTool->noiseRMS(cell.first)/ dd4hep::MeV << "MeV " << endmsg;
     debug() << "seed threshold  = " << threshold << "MeV " << endmsg;
-    if (abs(cell.second) / dd4hep::MeV > threshold) {  // seed threshold is set to 4*Sigma
+    if (abs(cell.second) / dd4hep::MeV > threshold) {
       seeds.emplace_back(cell.first, cell.second);
     }
   }
@@ -221,7 +223,7 @@ void CaloTopoCluster::buildingProtoCluster(
       while (N2[it].size() > 0) {
         it++;
         for (auto& id : N2[it - 1]) {
-          debug() << "Next neighbours assigned to clusterId : " << id.second << endmsg;
+          debug() << "Next neighbours assigned to clusterId : " << clusterId << endmsg;
           N2[it] = CaloTopoCluster::searchForNeighbours(id.first, clusterId, nSigma, allCells, clusterOfCell,
                                                         preClusterCollection);
         }
@@ -269,7 +271,7 @@ CaloTopoCluster::searchForNeighbours(const uint64_t id,
           validatedNeighbour = true;
         else {
           // retrieve the cell noise level [GeV]
-          double thr = (nSigma * m_noiseTool->noiseRMS(neighbourID)) + m_noiseTool->noiseOffset(neighbourID);
+          double thr = m_noiseTool->noiseOffset(neighbourID) + (nSigma * m_noiseTool->noiseRMS(neighbourID));
           if (abs(neighbouringCellEnergy) > thr)
             validatedNeighbour = true;
           else

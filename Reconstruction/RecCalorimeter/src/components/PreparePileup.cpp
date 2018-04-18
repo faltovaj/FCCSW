@@ -4,10 +4,8 @@
 #include "DetInterface/IGeoSvc.h"
 
 // DD4hep
-//#include "DD4hep/LCDD.h"
-#include "DD4hep/Readout.h"
 #include "DD4hep/Detector.h"
-#include "DDSegmentation/Segmentation.h"
+#include "DD4hep/Readout.h"
 
 // our EDM
 #include "datamodel/CaloHit.h"
@@ -24,7 +22,6 @@ DECLARE_ALGORITHM_FACTORY(PreparePileup)
 PreparePileup::PreparePileup(const std::string& name, ISvcLocator* svcLoc) : GaudiAlgorithm(name, svcLoc) {
   declareProperty("hits", m_hits, "Hits from which to create cells (input)");
   declareProperty("geometryTool", m_geoTool, "Handle for the geometry tool");
-  declareProperty("towerTool", m_towerTool, "Handle for the tower building tool");
 }
 
 StatusCode PreparePileup::initialize() {
@@ -42,12 +39,23 @@ StatusCode PreparePileup::initialize() {
     error() << "Readout <<" << m_readoutName << ">> does not exist." << endmsg;
     return StatusCode::FAILURE;
   }
-  // retrieve PhiEta segmentation
-  m_segmentation = dynamic_cast<dd4hep::DDSegmentation::FCCSWGridPhiEta*>(
-      m_geoSvc->lcdd()->readout(m_readoutName).segmentation().segmentation());
-  if (m_segmentation == nullptr) {
-    error() << "There is no phi-eta segmentation." << endmsg;
-    return StatusCode::FAILURE;
+  
+  if (m_doClusters){
+    // retrieve PhiEta segmentation
+    m_segmentation = dynamic_cast<dd4hep::DDSegmentation::FCCSWGridPhiEta*>(
+									    m_geoSvc->lcdd()->readout(m_readoutName).segmentation().segmentation());
+    if (m_segmentation == nullptr) {
+      error() << "There is no phi-eta segmentation." << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+  else { 
+    // initialize cell posiiotns tool
+    // Check if cell position ECal Barrel tool available
+    if (!m_cellPositionsTool.retrieve()) {
+      error() << "Unable to retrieve ECal Barrel cell positions tool!!!" << endmsg;
+      return StatusCode::FAILURE;
+    }
   }
   // Take readout bitfield decoder from GeoSvc
   m_decoder = m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder();
@@ -84,6 +92,7 @@ StatusCode PreparePileup::initialize() {
       return StatusCode::FAILURE;
     }
   }
+  if(m_doClusters){
   for (uint iCluster = 0; iCluster < m_etaSizes.size(); iCluster++) {
     m_energyVsAbsEtaClusters.push_back(new TH2F((m_histogramName + "_clusterEta" + std::to_string(m_etaSizes[iCluster]) + "Phi" + std::to_string(m_phiSizes[iCluster])).c_str(),
             ("energy per cluster #Delta#eta#times#Delta#varphi = " + std::to_string(m_etaSizes[iCluster]) + "#times" + std::to_string(m_phiSizes[iCluster]) + " vs fabs centre-cell eta ").c_str(),
@@ -99,7 +108,12 @@ StatusCode PreparePileup::initialize() {
     if (m_histSvc
   ->regHist("/rec/" + m_histogramName + "_clusterEta" + std::to_string(m_etaSizes[iCluster]) + "Phi" + std::to_string(m_phiSizes[iCluster]) + "AllEvents", m_energyAllEventsVsAbsEtaClusters.back())
   .isFailure()) {
- 
+      error() << "Couldn't register hist" << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+  }
+
   // Initialization of geometry tool
   if (!m_geoTool.retrieve()) {
     error() << "Unable to retrieve the geometry tool!!!" << endmsg;
@@ -116,6 +130,7 @@ StatusCode PreparePileup::initialize() {
   //StatusCode sc_prepareCellsTwo = m_geoTool->prepareEmptyCells(m_sumEnergyCellsMap);
   m_sumEnergyCellsMap = m_cellsMap;
 
+  if (m_doClusters){
   if (!m_towerTool.retrieve()) {
     error() << "Unable to retrieve the tower building tool." << endmsg;
     return StatusCode::FAILURE;
@@ -124,6 +139,7 @@ StatusCode PreparePileup::initialize() {
   m_nEtaTower = towerMapSize.eta;
   m_nPhiTower = towerMapSize.phi;
   debug() << "Number of calorimeter towers (eta x phi) : " << m_nEtaTower << " x " << m_nPhiTower << endmsg;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -131,6 +147,7 @@ StatusCode PreparePileup::execute() {
   // Get the input collection with Geant4 hits
   const fcc::CaloHitCollection* hits = m_hits.get();
   debug() << "Input Hit collection size: " << hits->size() << endmsg;
+
   // 0. Clear all cells
   std::for_each(m_cellsMap.begin(), m_cellsMap.end(), [](std::pair<const uint64_t, double>& p) { p.second = 0; });
 
@@ -155,9 +172,17 @@ StatusCode PreparePileup::execute() {
                 << ". Filling the last histogram." << endmsg;
 
     }
-    double cellEta = m_segmentation->eta(cellId);
+    double cellEta;
+    if (m_doClusters){
+      cellEta = m_segmentation->eta(cellId);
+    }
+    else {
+      auto posCell = m_cellPositionsTool->xyzPosition(cellId);
+      cellEta = posCell.Eta();
+    }
     m_energyVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
   }
+  if (m_doClusters){
   // create towers
   m_towers.assign(m_nEtaTower, std::vector<float>(m_nPhiTower, 0));
   m_towerTool->buildTowers(m_towers);
@@ -200,7 +225,7 @@ StatusCode PreparePileup::execute() {
       }
     }
   }
-
+  }
   // create towers
 
   return StatusCode::SUCCESS;
@@ -232,7 +257,14 @@ StatusCode PreparePileup::finalize() {
                 << ". Filling the last histogram." << endmsg;
 
     }
-    double cellEta = m_segmentation->eta(cellId);
+    double cellEta;
+    if (m_doClusters){
+      cellEta = m_segmentation->eta(cellId);
+    }
+    else {
+      auto posCell = m_cellPositionsTool->xyzPosition(cellId);
+      cellEta = posCell.Eta();
+    }
     m_energyAllEventsVsAbsEta[layerId]->Fill(fabs(cellEta), cellEnergy);
   }
 
