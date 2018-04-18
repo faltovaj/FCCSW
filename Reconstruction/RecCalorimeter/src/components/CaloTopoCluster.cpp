@@ -229,14 +229,19 @@ void CaloTopoCluster::buildingProtoCluster(
         }
         debug() << "Found " << N2[it].size() << " more neighbours.." << endmsg;
       }
-      // last try without condition on neighbours
+      // last try with different condition on neighbours
       if (N2[it].size() == 0) {
-	for (auto& id : N2[it-1]) {
-	  debug() << "Add neighbours of " << id.first << " in last round with thr = " << lastNSigma << "Sigma." << endmsg;
-	  N2[it] = CaloTopoCluster::searchForNeighbours(id.first, clusterId, lastNSigma, allCells, clusterOfCell,
-							preClusterCollection, false);
-	  continue;
+	std::vector<std::pair<uint64_t, uint>> vecToLoop;
+	if (it == 0)
+	  vecToLoop = N1;
+	else
+	  vecToLoop = N2[it - 1];
+	for (auto& id : vecToLoop) {
+	  debug() << "Add neighbours of " << id.first << " in last round with thr = " << lastNSigma << " x sigma." << endmsg;
+	  auto lastNeighours = CaloTopoCluster::searchForNeighbours(id.first, clusterId, lastNSigma, allCells, clusterOfCell,
+								    preClusterCollection, false);
 	}
+	continue;
       }
     }
   }
@@ -272,8 +277,11 @@ CaloTopoCluster::searchForNeighbours(const uint64_t id,
         debug() << "Found neighbour with CellID: " << neighbourID << endmsg;
         auto neighbouringCellEnergy = itAllCells->second;
         bool validatedNeighbour = false;
-        if (nSigma == 0)  // no condition to be checked for neighbour
+	int cellType = 2;
+        if (nSigma == 0){  // no condition to be checked for neighbour
           validatedNeighbour = true;
+	  cellType = 3;
+	}
         else {
           // retrieve the cell noise level [GeV]
           double thr = m_noiseTool->noiseOffset(neighbourID) + (nSigma * m_noiseTool->noiseRMS(neighbourID));
@@ -287,7 +295,7 @@ CaloTopoCluster::searchForNeighbours(const uint64_t id,
           // retrieve the cell
           // add neighbour to cells for cluster
           // set Bits to 2 for neighbour cell
-          preClusterCollection[clusterID].push_back(std::make_pair(neighbourID, 2));
+          preClusterCollection[clusterID].push_back(std::make_pair(neighbourID, cellType));
           clusterOfCell[neighbourID] = clusterID;
           addedNeighbourIds.push_back(std::make_pair(neighbourID, clusterID));
         }
