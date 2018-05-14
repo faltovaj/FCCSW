@@ -19,6 +19,7 @@
 #include "datamodel/CaloCluster.h"
 #include "datamodel/CaloHitCollection.h"
 #include "datamodel/CaloClusterCollection.h"
+#include "datamodel/MCParticleCollection.h"
 
 class IGeoSvc;
 namespace DD4hep {
@@ -59,6 +60,8 @@ private:
 
   /// Handle for calo clusters (input collection)
   DataHandle<fcc::CaloClusterCollection> m_clusters{"calo/clusters", Gaudi::DataHandle::Reader, this};
+  /// Handle for calo clusters (input collection)
+  DataHandle<fcc::MCParticleCollection> m_genParticles{"calo/genParticles", Gaudi::DataHandle::Reader, this};
   /// Handle for calo clusters (output collection)
   DataHandle<fcc::CaloClusterCollection> m_newClusters{"calo/calibClusters", Gaudi::DataHandle::Writer, this};
   // Handle for calo cells (output collection)
@@ -78,31 +81,37 @@ private:
   const char *types[2] = {"EM", "HAD"};
 
   TH1F* m_energyScale;
+  TH1F* m_benchmark;
+  TH1F* m_fractionEMcluster;
   TH2F* m_energyScaleVsClusterEnergy;
   TH1F* m_totEnergy;
   TH1F* m_totCalibEnergy;
   TH1F* m_totBenchmarkEnergy;
   TH1F* m_clusterEnergy;
+  TH1F* m_sharedClusterEnergy;
   TH1F* m_clusterEnergyCalibrated;
   TH1F* m_clusterEnergyBenchmark;
 
-  /// bool if additional pile-up noise is added                                                            
+  /// bool if calibration is applied
+  bool m_doCalibration =  true;
+  /// bool if calibration is applied                                                                                                                                                                                                      
   bool m_addNoise = false;
 
  /// e/h of ECal
   double m_ehECal;
   /// e/h of HCal
   double m_ehHCal;
+   /// bool if energy loss needs correction is applied
+  bool m_doCryoCorrection =  true;
 
   dd4hep::DDSegmentation::BitField64* m_decoder = new dd4hep::DDSegmentation::BitField64("system:4");
   dd4hep::DDSegmentation::BitField64* m_decoderECal;
   dd4hep::DDSegmentation::BitField64* m_decoderHCal;
 
   /// System id by default Barrel, EC(6,7), Fwd(10,11)
-  Gaudi::Property<bool> m_doCalibration(this, "calibrate", true, "Clusters are going to be calibrated");
-  Gaudi::Property<bool> m_doCryoCorrection(this, "cryoCorrection", true, "Correction of lost energy between E and HCal");
-  Gaudi::Property<float> m_a{this, "a", 0.978, "scaling of ECal energy"};
-  Gaudi::Property<float> m_b{this, "b", 0.479, "scaling of energy loss in cryostat"};
+  Gaudi::Property<float> m_a{this, "a", 0.985, "scaling of ECal energy"}; // no Bfield: 0.9867
+  Gaudi::Property<float> m_b{this, "b", 0.5756, "scaling of energy loss in cryostat"};// no Bfield: 0.432
+  Gaudi::Property<float> m_c{this, "c", -6.24E-6, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6
   Gaudi::Property<int> m_lastECalLayer{this, "lastECalLayer", 7, "Layer id of last ECal layer"};
   Gaudi::Property<int> m_firstHCalLayer{this, "firstHCalLayer", 0, "Layer id of first HCal layer"};
 

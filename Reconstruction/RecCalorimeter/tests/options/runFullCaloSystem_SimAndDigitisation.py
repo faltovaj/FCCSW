@@ -97,9 +97,9 @@ pgun = SimG4SingleParticleGeneratorTool("SimG4SingleParticleGeneratorTool",saveE
                 OutputLevel = DEBUG)
 
 geantsim = SimG4Alg("SimG4Alg",
-                       outputs= ["SimG4SaveCalHits/saveECalBarrelHits", "SimG4SaveCalHits/saveECalEndcapHits",
-                                 "SimG4SaveCalHits/saveECalFwdHits", "SimG4SaveCalHits/saveHCalHits",
-                                 "SimG4SaveCalHits/saveExtHCalHits", "SimG4SaveCalHits/saveHCalEndcapHits",
+                       outputs= ["SimG4SaveCalHits/saveECalBarrelHits", "SimG4SaveCalHits/saveECalEndcapHits", 
+                                 "SimG4SaveCalHits/saveECalFwdHits", "SimG4SaveCalHits/saveHCalHits", 
+                                 "SimG4SaveCalHits/saveExtHCalHits", "SimG4SaveCalHits/saveHCalEndcapHits", 
                                  "SimG4SaveCalHits/saveHCalFwdHits"],
                        eventProvider=pgun,
                        OutputLevel=INFO)
@@ -251,7 +251,8 @@ createHcalFwdCells = CreateCaloCells("CreateHcalFwdCaloCells",
 createHcalFwdCells.hits.Path="HCalFwdHits"
 createHcalFwdCells.cells.Path="HCalFwdCells"
 
-out = PodioOutput("out",
+
+out = PodioOutput("out", 
                   OutputLevel=INFO)
 out.outputCommands = ["drop *", "keep ECalBarrelCells", "keep ECalEndcapCells", "keep ECalFwdCells", "keep HCalBarrelCells", "keep HCalExtBarrelCells", "keep HCalEndcapCells", "keep HCalFwdCells", "keep GenParticles","keep GenVertices"]
 out.filename = "output_fullCalo_SimAndDigi_e50GeV_"+str(num_events)+"events.root"
@@ -272,7 +273,6 @@ createHcalCells.AuditExecute = True
 createExtHcalCells.AuditExecute = True
 createHcalEndcapCells.AuditExecute = True
 createHcalFwdCells.AuditExecute = True
-createTailCatcherCells.AuditExecute = True
 out.AuditExecute = True
 
 ApplicationMgr(
@@ -289,7 +289,6 @@ ApplicationMgr(
               mergelayersHcalEndcap,
               createHcalEndcapCells,
               createHcalFwdCells,
-              createTailCatcherCells,
               out
               ],
     EvtSel = 'NONE',
