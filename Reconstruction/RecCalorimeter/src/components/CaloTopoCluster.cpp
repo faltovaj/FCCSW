@@ -100,7 +100,7 @@ StatusCode CaloTopoCluster::execute() {
               return lhs.second < rhs.second;
             });
 
-  std::map<uint, std::vector <std::pair<uint64_t, uint> > > preClusterCollection;
+  std::map<uint, std::vector<std::pair<uint64_t, uint>>> preClusterCollection;
   CaloTopoCluster::buildingProtoCluster(m_neighbourSigma, m_lastNeighbourSigma, firstSeeds, allCells,
                                         preClusterCollection);
   // Build Clusters in edm
@@ -175,7 +175,7 @@ StatusCode CaloTopoCluster::execute() {
 
 void CaloTopoCluster::findingSeeds(const std::map<uint64_t, double>& aCells,
                                    int aNumSigma,
-                                   std::vector<std::pair<uint64_t, double> >& aSeeds) {
+                                   std::vector<std::pair<uint64_t, double>>& aSeeds) {
   for (const auto& cell : aCells) {
     // retrieve the noise const and offset assigned to cell
     double threshold = (m_noiseTool->noiseOffset(cell.first) + ( m_noiseTool->noiseRMS(cell.first) * aNumSigma) ) / dd4hep::MeV;
@@ -193,9 +193,9 @@ void CaloTopoCluster::findingSeeds(const std::map<uint64_t, double>& aCells,
 void CaloTopoCluster::buildingProtoCluster(
     int aNumSigma,
     int aLastNumSigma,
-    std::vector<std::pair<uint64_t, double> >& aSeeds,
+    std::vector<std::pair<uint64_t, double>>& aSeeds,
     const std::map<uint64_t, double>& aCells,
-    std::map<uint, std::vector <std::pair<uint64_t, uint> > >& aPreClusterCollection) {
+    std::map<uint, std::vector<std::pair<uint64_t, uint>>>& aPreClusterCollection) {
   // Map of cellIds to clusterIds
   std::map<uint64_t, uint> clusterOfCell;
 
@@ -219,7 +219,7 @@ void CaloTopoCluster::buildingProtoCluster(
       uint clusterId = iSeeds;
       clusterOfCell[seedId] = clusterId;
 
-      std::vector< std::vector< std::pair<uint64_t, uint> > > vecNextNeighbours(100000);
+      std::vector<std::vector<std::pair<uint64_t, uint>>> vecNextNeighbours(100000);
       vecNextNeighbours[0] = CaloTopoCluster::searchForNeighbours(seedId, clusterId, aNumSigma, aCells, clusterOfCell,
                                                      aPreClusterCollection, true);
       // first loop over seeds neighbours
@@ -257,12 +257,12 @@ std::vector<std::pair<uint64_t, uint> >
 CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
                                      uint& aClusterID,
                                      int aNumSigma,
-                                     const std::map<uint64_t, double>& aCells,
+                                     const std::map<uint64_t, double>& aAllCells,
                                      std::map<uint64_t, uint>& aClusterOfCell,
-                                     std::map<uint, std::vector< std::pair<uint64_t, uint> >>& aPreClusterCollection,
+                                     std::map<uint, std::vector<std::pair<uint64_t, uint>>>& aPreClusterColl,
 				     bool aAllowClusterMerge) {
   // Fill vector to be returned, next cell ids and cluster id for which neighbours are found
-  std::vector< std::pair<uint64_t, uint> > addedNeighbourIds;
+  std::vector<std::pair<uint64_t, uint>> addedNeighbourIds;
   // Retrieve cellIds of neighbours
   auto neighboursVec = m_neighboursTool->neighbours(aCellId);
   if (neighboursVec.size() == 0) {
@@ -275,11 +275,11 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
     for (auto& itr : neighboursVec) {
       auto neighbourID = itr;
       // Find the neighbour in the Calo cells list
-      auto itAllCells = aCells.find(neighbourID);
+      auto itAllCells = aAllCells.find(neighbourID);
       auto itAllUsedCells = aClusterOfCell.find(neighbourID);
 
       // If cell is hit.. and is not assigned to a cluster
-      if (itAllCells != aCells.end() && itAllUsedCells == aClusterOfCell.end()) {
+      if (itAllCells != aAllCells.end() && itAllUsedCells == aClusterOfCell.end()) {
         verbose() << "Found neighbour with CellID: " << neighbourID << endmsg;
         auto neighbouringCellEnergy = itAllCells->second;
         bool addNeighbour = false;
@@ -300,7 +300,7 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
         if (addNeighbour) {
           // retrieve the cell
           // add neighbour to cells for cluster
-          aPreClusterCollection[aClusterID].push_back(std::make_pair(neighbourID, cellType));
+          aPreClusterColl[aClusterID].push_back(std::make_pair(neighbourID, cellType));
           aClusterOfCell[neighbourID] = aClusterID;
           addedNeighbourIds.push_back(std::make_pair(neighbourID, aClusterID));
         }
@@ -311,24 +311,24 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
 	if (msgLevel() <= MSG::VERBOSE){
 	  verbose() << "This neighbour was found in cluster " << clusterIDToMerge << ", cluster " << aClusterID
 		    << " will be merged!" << endmsg;
-	  verbose() << "Assigning all cells ( " << aPreClusterCollection.find(aClusterID)->second.size() << " ) to Cluster "
-		    << clusterIDToMerge << " with ( " << aPreClusterCollection.find(clusterIDToMerge)->second.size()
+	  verbose() << "Assigning all cells ( " << aPreClusterColl.find(aClusterID)->second.size() << " ) to Cluster "
+		    << clusterIDToMerge << " with ( " << aPreClusterColl.find(clusterIDToMerge)->second.size()
 		    << " ). " << endmsg;
 	}
         // Fill all cells into cluster, and assigned cells to new cluster
         aClusterOfCell[neighbourID] = clusterIDToMerge;
-        for (auto& i : aPreClusterCollection.find(aClusterID)->second) {
+        for (auto& i : aPreClusterColl.find(aClusterID)->second) {
           aClusterOfCell[i.first] = clusterIDToMerge;
           bool found = false;
           // make sure that already assigned cells are not added
-          for (auto& j : aPreClusterCollection[clusterIDToMerge]) {
+          for (auto& j : aPreClusterColl[clusterIDToMerge]) {
             if (j.first == i.first) found = true;
           }
           if (!found) {
-            aPreClusterCollection[clusterIDToMerge].push_back(std::make_pair(i.first, i.second));
+            aPreClusterColl[clusterIDToMerge].push_back(std::make_pair(i.first, i.second));
           }
         }
-        aPreClusterCollection.erase(aClusterID);
+        aPreClusterColl.erase(aClusterID);
         // changed clusterId -> if more neighbours are found, correct assignment
         verbose() << "Cluster Id changed to " << clusterIDToMerge << endmsg;
         aClusterID = clusterIDToMerge;
