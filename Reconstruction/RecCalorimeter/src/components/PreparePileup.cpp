@@ -51,7 +51,7 @@ StatusCode PreparePileup::initialize() {
   }
   // Take readout bitfield decoder from GeoSvc
   m_decoder =
-    std::shared_ptr<dd4hep::DDSegmentation::BitField64>(m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder());
+    std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder>(m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder());
   // Histogram service
   m_histSvc = service("THistSvc");
   if (!m_histSvc) {
@@ -121,8 +121,7 @@ StatusCode PreparePileup::execute() {
   for (const auto& cell : m_cellsMap) {
     double cellEnergy = cell.second;
     uint64_t cellId = cell.first;
-    m_decoder->setValue(cellId);
-    uint layerId = (*m_decoder)[m_layerFieldName];
+    auto layerId = m_decoder->get(cellId, m_layerFieldName);    
     if (layerId>=m_numLayers) {
       layerId = m_numLayers-1;
       warning() << "Layer id of the cell "<< layerId 
@@ -146,8 +145,7 @@ StatusCode PreparePileup::finalize() {
   for (const auto& cell : m_sumEnergyCellsMap) {
     double cellEnergy = cell.second;
     uint64_t cellId = cell.first;
-    m_decoder->setValue(cellId);
-    uint layerId = (*m_decoder)[m_layerFieldName];
+    auto layerId = m_decoder->get(cellId, m_layerFieldName);    
     if (layerId>=m_numLayers) {
       layerId = m_numLayers-1;
       warning() << "Layer id of the cell "<< layerId

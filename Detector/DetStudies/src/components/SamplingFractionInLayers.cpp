@@ -115,14 +115,15 @@ StatusCode SamplingFractionInLayers::execute() {
 
   const auto deposits = m_deposits.get();
   for (const auto& hit : *deposits) {
+    dd4hep::DDSegmentation::CellID cID = hit.core().cellId;
+    auto id = decoder->get(cID, m_layerFieldName);
+    sumElayers[id] += hit.core().energy;
     sumE_ecal += hit.core().energy;
-    decoder->setValue(hit.core().cellId);
-    sumElayers[(*decoder)[m_layerFieldName]] += hit.core().energy;
     // check if energy was deposited in the calorimeter (active/passive material)
     if (id >= m_firstLayerId) {
       sumE += hit.core().energy;
       // active material of calorimeter
-      auto activeField = decoder->get(cID, m_activeFieldName);
+      auto activeField = decoder->get(hit.core().cellId, m_activeFieldName);
       if (activeField == m_activeFieldValue) {
         sumEactive += hit.core().energy;
         sumEactiveLayers[id] += hit.core().energy;

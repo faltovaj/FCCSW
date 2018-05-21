@@ -50,7 +50,7 @@ public:
 
   StatusCode finalize();
 
-  std::shared_ptr<dd4hep::DDSegmentation::BitField64> m_decoder;
+  std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder> m_decoder;
   
 private:
   /// Handle for geometry tool (used to prepare map of all existing cellIDs for the system)
