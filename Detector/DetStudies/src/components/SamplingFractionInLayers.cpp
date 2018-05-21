@@ -119,12 +119,13 @@ StatusCode SamplingFractionInLayers::execute() {
     decoder->setValue(hit.core().cellId);
     sumElayers[(*decoder)[m_layerFieldName]] += hit.core().energy;
     // check if energy was deposited in the calorimeter (active/passive material)
-    if ((*decoder)[m_layerFieldName] >= m_firstLayerId) {
+    if (id >= m_firstLayerId) {
       sumE += hit.core().energy;
       // active material of calorimeter
-      if ((*decoder)[m_activeFieldName] == m_activeFieldValue) {
+      auto activeField = decoder->get(cID, m_activeFieldName);
+      if (activeField == m_activeFieldValue) {
         sumEactive += hit.core().energy;
-        sumEactiveLayers[(*decoder)[m_layerFieldName]] += hit.core().energy;
+        sumEactiveLayers[id] += hit.core().energy;
       }
     }
   }

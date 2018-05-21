@@ -3,16 +3,18 @@
 ecalBarrelCellsName = "ECalBarrelCells"
 ecalEndcapCellsName = "ECalEndcapCells"
 ecalFwdCellsName = "ECalFwdCells"
-hcalBarrelCellsName = "newHCalCells"
-hcalExtBarrelCellsName = "newExtHCalCells"
+hcalBarrelCellsName = "HCalBarrelCells"
+hcalExtBarrelCellsName = "HCalExtBarrelCells"
 hcalEndcapCellsName = "HCalEndcapCells"
 hcalFwdCellsName = "HCalFwdCells"
 # Readouts
 ecalBarrelReadoutName = "ECalBarrelPhiEta"
 ecalEndcapReadoutName = "EMECPhiEtaReco"
 ecalFwdReadoutName = "EMFwdPhiEta"
-hcalBarrelReadoutName = "BarHCal_Readout_phieta"
-hcalExtBarrelReadoutName = "ExtBarHCal_Readout_phieta"
+hcalBarrelReadoutName = "HCalBarrelReadout"
+hcalExtBarrelReadoutName = "HCalExtBarrelReadout"
+hcalBarrelReadoutPhiEtaName = "BarHCal_Readout_phieta"
+hcalExtBarrelReadoutPhiEtaName = "ExtBarHCal_Readout_phieta"
 hcalEndcapReadoutName = "HECPhiEta"
 hcalFwdReadoutName = "HFwdPhiEta"
 # Number of events
@@ -26,8 +28,7 @@ podioevent = FCCDataSvc("EventDataSvc", input="output_fullCalo_SimAndDigi_e50GeV
 from Configurables import PodioInput
 podioinput = PodioInput("PodioReader",
                         collections = [ecalBarrelCellsName, ecalEndcapCellsName, ecalFwdCellsName,
-                                       hcalBarrelCellsName, hcalExtBarrelCellsName, hcalEndcapCellsName, hcalFwdCellsName],
-                        OutputLevel = DEBUG)
+                                       hcalBarrelCellsName, hcalExtBarrelCellsName, hcalEndcapCellsName, hcalFwdCellsName])
 
 from Configurables import GeoSvc
 geoservice = GeoSvc("GeoSvc", detectors=[  'file:Detector/DetFCChhBaseline1/compact/FCChh_DectEmptyMaster.xml',
@@ -37,13 +38,48 @@ geoservice = GeoSvc("GeoSvc", detectors=[  'file:Detector/DetFCChhBaseline1/comp
                                            'file:Detector/DetFCChhHCalTile/compact/FCChh_HCalExtendedBarrel_TileCal.xml',
                                            'file:Detector/DetFCChhCalDiscs/compact/Endcaps_coneCryo.xml',
                                            'file:Detector/DetFCChhCalDiscs/compact/Forward_coneCryo.xml'],
-                    OutputLevel = INFO)
+                    OutputLevel = WARNING)
 
 
-ecalBarrelNoisePath = "/afs/cern.ch/user/a/azaborow/public/FCCSW/elecNoise_ecalBarrel_50Ohm_traces2_2shieldWidth.root"
-ecalEndcapNoisePath = "/afs/cern.ch/user/n/novaj/public/elecNoise_emec_6layers.root"
+ecalBarrelNoisePath = "/eos/project/f/fccsw-web/testsamples/elecNoise_ecalBarrel_50Ohm_traces2_2shieldWidth.root"
+ecalEndcapNoisePath = "/eos/project/f/fccsw-web/testsamples/elecNoise_emec_50Ohm_2shieldWidth_6layers.root"
 ecalBarrelNoiseHistName = "h_elecNoise_fcc_"
 ecalEndcapNoiseHistName = "h_elecNoise_fcc_"
+
+# additionally for HCal
+from Configurables import CreateVolumeCaloPositions
+positionsHcal = CreateVolumeCaloPositions("positionsHcal", OutputLevel = INFO)
+positionsHcal.hits.Path = hcalBarrelCellsName
+positionsHcal.positionedHits.Path = "HCalBarrelPositions"
+
+from Configurables import RedoSegmentation
+resegmentHcal = RedoSegmentation("ReSegmentationHcal",
+                             # old bitfield (readout)
+                             oldReadoutName = hcalBarrelReadoutName,
+                             # # specify which fields are going to be altered (deleted/rewritten)
+                             # oldSegmentationIds = ["eta","phi"],
+                             # new bitfield (readout), with new segmentation
+                             newReadoutName = hcalBarrelReadoutPhiEtaName,
+                             debugPrint = 10,
+                             OutputLevel = INFO,
+                             inhits = "HCalBarrelPositions",
+                             outhits = "newHCalBarrelCells")
+
+positionsExtHcal = CreateVolumeCaloPositions("positionsExtHcal", OutputLevel = INFO)
+positionsExtHcal.hits.Path = hcalExtBarrelCellsName
+positionsExtHcal.positionedHits.Path = "HCalExtBarrelPositions"
+
+resegmentExtHcal = RedoSegmentation("ReSegmentationExtHcal",
+                                # old bitfield (readout)
+                                oldReadoutName = hcalExtBarrelReadoutName,
+                                # specify which fields are going to be altered (deleted/rewritten)
+                                #oldSegmentationIds = ["eta","phi"],
+                                # new bitfield (readout), with new segmentation
+                                newReadoutName = hcalExtBarrelReadoutPhiEtaName,
+                                debugPrint = 10,
+                                OutputLevel = INFO,
+                                inhits = "HCalExtBarrelPositions",
+                                outhits = "newHCalExtBarrelCells")
 
 # add noise, create all existing cells in detector
 from Configurables import NoiseCaloCellsFromFileTool, TubeLayerPhiEtaCaloTool,CreateCaloCells
@@ -53,7 +89,7 @@ noiseBarrel = NoiseCaloCellsFromFileTool("NoiseBarrel",
                                          elecNoiseHistoName = ecalBarrelNoiseHistName,
                                          activeFieldName = "layer",
                                          addPileup = False,
-                                         numRadialLayers = 8, OutputLevel=DEBUG)
+                                         numRadialLayers = 8)
 barrelGeometry = TubeLayerPhiEtaCaloTool("EcalBarrelGeo",
                                          readoutName = ecalBarrelReadoutName,
                                          activeVolumeName = "LAr_sensitive",
@@ -67,7 +103,8 @@ createEcalBarrelCells = CreateCaloCells("CreateECalBarrelCells",
                                         addCellNoise=True, filterCellNoise=False,
                                         noiseTool = noiseBarrel,
                                         hits=ecalBarrelCellsName,
-                                        cells=ecalBarrelCellsName+"Noise", OutputLevel=DEBUG)
+                                        cells=ecalBarrelCellsName+"Noise",
+                                        OutputLevel=DEBUG)
 
 # add noise, create all existing cells in detector
 # currently only positive side!
@@ -102,16 +139,16 @@ towers = CaloTowerTool("towers",
                                ecalBarrelReadoutName = ecalBarrelReadoutName,
                                ecalEndcapReadoutName = ecalEndcapReadoutName,
                                ecalFwdReadoutName = ecalFwdReadoutName,
-                               hcalBarrelReadoutName = hcalBarrelReadoutName,
-                               hcalExtBarrelReadoutName = hcalExtBarrelReadoutName,
+                               hcalBarrelReadoutName = hcalBarrelReadoutPhiEtaName,
+                               hcalExtBarrelReadoutName = hcalExtBarrelReadoutPhiEtaName,
                                hcalEndcapReadoutName = hcalEndcapReadoutName,
                                hcalFwdReadoutName = hcalFwdReadoutName,
                                OutputLevel = DEBUG)
 towers.ecalBarrelCells.Path = ecalBarrelCellsName + "Noise"
 towers.ecalEndcapCells.Path = ecalEndcapCellsName + "Noise"
 towers.ecalFwdCells.Path = ecalFwdCellsName
-towers.hcalBarrelCells.Path = hcalBarrelCellsName
-towers.hcalExtBarrelCells.Path = hcalExtBarrelCellsName
+towers.hcalBarrelCells.Path = "newHCalBarrelCells"
+towers.hcalExtBarrelCells.Path ="newHCalExtBarrelCells"
 towers.hcalEndcapCells.Path = hcalEndcapCellsName
 towers.hcalFwdCells.Path = hcalFwdCellsName
 
@@ -149,6 +186,10 @@ out.AuditExecute = True
 
 ApplicationMgr(
     TopAlg = [podioinput,
+              positionsHcal,
+              resegmentHcal,
+              positionsExtHcal,
+              resegmentExtHcal,
               createEcalBarrelCells,
               createEcalEndcapCells,
               createClusters,
