@@ -13,8 +13,8 @@
 
 #include "DD4hep/Detector.h"
 #include "DD4hep/Volumes.h"
-#include "DDRec/API/IDDecoder.h"
-#include "DDSegmentation/BitField64.h"
+//#include "DDRec/API/IDDecoder.h"
+//#include "DDSegmentation/BitField64.h"
 #include "DDSegmentation/CartesianGridXZ.h"
 
 #include <cmath>
