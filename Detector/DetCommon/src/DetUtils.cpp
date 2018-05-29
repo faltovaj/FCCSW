@@ -53,75 +53,24 @@ uint64_t cellID(const dd4hep::Segmentation& aSeg, const G4Step& aStep, bool aPre
   return volID;
 }
 
-std::vector<std::vector<uint>> combinations(int N, int K) {
-  std::vector<std::vector<uint>> indexes;
-  std::string bitmask(K, 1);  // K leading 1's
-  bitmask.resize(N, 0);       // N-K trailing 0's
-  // permute bitmask
-  do {
-    std::vector<uint> tmp;
-    for (int i = 0; i < N; ++i) {  // [0..N-1] integers
-      if (bitmask[i]) {
-        tmp.push_back(i);
-      }
-    }
-    indexes.push_back(tmp);
-  } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
-  return std::move(indexes);
-}
-
-std::vector<std::vector<int>> permutations(int K) {
-  std::vector<std::vector<int>> indexes;
-  int N = pow(2, K);  // number of permutations with repetition of 2 numbers (0,1)
-  for (int i = 0; i < N; i++) {
-    // permutation = binary representation of i
-    std::vector<int> tmp;
-    tmp.assign(K, 0);
-    uint res = i;
-    // dec -> bin
-    for (int j = 0; j < K; j++) {
-      tmp[K - 1 - j] = -1 + 2 * (res % 2);
-      res = floor(res / 2);
-    }
-    indexes.push_back(tmp);
-  }
-  return std::move(indexes);
-}
-
-int cyclicNeighbour(int aCyclicId, std::pair<int, int> aFieldExtremes) {
-  if (aCyclicId < aFieldExtremes.first) {
-    return aFieldExtremes.second + aCyclicId;
-  } else if (aCyclicId > aFieldExtremes.second) {
-    return aCyclicId % (aFieldExtremes.second + 1);
-  }
-  return aCyclicId;
-}
-
-std::vector<uint64_t> neighbours(dd4hep::DDSegmentation::BitField64& aDecoder,
+std::vector<uint64_t> neighbours(const dd4hep::DDSegmentation::BitFieldCoder& aDecoder,
                                  const std::vector<std::string>& aFieldNames,
                                  const std::vector<std::pair<int, int>>& aFieldExtremes, uint64_t aCellId,
                                  const std::vector<bool>& aFieldCyclic, bool aDiagonal) {
   std::vector<uint64_t> neighbours;
-  aDecoder.setValue(aCellId);
+  dd4hep::DDSegmentation::CellID cID = aCellId;
   for (uint itField = 0; itField < aFieldNames.size(); itField++) {
     const auto& field = aFieldNames[itField];
-    int id = aDecoder[field];
-    if (aFieldCyclic[itField]) {
-      aDecoder[field] = cyclicNeighbour(id - 1, aFieldExtremes[itField]);
-      neighbours.emplace_back(aDecoder.getValue());
-      aDecoder[field] = cyclicNeighbour(id + 1, aFieldExtremes[itField]);
-      neighbours.emplace_back(aDecoder.getValue());
-    } else {
-      if (id > aFieldExtremes[itField].first) {
-        aDecoder[field] = id - 1;
-        neighbours.emplace_back(aDecoder.getValue());
-      }
-      if (id < aFieldExtremes[itField].second) {
-        aDecoder[field] = id + 1;
-        neighbours.emplace_back(aDecoder.getValue());
-      }
+    dd4hep::DDSegmentation::CellID id = aDecoder.get(cID,field);
+    if (id > aFieldExtremes[itField].first) {
+      aDecoder.set(cID, field, id - 1);
+      neighbours.emplace_back(cID);
     }
-    aDecoder[field] = id;
+    if (id < aFieldExtremes[itField].second) {
+      aDecoder.set(cID, field, id + 1);
+      neighbours.emplace_back(cID);
+    }
+    aDecoder.set(cID, field, id);
   }
   if (aDiagonal) {
     std::vector<int> fieldIds;  // initial IDs
@@ -170,7 +119,7 @@ std::vector<uint64_t> neighbours(dd4hep::DDSegmentation::BitField64& aDecoder,
   return std::move(neighbours);
 }
 
-std::vector<std::pair<int, int>> bitfieldExtremes(dd4hep::DDSegmentation::BitField64& aDecoder,
+std::vector<std::pair<int, int>> bitfieldExtremes(const dd4hep::DDSegmentation::BitFieldCoder& aDecoder,
                                                   const std::vector<std::string>& aFieldNames) {
   std::vector<std::pair<int, int>> extremes;
   int width = 0;

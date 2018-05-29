@@ -44,7 +44,8 @@ StatusCode LayeredCaloTowerTool::initialize() {
     return StatusCode::FAILURE;
   }
   // Take readout bitfield decoder from GeoSvc
-  m_decoder = m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder();
+  m_decoder =
+      std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder>(m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder());
   // check if decoder contains "layer"
   std::vector<std::string> fields;
   for (uint itField = 0; itField < m_decoder->size(); itField++) {
@@ -109,9 +110,9 @@ uint LayeredCaloTowerTool::buildTowers(std::vector<std::vector<float>>& aTowers)
     etaCellMax = m_segmentation->eta(cell.core().cellId) + m_segmentation->gridSizeEta() * 0.5;
     phiCellMin = m_segmentation->phi(cell.core().cellId) - M_PI / (double)m_segmentation->phiBins();
     phiCellMax = m_segmentation->phi(cell.core().cellId) + M_PI / (double)m_segmentation->phiBins();
-    if (m_addLayerRestriction == true) {
-      m_decoder->setValue(cell.core().cellId);
-      layerCell = (*m_decoder)["layer"].value();
+    if (addLayerRestriction == true) {
+      dd4hep::DDSegmentation::CellID cID = cell.core().cellId;
+      layerCell = m_decoder->get(cID, "layer");
       debug() << "Cell' layer = " << layerCell << endmsg;
     }
     iEtaMin = idEta(etaCellMin + epsilon);
