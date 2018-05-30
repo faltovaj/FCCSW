@@ -50,15 +50,17 @@ StatusCode PileupHitMergeTool<Hits, PositionedHits>::readPileupCollection(podio:
     return StatusCode::FAILURE;
   }
 
-  /// as above, for the positioned collection
-  bool posHitCollectionPresent = store.get(m_pileupPosHitsBranchName, posHitCollection);
-  if (posHitCollectionPresent) {
-    m_posHitCollections.push_back(posHitCollection);
-  } else {
-    warning() << "No collection could be read from branch " << m_pileupPosHitsBranchName << endmsg;
-    return StatusCode::FAILURE;
+  /// look for PositionedHitCollection
+  if( !m_noPositionedHits ) {
+    if( !store.get(m_pileupPosHitsBranchName, posHitCollection) ) {
+      warning() << "No collection could be read from branch " << m_pileupHitsBranchName << endmsg;
+      m_posHitCollections.push_back(posHitCollection);
+      return StatusCode::FAILURE;
+    }
+    else{
+      m_posHitCollections.push_back(posHitCollection);
+    }
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -66,12 +68,14 @@ template <class Hits, class PositionedHits>
 StatusCode PileupHitMergeTool<Hits, PositionedHits>::readSignal() {
   // get collection from event sture
   auto collHitsSig = m_hitsSignal.get();
-  auto collPosHitsSig = m_posHitsSignal.get();
 
   // store them in internal container
   m_hitCollections.push_back(collHitsSig);
-  m_posHitCollections.push_back(collPosHitsSig);
 
+  if (!m_noPositionedHits){
+    auto collPosHitsSig = m_posHitsSignal.get();
+    m_posHitCollections.push_back(collPosHitsSig);
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -80,7 +84,6 @@ StatusCode PileupHitMergeTool<Hits, PositionedHits>::mergeCollections() {
 
   // ownership given to data service at end of execute
   Hits* collHitsMerged = new Hits();
-  PositionedHits* collPosHitsMerged = new PositionedHits();
 
   unsigned int collectionCounter = 0;
   for (auto hitColl : m_hitCollections) {
@@ -103,17 +106,21 @@ StatusCode PileupHitMergeTool<Hits, PositionedHits>::mergeCollections() {
     }
     ++collectionCounter;
   }
-  for (auto posHitColl : m_posHitCollections) {
-    // copy positioned hits
-    for (const auto elem : *posHitColl) {
-      collPosHitsMerged->push_back(elem.clone());
+
+  if (!m_noPositionedHits){
+    PositionedHits* collPosHitsMerged = new PositionedHits();
+    
+    for (auto posHitColl : m_posHitCollections) {
+      // copy positioned hits
+      for (const auto elem : *posHitColl) {
+	collPosHitsMerged->push_back(elem.clone());
+      }
     }
-  }
-
+    m_posHitsMerged.put(collPosHitsMerged);
+    m_posHitCollections.clear();
+  }  
   m_hitsMerged.put(collHitsMerged);
-  m_posHitsMerged.put(collPosHitsMerged);
-
+ 
   m_hitCollections.clear();
-  m_posHitCollections.clear();
   return StatusCode::SUCCESS;
 }

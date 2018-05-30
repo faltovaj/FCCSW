@@ -169,21 +169,18 @@ StatusCode CreateCaloClusters::execute() {
 
       // Loop over cluster cells 
       for (uint it = 0; it < cluster.hits_size(); it++){
-	auto cellId = cluster.hits(it).core().cellId;
+	dd4hep::DDSegmentation::CellID cID = cluster.hits(it).core().cellId;
 	auto cellEnergy = cluster.hits(it).core().energy;
-	m_decoder->setValue(cellId);
-	uint systemId = (*m_decoder)["system"].value();
+	uint systemId = m_decoder->get(cID, "system");
 	int layerId;
 	if (systemId == m_systemIdECal){
 	  lastBenchmarkTerm += cellEnergy*m_a;
-	  m_decoderECal->setValue(cellId);
-	  layerId = (*m_decoderECal)["layer"].value();
+	  layerId = m_decoderECal->get(cID,"layer");
 	  if( layerId == m_lastECalLayer ) 
 	    energyLastECal += cellEnergy;
 	}
 	else if  (systemId == m_systemIdHCal){
-	  m_decoderHCal->setValue(cellId);
-	  layerId = (*m_decoderHCal)["layer"].value();
+	  layerId = m_decoderHCal->get(cID,"layer");
 	  if ( layerId == m_firstHCalLayer )
 	    energyFirstHCal += cellEnergy;
 	}
@@ -242,8 +239,7 @@ StatusCode CreateCaloClusters::execute() {
 	  newCell.core().cellId = cellId;
 	  newCell.core().bits = cluster.hits(it).core().bits;
 	  
-	  m_decoder->setValue(cellId);
-	  uint systemId = (*m_decoder)["system"].value();
+	  uint systemId = m_decoder->get(cellId, "system");
 	  
 	  dd4hep::Position posCell;
 	  if (systemId == m_systemIdECal){  // ECAL system id
@@ -309,8 +305,7 @@ StatusCode CreateCaloClusters::execute() {
 	  auto newCell = edmClusterCells->create();
 	  auto cellId = cluster.hits(it).core().cellId;
 	  auto cellEnergy = cluster.hits(it).core().energy;
-	  m_decoder->setValue(cellId);
-	  uint systemId = (*m_decoder)["system"].value();
+	  uint systemId = m_decoder->get(cellId,"system");
 	  if ( m_addNoise ) {
 	    // Scale the cell energy by factor determined from he correlated pile-up studies
 	    if(systemId == m_systemIdECal)

@@ -51,7 +51,7 @@ private:
   Gaudi::Property<std::string> m_readoutName{this, "readoutName", "name of the readout"};
 
   dd4hep::DDSegmentation::FCCSWGridPhiEta* m_segmentation;
-  dd4hep::DDSegmentation::BitField64* m_decoder;
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
   dd4hep::VolumeManager m_volman;
 };
 #endif /* RECCALORIMETER_CELLPOSITIONSHCALBARRELTOOL_H */

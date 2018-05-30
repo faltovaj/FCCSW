@@ -53,6 +53,50 @@ uint64_t cellID(const dd4hep::Segmentation& aSeg, const G4Step& aStep, bool aPre
   return volID;
 }
 
+std::vector<std::vector<uint>> combinations(int N, int K) {
+  std::vector<std::vector<uint>> indexes;
+  std::string bitmask(K, 1);  // K leading 1's
+  bitmask.resize(N, 0);       // N-K trailing 0's
+  // permute bitmask
+  do {
+    std::vector<uint> tmp;
+    for (int i = 0; i < N; ++i) {  // [0..N-1] integers
+      if (bitmask[i]) {
+        tmp.push_back(i);
+      }
+    }
+    indexes.push_back(tmp);
+  } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
+  return std::move(indexes);
+}
+
+std::vector<std::vector<int>> permutations(int K) {
+  std::vector<std::vector<int>> indexes;
+  int N = pow(2, K);  // number of permutations with repetition of 2 numbers (0,1)
+  for (int i = 0; i < N; i++) {
+    // permutation = binary representation of i
+    std::vector<int> tmp;
+    tmp.assign(K, 0);
+    uint res = i;
+    // dec -> bin
+    for (int j = 0; j < K; j++) {
+      tmp[K - 1 - j] = -1 + 2 * (res % 2);
+      res = floor(res / 2);
+    }
+    indexes.push_back(tmp);
+  }
+  return std::move(indexes);
+}
+
+int cyclicNeighbour(int aCyclicId, std::pair<int, int> aFieldExtremes) {
+  if (aCyclicId < aFieldExtremes.first) {
+    return aFieldExtremes.second + aCyclicId;
+  } else if (aCyclicId > aFieldExtremes.second) {
+    return aCyclicId % (aFieldExtremes.second + 1);
+  }
+  return aCyclicId;
+}
+
 std::vector<uint64_t> neighbours(const dd4hep::DDSegmentation::BitFieldCoder& aDecoder,
                                  const std::vector<std::string>& aFieldNames,
                                  const std::vector<std::pair<int, int>>& aFieldExtremes, uint64_t aCellId,
@@ -62,13 +106,20 @@ std::vector<uint64_t> neighbours(const dd4hep::DDSegmentation::BitFieldCoder& aD
   for (uint itField = 0; itField < aFieldNames.size(); itField++) {
     const auto& field = aFieldNames[itField];
     dd4hep::DDSegmentation::CellID id = aDecoder.get(cID,field);
-    if (id > aFieldExtremes[itField].first) {
-      aDecoder.set(cID, field, id - 1);
+    if (aFieldCyclic[itField]) {
+      aDecoder[field].set(cID, cyclicNeighbour(id - 1, aFieldExtremes[itField]));
       neighbours.emplace_back(cID);
-    }
-    if (id < aFieldExtremes[itField].second) {
-      aDecoder.set(cID, field, id + 1);
+      aDecoder[field].set(cID, cyclicNeighbour(id + 1, aFieldExtremes[itField]));
       neighbours.emplace_back(cID);
+    } else {
+      if (id > aFieldExtremes[itField].first) {
+        aDecoder.set(cID, field, id - 1);
+        neighbours.emplace_back(cID);
+      }
+      if (id < aFieldExtremes[itField].second) {
+        aDecoder.set(cID, field, id + 1);
+        neighbours.emplace_back(cID);
+      }
     }
     aDecoder.set(cID, field, id);
   }
@@ -77,7 +128,8 @@ std::vector<uint64_t> neighbours(const dd4hep::DDSegmentation::BitFieldCoder& aD
     fieldIds.assign(aFieldNames.size(), 0);
     // for each field get current Id
     for (uint iField = 0; iField < aFieldNames.size(); iField++) {
-      fieldIds[iField] = aDecoder[aFieldNames[iField]];
+      const auto& field = aFieldNames[iField];
+      fieldIds[iField] = aDecoder.get(cID, field);
     }
     for (uint iLength = aFieldNames.size(); iLength > 1; iLength--) {
       // get all combinations for a given length
@@ -91,26 +143,24 @@ std::vector<uint64_t> neighbours(const dd4hep::DDSegmentation::BitFieldCoder& aD
           bool add = true;
           for (uint iField = 0; iField < indexes[iComb].size(); iField++) {
             if (aFieldCyclic[indexes[iComb][iField]]) {
-              aDecoder[aFieldNames[indexes[iComb][iField]]] =
-                  cyclicNeighbour(fieldIds[indexes[iComb][iField]] + calculation[iCalc][iField],
-                                  aFieldExtremes[indexes[iComb][iField]]);
+              aDecoder[aFieldNames[indexes[iComb][iField]]].set(cID, cyclicNeighbour(fieldIds[indexes[iComb][iField]] + calculation[iCalc][iField],
+										     aFieldExtremes[indexes[iComb][iField]]) );
             } else if ((calculation[iCalc][iField] > 0 &&
                         fieldIds[indexes[iComb][iField]] < aFieldExtremes[indexes[iComb][iField]].second) ||
                        (calculation[iCalc][iField] < 0 &&
                         fieldIds[indexes[iComb][iField]] > aFieldExtremes[indexes[iComb][iField]].first)) {
-              aDecoder[aFieldNames[indexes[iComb][iField]]] =
-                  fieldIds[indexes[iComb][iField]] + calculation[iCalc][iField];
+              aDecoder[aFieldNames[indexes[iComb][iField]]].set(cID, fieldIds[indexes[iComb][iField]] + calculation[iCalc][iField]);
             } else {
               add = false;
             }
           }
           // add new cellId to neighbours (unless it's beyond extrema)
           if (add) {
-            neighbours.emplace_back(aDecoder.getValue());
+            neighbours.emplace_back(cID);
           }
           // reset ids
           for (uint iField = 0; iField < indexes[iComb].size(); iField++) {
-            aDecoder[aFieldNames[indexes[iComb][iField]]] = fieldIds[indexes[iComb][iField]];
+            aDecoder[aFieldNames[indexes[iComb][iField]]].set(cID, fieldIds[indexes[iComb][iField]]);
           }
         }
       }

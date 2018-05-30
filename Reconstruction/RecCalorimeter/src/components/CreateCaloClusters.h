@@ -104,9 +104,9 @@ private:
    /// bool if energy loss needs correction is applied
   bool m_doCryoCorrection =  true;
 
-  dd4hep::DDSegmentation::BitField64* m_decoder = new dd4hep::DDSegmentation::BitField64("system:4");
-  dd4hep::DDSegmentation::BitField64* m_decoderECal;
-  dd4hep::DDSegmentation::BitField64* m_decoderHCal;
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoder = new dd4hep::DDSegmentation::BitFieldCoder("system:4");
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoderECal;
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoderHCal;
 
   /// System id by default Barrel, EC(6,7), Fwd(10,11)
   Gaudi::Property<float> m_a{this, "a", 0.985, "scaling of ECal energy"}; // no Bfield: 0.9867

@@ -65,10 +65,9 @@ void CellPositionsHCalBarrelTool::getPositions(const fcc::CaloHitCollection& aCe
 
 dd4hep::Position CellPositionsHCalBarrelTool::xyzPosition(const uint64_t& aCellId) const {
   double radius;
-  m_decoder->setValue(aCellId);
-  (*m_decoder)["phi"] = 0;
-  (*m_decoder)["eta"] = 0;
-  auto volumeId = m_decoder->getValue();
+  dd4hep::DDSegmentation::CellID volumeId = aCellId;
+  m_decoder->set(volumeId,"phi",0);
+  m_decoder->set(volumeId,"eta",0);
 
   // global cartesian coordinates calculated from r,phi,eta, for r=1
   auto detelement = m_volman.lookupDetElement(volumeId);
@@ -87,8 +86,7 @@ dd4hep::Position CellPositionsHCalBarrelTool::xyzPosition(const uint64_t& aCellI
 
 int CellPositionsHCalBarrelTool::layerId(const uint64_t& aCellId) {
   int layer;
-  m_decoder->setValue(aCellId);
-  layer = (*m_decoder)["layer"].value();
+  layer = m_decoder->get(aCellId,"layer");
   return layer;
 }
 

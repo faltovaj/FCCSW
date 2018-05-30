@@ -162,8 +162,7 @@ StatusCode PreparePileup::execute() {
   for (const auto& cell : m_cellsMap) {
     double cellEnergy = cell.second;
     uint64_t cellId = cell.first;
-    m_decoder->setValue(cellId);
-    uint layerId = (*m_decoder)[m_layerFieldName];
+    uint layerId = m_decoder->get(cellId, m_layerFieldName);
     if (layerId>=m_numLayers) {
       layerId = m_numLayers-1;
       warning() << "Layer id of the cell "<< layerId
@@ -247,8 +246,7 @@ StatusCode PreparePileup::finalize() {
   for (const auto& cell : m_sumEnergyCellsMap) {
     double cellEnergy = cell.second;
     uint64_t cellId = cell.first;
-    m_decoder->setValue(cellId);
-    uint layerId = (*m_decoder)[m_layerFieldName];
+    uint layerId = m_decoder->get(cellId, m_layerFieldName);
     if (layerId>=m_numLayers) {
       layerId = m_numLayers-1;
       warning() << "Layer id of the cell "<< layerId

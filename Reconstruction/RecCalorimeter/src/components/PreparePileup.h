@@ -51,7 +51,7 @@ public:
 
   StatusCode finalize();
 
-  dd4hep::DDSegmentation::BitField64* m_decoder;
+  dd4hep::DDSegmentation::BitFieldCoder* m_decoder;
   
 private:
   /**  Correct way to access the neighbour of the phi tower, taking into account the full coverage in phi.

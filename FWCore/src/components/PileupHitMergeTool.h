@@ -43,6 +43,9 @@ public:
 
 private:
   /// Name of the branch from which to read pileup collection
+  Gaudi::Property<bool> m_noPositionedHits{this, "noPositionedHits", false,
+                                                         "Set to true to merge HitCollections only."};
+  /// Name of the branch from which to read pileup collection
   Gaudi::Property<std::string> m_pileupHitsBranchName{this, "pileupHitsBranch", "hits",
                                                       "Name of the branch from which to read pileup collection"};
   /// Name of the branch from which to read pileup collection
