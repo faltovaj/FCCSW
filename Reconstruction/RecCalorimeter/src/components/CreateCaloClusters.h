@@ -115,9 +115,15 @@ private:
   Gaudi::Property<float> m_b{this, "b", 0.5756, "scaling of energy loss in cryostat"};// no Bfield: 0.432
   Gaudi::Property<float> m_c{this, "c", -6.24E-6, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6
   /// System id by default Barrel, EC(6,7), Fwd(10,11)                                                                                                                                                                                        
-  Gaudi::Property<float> m_a1{this, "a1", 0.985, "scaling of ECal energy"}; // no Bfield: 0.9867
-  Gaudi::Property<float> m_b1{this, "b1", 0.5756, "scaling of energy loss in cryostat"};// no Bfield: 0.432
-  Gaudi::Property<float> m_c1{this, "c1", -6.24E-6, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6                                                                                                                               
+  Gaudi::Property<float> m_a1{this, "a1", 0.957, "scaling of ECal energy"}; // no Bfield: 0.9867
+  Gaudi::Property<float> m_a2{this, "a2", 3.772e-08, "scaling of ECal energy"}; // no Bfield: 0.9867
+  Gaudi::Property<float> m_a3{this, "a3", 1.028, "scaling of ECal energy"}; // no Bfield: 0.9867
+  Gaudi::Property<float> m_b1{this, "b1", 0.243, "scaling of energy loss in cryostat"};// no Bfield: 0.432
+  Gaudi::Property<float> m_b2{this, "b2", 0.097, "scaling of energy loss in cryostat"};// no Bfield: 0.432
+  Gaudi::Property<float> m_b3{this, "b3", -0.217, "scaling of energy loss in cryostat"};// no Bfield: 0.432
+  Gaudi::Property<float> m_c1{this, "c1", -1.546e-10, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6   
+  Gaudi::Property<float> m_c2{this, "c2", -4.519e+06, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6
+  Gaudi::Property<float> m_c3{this, "c3", 7.026, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6                                                                                                                     
 
   Gaudi::Property<int> m_lastECalLayer{this, "lastECalLayer", 7, "Layer id of last ECal layer"};
   Gaudi::Property<int> m_firstHCalLayer{this, "firstHCalLayer", 0, "Layer id of first HCal layer"};
