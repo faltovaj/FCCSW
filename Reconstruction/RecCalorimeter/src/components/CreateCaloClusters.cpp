@@ -31,6 +31,7 @@ CreateCaloClusters::CreateCaloClusters(const std::string& name, ISvcLocator* svc
  
   declareProperty("calibrate", m_doCalibration, "Clusters are going to be calibrated");
   declareProperty("cryoCorrection", m_doCryoCorrection, "Correction of lost energy between E and HCal");
+  declareProperty("eDepCryoCorrection", m_doCryoCorrection, "eDep Correction of lost energy between E and HCal");
   declareProperty("ehECal", m_ehECal, "e/h of the ECal");
   declareProperty("ehHCal", m_ehHCal, "e/h of the HCal");
 
@@ -174,7 +175,7 @@ StatusCode CreateCaloClusters::execute() {
 	uint systemId = m_decoder->get(cID, "system");
 	int layerId;
 	if (systemId == m_systemIdECal){
-	  lastBenchmarkTerm += cellEnergy*m_a;
+	  lastBenchmarkTerm += cellEnergy;
 	  layerId = m_decoderECal->get(cID,"layer");
 	  if( layerId == m_lastECalLayer ) 
 	    energyLastECal += cellEnergy;
@@ -286,7 +287,7 @@ StatusCode CreateCaloClusters::execute() {
 	if ( m_doCryoCorrection ){
 	  debug() << "Energy in last ECal + first HCal layer: " << (energyLastECal+energyFirstHCal) << "GeV " << endmsg;
 	  debug() << "Energy in last ECal x first HCal layer: " << (energyLastECal*energyFirstHCal) << "GeV " << endmsg;
-	  double corr = m_b*sqrt(fabs(energyLastECal*m_a*energyFirstHCal)) + m_c*lastBenchmarkTerm;
+	  double corr = m_b*sqrt(fabs(energyLastECal*m_a*energyFirstHCal)) + m_c*pow(lastBenchmarkTerm*m_a, 2);
 	  debug() << "Added energy to cluster  : " << corr << "GeV " << endmsg;
 	  energy = energy + corr;
 	  
@@ -294,6 +295,17 @@ StatusCode CreateCaloClusters::execute() {
 	  // Fill histogram with corrected energy
 	  m_clusterEnergyBenchmark->Fill(energy);
 	  totBenchmarkEnergy += energy;
+	}
+	else if (m_doEdepCryoCorrection){
+	  double a = m_a1 + m_a2*energy + m_a3/sqrt(energy);
+	  double b = m_b1 + m_b2*energy + m_a3*log(energy);
+	  double c = m_c1*energy + m_c2/pow(energy,m_c3);
+	  double corr = b*sqrt(fabs(energyLastECal*a*energyFirstHCal)) + c*pow(lastBenchmarkTerm*a,2);
+          energy = energy + corr;
+          totBenchmarkCorr += corr;
+          // Fill histogram with corrected energy                                                                                                                                                                                         
+          m_clusterEnergyBenchmark->Fill(energy);
+          totBenchmarkEnergy += energy;
 	}
 	newCluster.core().energy = energy;
 	edmClusters->push_back(newCluster);

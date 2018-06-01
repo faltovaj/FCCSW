@@ -97,12 +97,14 @@ private:
   /// bool if calibration is applied                                                                                                                                                                                                      
   bool m_addNoise = false;
 
- /// e/h of ECal
+  /// e/h of ECal
   double m_ehECal;
   /// e/h of HCal
   double m_ehHCal;
-   /// bool if energy loss needs correction is applied
-  bool m_doCryoCorrection =  true;
+  /// bool if energy loss needs correction is applied
+  bool m_doCryoCorrection = false;
+  /// bool if energy dependent correction for energy loss is applied  
+  bool m_doEdepCryoCorrection = true;
 
   dd4hep::DDSegmentation::BitFieldCoder* m_decoder = new dd4hep::DDSegmentation::BitFieldCoder("system:4");
   dd4hep::DDSegmentation::BitFieldCoder* m_decoderECal;
@@ -112,6 +114,11 @@ private:
   Gaudi::Property<float> m_a{this, "a", 0.985, "scaling of ECal energy"}; // no Bfield: 0.9867
   Gaudi::Property<float> m_b{this, "b", 0.5756, "scaling of energy loss in cryostat"};// no Bfield: 0.432
   Gaudi::Property<float> m_c{this, "c", -6.24E-6, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6
+  /// System id by default Barrel, EC(6,7), Fwd(10,11)                                                                                                                                                                                        
+  Gaudi::Property<float> m_a1{this, "a1", 0.985, "scaling of ECal energy"}; // no Bfield: 0.9867
+  Gaudi::Property<float> m_b1{this, "b1", 0.5756, "scaling of energy loss in cryostat"};// no Bfield: 0.432
+  Gaudi::Property<float> m_c1{this, "c1", -6.24E-6, "scaling of energy loss in cryostat"};// no Bfield: -5.567E-6                                                                                                                               
+
   Gaudi::Property<int> m_lastECalLayer{this, "lastECalLayer", 7, "Layer id of last ECal layer"};
   Gaudi::Property<int> m_firstHCalLayer{this, "firstHCalLayer", 0, "Layer id of first HCal layer"};
 
