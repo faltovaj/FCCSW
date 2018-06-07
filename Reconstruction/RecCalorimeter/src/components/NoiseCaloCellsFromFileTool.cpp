@@ -18,6 +18,7 @@ NoiseCaloCellsFromFileTool::NoiseCaloCellsFromFileTool(const std::string& type, 
                                                        const IInterface* parent)
     : GaudiTool(type, name, parent) {
   declareInterface<INoiseCaloCellsTool>(this);
+  declareProperty("cellPositionsTool", m_cellPositionsTool, "Handle for tool to retrieve cell positions");
 }
 
 StatusCode NoiseCaloCellsFromFileTool::initialize() {
@@ -41,11 +42,9 @@ StatusCode NoiseCaloCellsFromFileTool::initialize() {
     error() << "Couldn't open file with noise constants!!!" << endmsg;
     return StatusCode::FAILURE;
   }
-  // Get PhiEta segmentation
-  m_segmentation = dynamic_cast<dd4hep::DDSegmentation::FCCSWGridPhiEta*>(
-      m_geoSvc->lcdd()->readout(m_readoutName).segmentation().segmentation());
-  if (m_segmentation == nullptr) {
-    error() << "There is no phi-eta segmentation." << endmsg;
+  // Check if cell position tool available
+  if (!m_cellPositionsTool.retrieve()) {
+    error() << "Unable to retrieve cell positions tool!!!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -135,12 +134,11 @@ double NoiseCaloCellsFromFileTool::getNoiseConstantPerCell(int64_t aCellId) {
   double elecNoise = 0.;
   double pileupNoise = 0.;
 
-  // Get cell coordinates: eta and radial layer
-  double cellEta = m_segmentation->eta(aCellId);
   // Take readout, bitfield from GeoSvc
   auto decoder = m_geoSvc->lcdd()->readout(m_readoutName).idSpec().decoder();
-  //decoder->setValue(aCellId);
   dd4hep::DDSegmentation::CellID cID = aCellId;
+ 
+  double cellEta = m_cellPositionsTool->xyzPosition(cID).Eta();
   unsigned cellLayer = decoder->get(cID, m_activeFieldName);
 
   // All histograms have same binning, all bins with same size

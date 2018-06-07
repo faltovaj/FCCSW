@@ -9,6 +9,7 @@ class IRndmGenSvc;
 // FCCSW
 #include "DetSegmentation/FCCSWGridPhiEta.h"
 #include "RecInterface/INoiseCaloCellsTool.h"
+#include "RecInterface/ICellPositionsTool.h"
 class IGeoSvc;
 
 // Root
@@ -47,6 +48,9 @@ public:
   double getNoiseConstantPerCell(int64_t aCellID);
 
 private:
+  /// Handle for tool to get positions in ECal Barrel
+  ToolHandle<ICellPositionsTool> m_cellPositionsTool{"CellPositionsTool", this};
+
   /// Add pileup contribution to the electronics noise? (only if read from file)
   Gaudi::Property<bool> m_addPileup{this, "addPileup", true,
                                     "Add pileup contribution to the electronics noise? (only if read from file)"};
