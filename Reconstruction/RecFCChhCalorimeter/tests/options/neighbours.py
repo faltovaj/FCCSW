@@ -14,6 +14,11 @@ from Configurables import CreateFCChhCaloNeighbours
 neighbours = CreateFCChhCaloNeighbours("neighbours", 
                                        outputFileName="cellNeighbours_Barrel.root",
                                        connectBarrels=True, 
+                                       readoutNamesVolumes=["HCalBarrelReadout"],
+                                       systemNameNested="system",
+                                       systemValuesNested=[8],
+                                       activeFieldNamesNested=["layer","module","row"],
+                                       hCalPhiOffset = -3.12932,
                                        hCalRinner=2850,
                                        OutputLevel=INFO)
 

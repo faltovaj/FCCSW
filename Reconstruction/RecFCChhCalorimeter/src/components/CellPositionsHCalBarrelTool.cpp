@@ -64,24 +64,18 @@ void CellPositionsHCalBarrelTool::getPositions(const fcc::CaloHitCollection& aCe
 }
 
 dd4hep::Position CellPositionsHCalBarrelTool::xyzPosition(const uint64_t& aCellId) const {
-  double radius;
   dd4hep::DDSegmentation::CellID volumeId = aCellId;
   m_decoder->set(volumeId,"phi",0);
   m_decoder->set(volumeId,"eta",0);
 
-  // global cartesian coordinates calculated from r,phi,eta, for r=1
-  auto detelement = m_volman.lookupDetElement(volumeId);
-  const auto& transform = detelement.nominal().worldTransformation();
-  double global[3];
-  double local[3] = {0, 0, 0};
-  transform.LocalToMaster(local, global);
-
-  // global cartesian coordinates calculated from r,phi,eta, for r=1
+  int layer = m_decoder->get(volumeId, "layer");
+    
+  // radius calculated from segmenation + z postion of volumes
   auto inSeg = m_segmentation->position(aCellId);
-  radius = std::sqrt(std::pow(global[0], 2) + std::pow(global[1], 2));
-  debug() << "no eta segmentaion used! Cell position.z is volumes position.z" << endmsg;
-  dd4hep::Position outSeg(inSeg.x() * radius, inSeg.y() * radius, global[2]);
-  return outSeg;
+  
+  double radius = m_radii[layer];
+  dd4hep::Position outSeg(inSeg.x() * radius, inSeg.y() * radius, inSeg.z() * radius);
+   return outSeg;
 }
 
 int CellPositionsHCalBarrelTool::layerId(const uint64_t& aCellId) {
