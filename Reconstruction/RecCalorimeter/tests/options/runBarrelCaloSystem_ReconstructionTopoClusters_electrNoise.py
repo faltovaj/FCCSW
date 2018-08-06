@@ -79,6 +79,7 @@ noiseBarrel = NoiseCaloCellsFromFileTool("NoiseBarrel",
                                          readoutName = ecalBarrelReadoutName,
                                          noiseFileName = ecalBarrelNoisePath,
                                          elecNoiseHistoName = ecalBarrelNoiseHistName,
+                                         cellPositionsTool = ECalBcells,
                                          activeFieldName = "layer",
                                          addPileup = False,
                                          numRadialLayers = 8)

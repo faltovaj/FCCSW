@@ -54,17 +54,17 @@ StatusCode CreateCaloClusters::initialize() {
     error() << "Unable to locate Histogram Service" << endmsg;
     return StatusCode::FAILURE;
   }
-  m_totEnergy = new TH1F("totalEnergy", "total energy in all clusters per event",  1000, 0, 2 );
+  m_totEnergy = new TH1F("totalEnergy", "total energy in all clusters per event",  5000, 0, 5 );
   if (m_histSvc->regHist("/rec/totEnergy", m_totEnergy).isFailure()) {
     error() << "Couldn't register hist of total energy" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_totCalibEnergy = new TH1F("totalCalibEnergy", "total energy in all clusters after calobration per event",  1000, 0, 2 );
+  m_totCalibEnergy = new TH1F("totalCalibEnergy", "total energy in all clusters after calobration per event",  5000, 0, 5 );
   if (m_histSvc->regHist("/rec/totCalibEnergy", m_totCalibEnergy).isFailure()) {
     error() << "Couldn't register hist of total energy after calibration" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_totBenchmarkEnergy = new TH1F("totBenchmarkEnergy", "total energy in all clusters after calobration and correction for lost energy in cryostat per event",  1000, 0, 2 );
+  m_totBenchmarkEnergy = new TH1F("totBenchmarkEnergy", "total energy in all clusters after calobration and correction for lost energy in cryostat per event",  5000, 0, 5 );
   if (m_histSvc->regHist("/rec/totBenchmarkEnergy", m_totBenchmarkEnergy).isFailure()) {
     error() << "Couldn't register hist of total energy after calibration and cryo correction" << endmsg;
     return StatusCode::FAILURE;
@@ -86,6 +86,31 @@ StatusCode CreateCaloClusters::initialize() {
   } 
   m_clusterEnergyBenchmark = new TH1F("clusterEnergyBenchmark", "energy of calibrated and energy loss corrected cluster",  20000, 0, 20000 );
   if (m_histSvc->regHist("/rec/clusterEnergyBenchmark", m_clusterEnergyBenchmark).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_nCluster = new TH1F("nCluster", "number of cluster",  20000, 0, 20000 );
+  if (m_histSvc->regHist("/rec/nCluster", m_nCluster).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_nCluster_1GeV = new TH1F("nCluster_1GeV", "number of cluster with energy > 1GeV",  20000, 0, 20000 );
+  if (m_histSvc->regHist("/rec/nCluster_1GeV", m_nCluster_1GeV).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_nCluster_halfTrueEnergy = new TH1F("nCluster_halfTrueEnergy", "number of cluster with energy > Etrue/2",  20000, 0, 20000 );
+  if (m_histSvc->regHist("/rec/nCluster_halfTrueEnergy", m_nCluster_halfTrueEnergy).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_energyCalibCluster_1GeV = new TH1F("energyCalibCluster_1GeV", "energy of calibrated cluster with energy > 1GeV",  20000, 0, 20000 );
+  if (m_histSvc->regHist("/rec/energyCalibCluster_1GeV", m_energyCalibCluster_1GeV).isFailure()) {
+    error() << "Couldn't register hist" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+  m_energyCalibCluster_halfTrueEnergy = new TH1F("energyCalibCluster_halfTrueEnergy", "energy of calibrated cluster with energy > Etrue/2",  20000, 0, 20000 );
+  if (m_histSvc->regHist("/rec/energyCalibCluster_halfTrueEnergy", m_energyCalibCluster_halfTrueEnergy).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
   } 
@@ -152,6 +177,9 @@ StatusCode CreateCaloClusters::execute() {
   int clustersEM = 0;
   int clustersHad = 0;
 
+  int nClusters_1GeV = 0;
+  int nClusters_halfTrueEnergy = 0;
+
   float totClusterEnergy = 0.;
   float totCalibClusterEnergy = 0.;
   float totBenchmarkEnergy = 0.;
@@ -167,7 +195,14 @@ StatusCode CreateCaloClusters::execute() {
       double energyLastECal = 0.;
       double energyFirstHCal = 0.;
       double lastBenchmarkTerm = 0.;
-
+      if (cluster.core().energy > 1){
+	nClusters_1GeV++;
+	m_energyCalibCluster_1GeV->Fill(cluster.core().energy);
+      }
+      if (cluster.core().energy > Etruth/2.){
+	nClusters_halfTrueEnergy++;
+	m_energyCalibCluster_halfTrueEnergy->Fill(cluster.core().energy);
+      }
       // Loop over cluster cells 
       for (uint it = 0; it < cluster.hits_size(); it++){
 	dd4hep::DDSegmentation::CellID cID = cluster.hits(it).core().cellId;
@@ -203,26 +238,14 @@ StatusCode CreateCaloClusters::execute() {
 	// Calculate the fraction of energy in ECal
 	auto energyFraction = energyBoth[m_systemIdECal] / cluster.core().energy;
 	debug() << "Energy fraction in ECal : " << energyFraction << endmsg;
-	bool calibECal = false;
-	if (energyFraction >= m_fractionECal) {
-	  // calibrate HCal cells to EM scale
-	  // assuming HCal cells are calibrated to hadron scale
-	  energyBoth[m_systemIdHCal] = energyBoth[m_systemIdHCal] * (1/m_ehHCal);
-	  clustersEM++;
-	  m_energyScale->Fill(0);
-	  m_energyScaleVsClusterEnergy->Fill(0.,cluster.core().energy);
-	  totClusterEnergy += cluster.core().energy;
-	}
-	else {
-	  // calibrate ECal cells to hadron scale
-	  // assuming ECal cells are calibrated to EM scale
-	  energyBoth[m_systemIdECal] = energyBoth[m_systemIdECal] * m_ehECal;
-	  calibECal = true;
-	  clustersHad++;
-	  m_energyScale->Fill(1);
-	  m_energyScaleVsClusterEnergy->Fill(1.,cluster.core().energy);
-	  totClusterEnergy += cluster.core().energy;
-	}
+	// calibrate ECal cells to hadron scale
+	// assuming ECal cells are calibrated to EM scale
+	energyBoth[m_systemIdECal] = energyBoth[m_systemIdECal] * m_ehECal;
+	bool calibECal = true;
+	clustersHad++;
+	m_energyScale->Fill(1);
+	m_energyScaleVsClusterEnergy->Fill(1.,cluster.core().energy);
+	totClusterEnergy += cluster.core().energy;
 	
 	// Building new calibrated cluster
 	fcc::CaloCluster newCluster;
@@ -296,10 +319,10 @@ StatusCode CreateCaloClusters::execute() {
 	  m_clusterEnergyBenchmark->Fill(energy);
 	  totBenchmarkEnergy += energy;
 	}
-	else if (m_doEdepCryoCorrection){
-	  double a = m_a1 + m_a2*energy + m_a3/sqrt(energy);
-	  double b = m_b1 + m_b2*energy + m_a3*log(energy);
-	  double c = m_c1*energy + m_c2/pow(energy,m_c3);
+	else if ( m_doEdepCryoCorrection ){ 
+	  double a = m_a1 + m_a2*energy + double(m_a3)/sqrt(energy);
+	  double b = m_b1 + pow(energy, double(m_b2)) + double(m_b3)*log(energy);
+	  double c = m_c1*energy + double(m_c2)/pow(energy, double(m_c3));
 	  double corr = b*sqrt(fabs(energyLastECal*a*energyFirstHCal)) + c*pow(lastBenchmarkTerm*a,2);
           energy = energy + corr;
           totBenchmarkCorr += corr;
@@ -351,6 +374,9 @@ StatusCode CreateCaloClusters::execute() {
   m_totCalibEnergy->Fill( totCalibClusterEnergy/std::floor(Etruth) );
   m_totBenchmarkEnergy->Fill( totBenchmarkEnergy/std::floor(Etruth) );
   m_benchmark->Fill(totBenchmarkCorr);
+
+  m_nCluster_1GeV->Fill(nClusters_1GeV);
+  m_nCluster_halfTrueEnergy->Fill(nClusters_halfTrueEnergy);
 
   return StatusCode::SUCCESS;
 }

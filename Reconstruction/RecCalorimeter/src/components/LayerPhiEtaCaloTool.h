@@ -42,7 +42,7 @@ private:
   /// Pointer to the geometry service
   SmartIF<IGeoSvc> m_geoSvc;
   /// Name of the detector readout
-  Gaudi::Property<std::string> m_readoutName{this, "readoutName", ""};
+  Gaudi::Property<std::string> m_readoutName{this, "readoutName", "BarHCal_Readout_phieta"};
   /// Name of active volumes
   Gaudi::Property<std::string> m_activeVolumeName{this, "activeVolumeName", "LAr_sensitive"};
   /// Name of active layers for sampling calorimeter

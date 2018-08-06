@@ -41,7 +41,6 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
   double hCalEtaOffset = 0;
   double hCalEtaSize = 0;
   double hCalPhiOffset = 0;
-  double hCalPhiSize = 0;
   dd4hep::DDSegmentation::BitFieldCoder* decoderECalBarrel = nullptr;
   // will be used for volume connecting
   std::pair<int, int> extremaHCalFirstLayerPhi;
@@ -86,7 +85,6 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
     if (m_fieldNamesSegmented[iSys] == "system" && m_fieldValuesSegmented[iSys] == 8) {
       decoderHCalBarrel = decoder;
       hCalEtaSize = segmentation->gridSizeEta();
-      hCalPhiSize = 2 * M_PI / segmentation->phiBins();
       hCalEtaOffset = segmentation->offsetEta();
       hCalPhiOffset = segmentation->offsetPhi();
     }
@@ -114,13 +112,13 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
         extremaECalLastLayerEta = std::make_pair(numCells[2], numCells[1] + numCells[2] - 1);
 	extrema[2] = std::make_pair(numCells[2], numCells[1] + numCells[2] - 1);
       }
- 
       else if(m_fieldNamesSegmented[iSys] == "system" &&
 	      m_fieldValuesSegmented[iSys] == 8){
-	uint cellsEta = ceil( 2*m_activeVolumesRadii[ilayer] / segmentation->gridSizeEta()) ;
-	uint minEtaID = int(floor(( - m_activeVolumesRadii[ilayer] + 0.5 * segmentation->gridSizeEta() - segmentation->offsetEta()) / segmentation->gridSizeEta()));
+	uint cellsEta = ceil(( 2*m_activeVolumesEta[ilayer] - segmentation->gridSizeEta() ) / 2 / segmentation->gridSizeEta()) * 2 + 1; //ceil( 2*m_activeVolumesRadii[ilayer] / segmentation->gridSizeEta()) ;
+	uint minEtaID = int(floor(( - m_activeVolumesEta[ilayer] + 0.5 * segmentation->gridSizeEta() - segmentation->offsetEta()) / segmentation->gridSizeEta()));
 	numCells[1]=cellsEta;
 	numCells[2]=minEtaID;
+	// for layer 0 of HCal barrel,  will be used for volume connecting
 	if (ilayer == 0){	
 	  extremaHCalFirstLayerPhi = std::make_pair(0, numCells[0] - 1);
 	  extremaHCalFirstLayerEta = std::make_pair(numCells[2], numCells[1] + numCells[2] - 1);	
@@ -177,6 +175,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
     if (m_fieldNameNested == "system" && m_fieldValuesNested[iSys] == 8) {
       decoderHCalBarrel = decoder;
     }
+    hCalPhiOffset = m_hCalPhiOffset;
     // Get VolumeID
     dd4hep::DDSegmentation::CellID volumeId = 0;
     decoder->set(volumeId, m_fieldNameNested, m_fieldValuesNested[iSys]);
@@ -365,8 +364,8 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
     }
     // loop over phi and find which phi cells to add
     for (int iPhi = 0; iPhi < extremaHCalFirstLayerPhi.second +1; iPhi++) {
-      double lowPhi = m_hCalPhiOffset + iPhi * hCalPhiSize;
-      double highPhi = m_hCalPhiOffset + (iPhi + 1) * hCalPhiSize;
+      double lowPhi = hCalPhiOffset + iPhi * hCalPhiSize;
+      double highPhi = hCalPhiOffset + (iPhi + 1) * hCalPhiSize;
       debug() << "HCal phi range  : " << lowPhi << " -  " << highPhi << endmsg;
       int lowId = floor((lowPhi - 0.5 * eCalPhiSize - eCalPhiOffset) / eCalPhiSize);
       int highId = floor((highPhi + 0.5 * eCalPhiSize - eCalPhiOffset) / eCalPhiSize);
@@ -389,6 +388,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
     (*decoderECalBarrel)["system"].set(ecalCellId, 5);
     (*decoderECalBarrel)[m_activeFieldNamesSegmented[0]].set(ecalCellId, eCalLastLayer);
     (*decoderHCalBarrel)["system"].set(hcalCellId, 8);
+    // loop over nested hcal cells
     if (m_readoutNamesNested.size()!=0){
       (*decoderHCalBarrel)[m_activeFieldNamesNested[0]].set(hcalCellId, 0);
       for (auto iZ : etaNeighbours) {
@@ -406,6 +406,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
 	}
       }
     }
+    // loop over segmented hcal cells
     else {
       (*decoderHCalBarrel)[m_activeFieldNamesSegmented[1]].set(hcalCellId, 0);
       for (auto iEtaHCal : etaNeighbours) {
