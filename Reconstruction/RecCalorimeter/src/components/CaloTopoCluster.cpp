@@ -190,7 +190,7 @@ void CaloTopoCluster::findingSeeds(const std::map<uint64_t, double>& aCells,
   }
 }
 
-void CaloTopoCluster::buildingProtoCluster(
+StatusCode CaloTopoCluster::buildingProtoCluster(
     int aNumSigma,
     int aLastNumSigma,
     std::vector<std::pair<uint64_t, double>>& aSeeds,
@@ -226,6 +226,8 @@ void CaloTopoCluster::buildingProtoCluster(
       while (vecNextNeighbours[it].size() > 0) {
         it++;
         for (auto& id : vecNextNeighbours[it - 1]) {
+	  if (id.first == 0)
+	    return StatusCode::FAILURE;
           verbose() << "Next neighbours assigned to clusterId : " << clusterId << endmsg;
           vecNextNeighbours[it] = CaloTopoCluster::searchForNeighbours(id.first, clusterId, aNumSigma, aCells, clusterOfCell,
 								       aPreClusterCollection, true);
@@ -249,6 +251,7 @@ void CaloTopoCluster::buildingProtoCluster(
       }
     }
   }
+  return StatusCode::SUCCESS;
 }
 
 std::vector<std::pair<uint64_t, uint> >
@@ -265,7 +268,9 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
   auto neighboursVec = m_neighboursTool->neighbours(aCellId);
   if (neighboursVec.size() == 0) {
     error() << "No neighbours for cellID found! " << endmsg;
+    error() << "to cellID :  " << aCellId << endmsg;
     addedNeighbourIds.resize(0);
+    addedNeighbourIds.push_back(std::make_pair(0, 0));
   } else {
 
     verbose() << "For cluster: " << aClusterID << endmsg;

@@ -65,7 +65,7 @@ public:
    *   @param[in] aCells, map of all cells.
    *   @param[in] aPreClusterCollection, map that is filled with clusterID pointing to the associated cells, in a pair of cellID and cellType.
    */
-  virtual void buildingProtoCluster(int aNumSigma,
+  StatusCode buildingProtoCluster(int aNumSigma,
                                     int aLastNumSigma,
                                     std::vector<std::pair<uint64_t, double>>& aSeeds,
                                     const std::map<uint64_t, double>& aCells,
