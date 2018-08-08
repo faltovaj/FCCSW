@@ -72,11 +72,14 @@ StatusCode CreateCaloCells::execute() {
     m_cellsMap.clear();
   }
 
+  std::unordered_map<uint64_t, double> cellsMapTime;
+  
   // 1. Merge energy deposits into cells
   // If running with noise map already was prepared. Otherwise it is being
   // created below
   for (const auto& hit : *hits) {
     m_cellsMap[hit.core().cellId] += hit.core().energy;
+    cellsMapTime[hit.core().cellId] += hit.core().time;
   }
   debug() << "Number of calorimeter cells after merging of hits: " << m_cellsMap.size() << endmsg;
 
@@ -100,6 +103,15 @@ StatusCode CreateCaloCells::execute() {
       fcc::CaloHit newCell = edmCellsCollection->create();
       newCell.core().energy = cell.second;
       newCell.core().cellId = cell.first;
+      //std::unordered_map<std::string,double>::const_iterator time_it = cellsMapTime.find(cell.first);
+      auto time_it = cellsMapTime.find(cell.first);
+      if ( time_it == cellsMapTime.end() ) {
+	warning() << "cell ID in time iterator not found!!!" << endmsg;
+	newCell.core().time = 0.0;
+      }
+      else {
+	newCell.core().time = time_it->second;
+      }
     }
   }
 

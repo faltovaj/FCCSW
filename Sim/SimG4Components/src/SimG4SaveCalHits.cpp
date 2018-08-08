@@ -70,6 +70,14 @@ StatusCode SimG4SaveCalHits::saveOutput(const G4Event& aEvent) {
           auto& edmHitCore = edmHit.core();
           edmHitCore.cellId = hit->cellID;
           edmHitCore.energy = hit->energyDeposit * sim::g42edm::energy;
+	  if (hit->truth.size()!=0) { 
+	    edmHitCore.time = (hit->truth.at(0)).deposit * sim::g42edm::energy;
+	    debug() << "hit deposit all " << (hit->truth.at(0)).deposit * sim::g42edm::energy << " vis " << hit->energyDeposit * sim::g42edm::energy << endmsg;
+	  }
+	  else {
+	    edmHitCore.time = 0.0;
+	  }
+	  debug() << "edmhit deposit all " << edmHitCore.time << " vis " << edmHitCore.energy << endmsg;
           auto position = fcc::Point();
           position.x = hit->position.x() * sim::g42edm::length;
           position.y = hit->position.y() * sim::g42edm::length;
