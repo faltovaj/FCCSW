@@ -70,7 +70,9 @@ private:
   /// Handle for tool to get positions in ECal Barrel
   ToolHandle<ICellPositionsTool> m_cellPositionsECalTool{"CellPositionsECalBarrelTool", this};
   /// Handle for tool to get positions in HCal Barrel and Ext Barrel, no Segmentation
-  ToolHandle<ICellPositionsTool> m_cellPositionsHCalTool{"CellPositionsHCalBarrelNoSegTool", this};
+  ToolHandle<ICellPositionsTool> m_cellPositionsHCalTool{"CellPositionsHCalBarrelTool", this};
+  /// Handle for tool to get positions in HCal Barrel and Ext Barrel, no Segmentation
+  ToolHandle<ICellPositionsTool> m_cellPositionsHCalNoSegTool{"CellPositionsHCalBarrelNoSegTool", this};
 
   /// ATTENTION!!!Used as input of pile-up noise scaling factors!!!
   /// Handle for the calorimeter cells noise tool
@@ -131,7 +133,8 @@ private:
   Gaudi::Property<float> m_c1{this, "c1", -1.546e-10, "scaling of energy loss in cryostat"};//  fit, no mini: , no Bfield: -5.567E-6   
   Gaudi::Property<float> m_c2{this, "c2", -4.519e+06, "scaling of energy loss in cryostat"};//  fit, no mini: , no Bfield: -5.567E-6
   Gaudi::Property<float> m_c3{this, "c3", 7.026, "scaling of energy loss in cryostat"};//  fit, no mini: , no Bfield: -5.567E-6                                                                                                                     
-
+  /// no segmentation used in HCal
+  Gaudi::Property<bool> m_noSegmentationHCal{this, "noSegmentationHCal", true, "HCal readout w/o eta-phi segementation?"};
   Gaudi::Property<int> m_lastECalLayer{this, "lastECalLayer", 7, "Layer id of last ECal layer"};
   Gaudi::Property<int> m_firstHCalLayer{this, "firstHCalLayer", 0, "Layer id of first HCal layer"};
 

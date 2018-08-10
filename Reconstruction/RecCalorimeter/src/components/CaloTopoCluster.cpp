@@ -30,9 +30,11 @@ CaloTopoCluster::CaloTopoCluster(const std::string& name, ISvcLocator* svcLoc) :
   declareProperty("positionsECalBarrelTool", m_cellPositionsECalBarrelTool,
                   "Handle for tool to retrieve cell positions in ECal Barrel");
   declareProperty("positionsHCalBarrelTool", m_cellPositionsHCalBarrelTool,
-                  "Handle for tool to retrieve cell positions in HCal Barrel and ext Barrel");
+                  "Handle for tool to retrieve cell positions in HCal Barrel");
+  declareProperty("positionsHCalBarrelNoSegTool", m_cellPositionsHCalBarrelNoSegTool,
+                  "Handle for tool to retrieve cell positions in HCal Barrel without DD4hep segmentation");
   declareProperty("positionsHCalExtBarrelTool", m_cellPositionsHCalExtBarrelTool,
-                  "Handle for tool to retrieve cell positions in HCal Barrel and ext Barrel");
+                  "Handle for tool to retrieve cell positions in HCal ext Barrel");
   declareProperty("positionsEMECTool", m_cellPositionsEMECTool, "Handle for tool to retrieve cell positions in EMEC");
   declareProperty("positionsHECTool", m_cellPositionsHECTool, "Handle for tool to retrieve cell positions in HEC");
   declareProperty("positionsEMFwdTool", m_cellPositionsEMFwdTool, "Handle for tool to retrieve cell positions EM Fwd");
@@ -68,7 +70,10 @@ StatusCode CaloTopoCluster::initialize() {
   // Check if cell position HCal Barrel tool available
   if (!m_cellPositionsHCalBarrelTool.retrieve()) {
     error() << "Unable to retrieve HCal Barrel cell positions tool!!!" << endmsg;
-    return StatusCode::FAILURE;
+    if (!m_cellPositionsHCalBarrelNoSegTool.retrieve()) {
+      error() << "Also unable to retrieve HCal Barrel no segmentation cell positions tool!!!" << endmsg;
+      return StatusCode::FAILURE;
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -133,8 +138,12 @@ StatusCode CaloTopoCluster::execute() {
       dd4hep::Position posCell;
       if (systemId == 5)  // ECAL BARREL system id
         posCell = m_cellPositionsECalBarrelTool->xyzPosition(cID);
-      else if (systemId == 8)  // HCAL BARREL system id
-        posCell = m_cellPositionsHCalBarrelTool->xyzPosition(cID);
+      else if (systemId == 8){  // HCAL BARREL system id
+	if (m_noSegmentationHCalUsed)
+	  posCell = m_cellPositionsHCalBarrelNoSegTool->xyzPosition(cID);
+	else{
+	  posCell = m_cellPositionsHCalBarrelTool->xyzPosition(cID);
+	}}
       else if (systemId == 9)  // HCAL EXT BARREL system id
         posCell = m_cellPositionsHCalExtBarrelTool->xyzPosition(cID);
       else if (systemId == 6)  // EMEC system id
@@ -226,8 +235,10 @@ StatusCode CaloTopoCluster::buildingProtoCluster(
       while (vecNextNeighbours[it].size() > 0) {
         it++;
         for (auto& id : vecNextNeighbours[it - 1]) {
-	  if (id.first == 0)
+	  if (id.first == 0){
+	    error() << "Building of cluster is stopped due to missing id in neighbours map." << endmsg;
 	    return StatusCode::FAILURE;
+	  }
           verbose() << "Next neighbours assigned to clusterId : " << clusterId << endmsg;
           vecNextNeighbours[it] = CaloTopoCluster::searchForNeighbours(id.first, clusterId, aNumSigma, aCells, clusterOfCell,
 								       aPreClusterCollection, true);
@@ -236,17 +247,14 @@ StatusCode CaloTopoCluster::buildingProtoCluster(
       }
       // last try with different condition on neighbours
       if (vecNextNeighbours[it].size() == 0) {
-	int newIt = -1;
-	if (it == 0) {
-	  newIt = 0;
-	}
-	else {
-	  newIt = it -1;
-	}
-	for (auto& id : vecNextNeighbours[newIt]) {
-	  verbose() << "Add neighbours of " << id.first << " in last round with thr = " << aLastNumSigma << " x sigma." << endmsg;
-	  auto lastNeighours = CaloTopoCluster::searchForNeighbours(id.first, clusterId, aLastNumSigma, aCells, clusterOfCell,
-								    aPreClusterCollection, false);
+	auto clusteredCells = aPreClusterCollection[clusterId];
+	// loop over all clustered cells
+	for (auto& id : clusteredCells) {
+	  if (id.second == 2){
+	    verbose() << "Add neighbours of " << id.first << " in last round with thr = " << aLastNumSigma << " x sigma." << endmsg;
+	    auto lastNeighours = CaloTopoCluster::searchForNeighbours(id.first, clusterId, aLastNumSigma, aCells, clusterOfCell,
+								      aPreClusterCollection, false);
+	  }
 	}
       }
     }
@@ -269,6 +277,7 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
   if (neighboursVec.size() == 0) {
     error() << "No neighbours for cellID found! " << endmsg;
     error() << "to cellID :  " << aCellId << endmsg;
+    error() << "in system:   " << m_decoder->get(aCellId, "system") << endmsg;
     addedNeighbourIds.resize(0);
     addedNeighbourIds.push_back(std::make_pair(0, 0));
   } else {

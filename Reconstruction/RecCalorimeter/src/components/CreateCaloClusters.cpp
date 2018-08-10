@@ -28,6 +28,8 @@ CreateCaloClusters::CreateCaloClusters(const std::string& name, ISvcLocator* svc
                   "Handle for tool to retrieve cell positions in ECal");
   declareProperty("positionsHCalTool", m_cellPositionsHCalTool,
                   "Handle for tool to retrieve cell positions in HCal");
+  declareProperty("positionsHCalNoSegTool", m_cellPositionsHCalNoSegTool,
+                  "Handle for tool to retrieve cell positions in HCal w/o eta-phi segmentation");
  
   declareProperty("calibrate", m_doCalibration, "Clusters are going to be calibrated");
   declareProperty("cryoCorrection", m_doCryoCorrection, "Correction of lost energy between E and HCal");
@@ -69,22 +71,22 @@ StatusCode CreateCaloClusters::initialize() {
     error() << "Couldn't register hist of total energy after calibration and cryo correction" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_clusterEnergy = new TH1F("clusterEnergy", "energy of cluster",  20000, 0, 20000 );
+  m_clusterEnergy = new TH1F("clusterEnergy", "energy of cluster",  20100, -100, 20000 );
   if (m_histSvc->regHist("/rec/clusterEnergy", m_clusterEnergy).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_sharedClusterEnergy = new TH1F("sharedClusterEnergy", "energy in shared clusters per event",  20000, 0, 20000 );
+  m_sharedClusterEnergy = new TH1F("sharedClusterEnergy", "energy in shared clusters per event",  20100, -100, 20000 );
   if (m_histSvc->regHist("/rec/sharedClusterEnergy", m_sharedClusterEnergy).isFailure()) {
     error() << "Couldn't register hist of energy in shared clusters per event" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_clusterEnergyCalibrated = new TH1F("clusterEnergyCalibrated", "energy of calibrated cluster",  20000, 0, 20000 );
+  m_clusterEnergyCalibrated = new TH1F("clusterEnergyCalibrated", "energy of calibrated cluster",  20100, -100, 20000 );
   if (m_histSvc->regHist("/rec/clusterEnergyCalibrated", m_clusterEnergyCalibrated).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_clusterEnergyBenchmark = new TH1F("clusterEnergyBenchmark", "energy of calibrated and energy loss corrected cluster",  20000, 0, 20000 );
+  m_clusterEnergyBenchmark = new TH1F("clusterEnergyBenchmark", "energy of calibrated and energy loss corrected cluster",  20100, -100, 20000 );
   if (m_histSvc->regHist("/rec/clusterEnergyBenchmark", m_clusterEnergyBenchmark).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
@@ -104,12 +106,12 @@ StatusCode CreateCaloClusters::initialize() {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_energyCalibCluster_1GeV = new TH1F("energyCalibCluster_1GeV", "energy of calibrated cluster with energy > 1GeV",  20000, 0, 20000 );
+  m_energyCalibCluster_1GeV = new TH1F("energyCalibCluster_1GeV", "energy of calibrated cluster with energy > 1GeV",  20100, -10, 20000 );
   if (m_histSvc->regHist("/rec/energyCalibCluster_1GeV", m_energyCalibCluster_1GeV).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
   } 
-  m_energyCalibCluster_halfTrueEnergy = new TH1F("energyCalibCluster_halfTrueEnergy", "energy of calibrated cluster with energy > Etrue/2",  20000, 0, 20000 );
+  m_energyCalibCluster_halfTrueEnergy = new TH1F("energyCalibCluster_halfTrueEnergy", "energy of calibrated cluster with energy > Etrue/2",  20100, -100, 20000 );
   if (m_histSvc->regHist("/rec/energyCalibCluster_halfTrueEnergy", m_energyCalibCluster_halfTrueEnergy).isFailure()) {
     error() << "Couldn't register hist" << endmsg;
     return StatusCode::FAILURE;
@@ -278,7 +280,10 @@ StatusCode CreateCaloClusters::execute() {
 	    }
 	  }
 	  else if (systemId == m_systemIdHCal){  // HCAL system id
-	    posCell = m_cellPositionsHCalTool->xyzPosition(cellId);
+	    if (m_noSegmentationHCal)
+	      posCell = m_cellPositionsHCalNoSegTool->xyzPosition(cellId);
+	    else
+	      posCell = m_cellPositionsHCalTool->xyzPosition(cellId);
 	    if ( !calibECal && !m_doCryoCorrection)
 	      cellEnergy = cellEnergy * (1/m_ehHCal);
 	    else if ( m_doCryoCorrection )
