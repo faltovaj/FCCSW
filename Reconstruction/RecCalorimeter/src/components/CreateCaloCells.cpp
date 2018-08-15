@@ -20,6 +20,7 @@ CreateCaloCells::CreateCaloCells(const std::string& name, ISvcLocator* svcLoc) :
   declareProperty("calibTool", m_calibTool, "Handle for tool to calibrate Geant4 energy to EM scale tool");
   declareProperty("noiseTool", m_noiseTool, "Handle for the calorimeter cells noise tool");
   declareProperty("geometryTool", m_geoTool, "Handle for the geometry tool");
+  declareProperty("readCellNoiseTool", m_readNoiseTool, "Handle for the cells noise tool");
 }
 
 StatusCode CreateCaloCells::initialize() {
@@ -37,6 +38,13 @@ StatusCode CreateCaloCells::initialize() {
     if (!m_calibTool.retrieve()) {
       error() << "Unable to retrieve the calo cells calibration tool!!!" << endmsg;
       return StatusCode::FAILURE;
+    }
+  }
+  // Recalibrate baseline to 0
+  if (m_recalibrateBaseline){
+    if (!m_readNoiseTool.retrieve()) {
+      error() << "Unable to retrieve the calo noise level per cell  tool!!!" << endmsg;
+      return StatusCode::FAILURE;      
     }
   }
   // Cell noise tool
@@ -75,8 +83,19 @@ StatusCode CreateCaloCells::execute() {
   // 1. Merge energy deposits into cells
   // If running with noise map already was prepared. Otherwise it is being
   // created below
-  for (const auto& hit : *hits) {
-    m_cellsMap[hit.core().cellId] += hit.core().energy;
+  if (m_recalibrateBaseline){
+    for (const auto& hit : *hits) {
+      // 1.1 Retrieve noise offset from noise tool to recalibrate baseline to 0
+      double rebase = m_readNoiseTool->noiseOffset(hit.core().cellId);
+      if (rebase <= 0.) 
+	debug() << "Offset 0/negative : " << rebase << "for cellID : " << hit.core().cellId << endmsg;
+      m_cellsMap[hit.core().cellId] += ( hit.core().energy - rebase );
+    }
+  }
+  else{
+    for (const auto& hit : *hits) {
+      m_cellsMap[hit.core().cellId] += hit.core().energy;
+    }
   }
   debug() << "Number of calorimeter cells after merging of hits: " << m_cellsMap.size() << endmsg;
 

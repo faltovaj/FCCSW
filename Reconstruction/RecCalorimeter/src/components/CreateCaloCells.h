@@ -6,6 +6,7 @@
 #include "RecInterface/ICalibrateCaloHitsTool.h"
 #include "RecInterface/ICalorimeterTool.h"
 #include "RecInterface/INoiseCaloCellsTool.h"
+#include "RecInterface/ICaloReadCellNoiseMap.h"
 
 // Gaudi
 #include "GaudiAlg/GaudiAlgorithm.h"
@@ -56,6 +57,8 @@ private:
   ToolHandle<INoiseCaloCellsTool> m_noiseTool{"NoiseCaloCellsFlatTool", this};
   /// Handle for the geometry tool
   ToolHandle<ICalorimeterTool> m_geoTool{"TubeLayerPhiEtaCaloTool", this};
+  /// Handle for the cells noise tool
+  ToolHandle<ICaloReadCellNoiseMap> m_readNoiseTool{"TopoCaloNoisyCells", this};
 
   /// Calibrate to EM scale?
   Gaudi::Property<bool> m_doCellCalibration{this, "doCellCalibration", true, "Calibrate to EM scale?"};
@@ -64,6 +67,9 @@ private:
   /// Save only cells with energy above threshold?
   Gaudi::Property<bool> m_filterCellNoise{this, "filterCellNoise", false,
                                           "Save only cells with energy above threshold?"};
+  /// Recalibrate to baseline?
+  Gaudi::Property<bool> m_recalibrateBaseline{this, "recalibrateBaseline", true, "Recalibrate the cells to 0?"};
+
   /// Handle for calo hits (input collection)
   DataHandle<fcc::CaloHitCollection> m_hits{"hits", Gaudi::DataHandle::Reader, this};
   /// Handle for calo cells (output collection)
