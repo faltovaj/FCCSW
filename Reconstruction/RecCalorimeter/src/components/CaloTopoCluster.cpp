@@ -250,7 +250,7 @@ StatusCode CaloTopoCluster::buildingProtoCluster(
 	auto clusteredCells = aPreClusterCollection[clusterId];
 	// loop over all clustered cells
 	for (auto& id : clusteredCells) {
-	  if (id.second == 2){
+	  if (id.second <= 2){
 	    verbose() << "Add neighbours of " << id.first << " in last round with thr = " << aLastNumSigma << " x sigma." << endmsg;
 	    auto lastNeighours = CaloTopoCluster::searchForNeighbours(id.first, clusterId, aLastNumSigma, aCells, clusterOfCell,
 								      aPreClusterCollection, false);
@@ -296,18 +296,20 @@ CaloTopoCluster::searchForNeighbours(const uint64_t aCellId,
         auto neighbouringCellEnergy = itAllCells->second;
         bool addNeighbour = false;
 	int cellType = 2;
-        if (aNumSigma == 0){  // no condition to be checked for neighbour
-          addNeighbour = true;
+	// retrieve the cell noise level [GeV]
+        double thr = m_noiseTool->noiseOffset(neighbourID) + (aNumSigma * m_noiseTool->noiseRMS(neighbourID));
+	if (abs(neighbouringCellEnergy) > thr)
+	  addNeighbour = true;
+	else
+	  addNeighbour = false;
+	// give cell type according to threshold
+	if (aNumSigma == m_lastNeighbourSigma){
 	  cellType = 3;
 	}
-        else {
-          // retrieve the cell noise level [GeV]
-          double thr = m_noiseTool->noiseOffset(neighbourID) + (aNumSigma * m_noiseTool->noiseRMS(neighbourID));
-          if (abs(neighbouringCellEnergy) > thr)
-            addNeighbour = true;
-          else
-            addNeighbour = false;
-        }
+	// if threshold is 0, collect the cell independent on its energy
+	if (aNumSigma == 0){
+	  addNeighbour = true;
+	}
         // if neighbour is validated
         if (addNeighbour) {
           // retrieve the cell

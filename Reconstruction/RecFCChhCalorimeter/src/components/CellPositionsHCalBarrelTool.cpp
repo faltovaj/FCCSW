@@ -75,7 +75,7 @@ dd4hep::Position CellPositionsHCalBarrelTool::xyzPosition(const uint64_t& aCellI
   
   double radius = m_radii[layer];
   dd4hep::Position outSeg(inSeg.x() * radius, inSeg.y() * radius, inSeg.z() * radius);
-   return outSeg;
+  return outSeg;
 }
 
 int CellPositionsHCalBarrelTool::layerId(const uint64_t& aCellId) {

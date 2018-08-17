@@ -8,6 +8,7 @@ DECLARE_TOOL_FACTORY(TopoCaloNoisyCells)
 
 TopoCaloNoisyCells::TopoCaloNoisyCells(const std::string& type, const std::string& name, const IInterface* parent)
     : GaudiTool(type, name, parent) {
+  declareProperty("fileName", m_fileName, "The input file to read.");
   declareInterface<ICaloReadCellNoiseMap>(this);
 }
 

@@ -20,7 +20,7 @@ neighbours = CreateFCChhCaloNeighbours("neighbours",
                                        activeFieldNamesNested=["layer","module","row"],
                                        hCalPhiOffset = -3.12932,
                                        hCalRinner=2850,
-                                       OutputLevel=INFO)
+                                       OutputLevel=DEBUG)
 
 # ApplicationMgr
 from Configurables import ApplicationMgr

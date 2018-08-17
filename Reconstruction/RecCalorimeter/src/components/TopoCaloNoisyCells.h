@@ -42,8 +42,7 @@ public:
 
 private:
   /// Name
-  Gaudi::Property<std::string> m_fileName{this, "fileName",
-                                          "/afs/cern.ch/user/c/cneubuse/public/FCChh/cellNoise_map_segHcal.root"};
+  Gaudi::Property<std::string> m_fileName{this, "fileName", "/afs/cern.ch/user/c/cneubuse/public/FCChh/cellNoise_map_segHcal.root", "Path and name of the file to read"};
   std::unordered_map<uint64_t, std::pair<double,double>> m_map;
 };
 

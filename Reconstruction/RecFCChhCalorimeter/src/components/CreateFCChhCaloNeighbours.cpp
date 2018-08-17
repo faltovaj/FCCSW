@@ -275,6 +275,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
   //////////////////////////////////////////////////
   ///      BARREL: connection ECAL + HCAL        ///
   /////////////////////////////////////////////////
+  int count=0;
   if (m_connectBarrels) {
     // first check if ECAL barrel (system==5) and HCal barrel (system==8) are configured
     if (decoderECalBarrel == nullptr || decoderHCalBarrel == nullptr) {
@@ -354,8 +355,8 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
 	for (int idEtaToAdd = lowId; idEtaToAdd <= highId; idEtaToAdd++) {
 	  neighbours.push_back(det::utils::cyclicNeighbour(idEtaToAdd, extremaECalLastLayerEta));
 	}
-	debug() << "HCal phi id  : " << iEta << endmsg;
-	debug() << "Found ECal Neighbours in phi : " << neighbours.size() << endmsg;
+	debug() << "HCal eta id  : " << iEta << endmsg;
+	debug() << "Found ECal Neighbours in eta : " << neighbours.size() << endmsg;
 	for (auto id : neighbours) {
 	  debug() << "ECal Neighbours id : " << id << endmsg;
 	}
@@ -401,6 +402,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
 	      (*decoderECalBarrel)["phi"].set(ecalCellId, iPhi);
 	      map.find(hcalCellId)->second.push_back(ecalCellId);
 	      map.find(ecalCellId)->second.push_back(hcalCellId);
+	      count++;
 	    }
 	  }
 	}
@@ -419,6 +421,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
 	      (*decoderECalBarrel)["phi"].set(ecalCellId, iPhi);
 	      map.find(hcalCellId)->second.push_back(ecalCellId);
 	      map.find(ecalCellId)->second.push_back(hcalCellId);
+	      count ++;
 	    }
 	  }
 	}
@@ -437,6 +440,7 @@ StatusCode CreateFCChhCaloNeighbours::initialize() {
       }
     }
   }
+  debug() << "cells with neighbours across Calo boundaries: " << count << endmsg;
 
   TFile file(m_outputFileName.c_str(), "RECREATE");
   file.cd();

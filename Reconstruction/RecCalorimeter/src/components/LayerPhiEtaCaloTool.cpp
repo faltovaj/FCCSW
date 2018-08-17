@@ -74,8 +74,8 @@ StatusCode LayerPhiEtaCaloTool::prepareEmptyCells(std::unordered_map<uint64_t, d
   }  
 
   //double maxEta[10] = {1.2524, 1.2234, 1.1956, 1.15609, 1.1189, 1.08397, 1.0509, 0.9999, 0.9534, 0.91072};
-  if (m_activeVolumesRadii.size() != numLayers){
-    error() << "The given number of min radii is not equal to the number of layer!!!!" << endmsg;
+  if (m_activeVolumesEta.size() != numLayers){
+    error() << "The given number of min eta is not equal to the number of layer!!!!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -89,8 +89,8 @@ StatusCode LayerPhiEtaCaloTool::prepareEmptyCells(std::unordered_map<uint64_t, d
 
     // Calculate number of cells per layer
     auto numCells = det::utils::numberOfCells(volumeID, *segmentation);
-    uint cellsEta = ceil(( 2*m_activeVolumesRadii[ilayer] - segmentation->gridSizeEta() ) / 2 / segmentation->gridSizeEta()) * 2 + 1; // ceil( 2*m_activeVolumesRadii[ilayer] / segmentation->gridSizeEta()) ;
-    uint minEtaID = int(floor(( - m_activeVolumesRadii[ilayer] + 0.5 * segmentation->gridSizeEta() - segmentation->offsetEta()) / segmentation->gridSizeEta()));
+    uint cellsEta = ceil(( 2*m_activeVolumesEta[ilayer] - segmentation->gridSizeEta() ) / 2 / segmentation->gridSizeEta()) * 2 + 1; // ceil( 2*m_activeVolumesRadii[ilayer] / segmentation->gridSizeEta()) ;
+    uint minEtaID = int(floor(( - m_activeVolumesEta[ilayer] + 0.5 * segmentation->gridSizeEta() - segmentation->offsetEta()) / segmentation->gridSizeEta()));
   
     numCells[1] = cellsEta; 
     numCells[2] = minEtaID; 
