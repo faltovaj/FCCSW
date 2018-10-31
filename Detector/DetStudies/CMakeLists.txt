@@ -5,7 +5,9 @@ gaudi_subdir(DetStudies v1r0)
 
 gaudi_depends_on_subdirs(GaudiKernel
                          FWCore
-                         Detector/DetInterface)
+                         Detector/DetInterface
+			 Detector/DetSegmentation
+			 )
 
 find_package(ROOT COMPONENTS MathCore GenVector Geom Tree)
 find_package(DD4hep COMPONENTS DDSegmentation REQUIRED)
@@ -15,8 +17,8 @@ find_package(CLHEP)
 
 gaudi_add_module(DetStudies
                  src/components/*.cpp
-                 INCLUDE_DIRS GaudiKernel ROOT DD4hep FWCore CLHEP
-                 LINK_LIBRARIES GaudiKernel ROOT DD4hep ${DD4hep_COMPONENT_LIBRARIES} FWCore CLHEP)
+                 INCLUDE_DIRS GaudiKernel ROOT DD4hep DetSegmentation DetInterface FWCore CLHEP
+                 LINK_LIBRARIES GaudiKernel ROOT DD4hep DetSegmentation ${DD4hep_COMPONENT_LIBRARIES} FWCore CLHEP)
 
 include(CTest)
 gaudi_add_test(samplingFractionInclinedEcal
