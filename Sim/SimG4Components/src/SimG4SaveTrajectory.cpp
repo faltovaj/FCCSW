@@ -45,6 +45,8 @@ StatusCode SimG4SaveTrajectory::saveOutput(const G4Event& aEvent) {
     G4VTrajectory* theTrajectory =  (*trajectoryContainer)[trajectoryIndex];
     for (int pointIndex = 0; pointIndex < theTrajectory->GetPointEntries(); ++pointIndex) {
       auto trajectoryPoint = theTrajectory->GetPoint(pointIndex)->GetPosition();
+      //JN: remove all tracks in calorimeters
+      if (sqrt(trajectoryPoint.x() * sim::g42edm::length*trajectoryPoint.x() * sim::g42edm::length+trajectoryPoint.y() * sim::g42edm::length*trajectoryPoint.y() * sim::g42edm::length) < 1750. ) {
       fcc::TrackHit edmHit = edmHits->create();
       fcc::BareHit& edmHitCore = edmHit.core();
       edmHitCore.bits = theTrajectory->GetTrackID();
@@ -56,6 +58,7 @@ StatusCode SimG4SaveTrajectory::saveOutput(const G4Event& aEvent) {
       position.y = trajectoryPoint.y() * sim::g42edm::length;
       position.z = trajectoryPoint.z() * sim::g42edm::length;
       edmPositions->create(position, edmHitCore);
+      }
     }
   }
 
