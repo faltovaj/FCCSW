@@ -15,6 +15,7 @@ class IGeoSvc;
 namespace fcc {
 class PositionedCaloHitCollection;
 class CaloHitCollection;
+class MCParticleCollection;
 }
 
 namespace dd4hep {
@@ -59,6 +60,8 @@ private:
   DataHandle<fcc::CaloHitCollection> m_ecal_cells{"rec/caloHits", Gaudi::DataHandle::Reader, this};
    /// Handle for the energy deposits in HCAL
   DataHandle<fcc::CaloHitCollection> m_hcal_cells{"rec/caloHits", Gaudi::DataHandle::Reader, this};
+  /// Handle for MC particles                           
+  DataHandle<fcc::MCParticleCollection> m_particles{"rec/particles", Gaudi::DataHandle::Reader, this};
 
   // Maximum energy for the axis range
   Gaudi::Property<double> m_beamEnergy{this, "beamEnergy", 100, "Beam energy"};
@@ -66,17 +69,10 @@ private:
   Gaudi::Property<double> m_containment{this, "containment", 0.95, "containment in ECAL, HCAL, number must be < 1.0"};
   /// Number of layers
   Gaudi::Property<uint> m_numLayers{this, "numLayers", 8, "Number of layers"};
-  /// Name of the detector readout
+  /// Name of the ECAL readout
   Gaudi::Property<std::string> m_readoutNameEcal{this, "readoutNameEcal", "", "Name of the detector readout"};
-  /// Name of the detector readout                                                                                                                        
+  /// Name of the HCAL readout
   Gaudi::Property<std::string> m_readoutNameHcal{this, "readoutNameHcal", "", "Name of the detector readout"};
-  /// Name of the layer/cell field
-  Gaudi::Property<std::string> m_layerFieldName{this, "layerFieldName", "", "Identifier of layers"};
-  /// ECAL noise per cell 
-  Gaudi::Property<std::vector<double>> m_noiseEcalLayer{this,"noiseEcalLayer",{5,10,5,5,6,10,12,15},"Noise of ECAL per layer"};
-  /// HCAL noise per cell
-  Gaudi::Property<double> m_noiseHcal{this,"noiseHcal",10,"Noise of ECAL per layer"};
-
   /// PhiEta segmentation of the ecal barrel calorimeter (owned by DD4hep)
   dd4hep::DDSegmentation::FCCSWGridPhiEta* m_ecalBarrelSegmentation;
   /// PhiEta segmentation of the hcal barrel calorimeter (owned by DD4hep)
@@ -89,12 +85,13 @@ private:
   // Histogram of total energy in HCAL
   TH1F* m_totalEnergy_hcal;
 
-  // deltaEta max in Ecal
+  // deltaEta size of the shower in Ecal
   TH1F* m_deltaEta_ecal;
-  // deltaPhi max in Ecal
+  // deltaPhi size of the shower in Ecal
   TH1F* m_deltaPhi_ecal;
   // deltaR max in Ecal
   TH1F* m_deltaR_ecal;
+  TH1F* m_deltaRAvr_ecal;
   // deltaEta max in Hcal                                               
   TH1F* m_deltaEta_hcal;
   // deltaPhi max in Hcal                                                  
@@ -102,19 +99,10 @@ private:
   // deltaR max in Hcal
   TH1F* m_deltaR_hcal;
 
-  // Cell energy in ECAL 
-  TH1F* m_cellEnergy_ecal; 
-  // Cell energy in HCAL
-  TH1F* m_cellEnergy_hcal; 
-
-  //Energy fraction in cells with energy above threshold
+  //Energy fraction within the deltaR cone size in ECAL
   TH1F* m_eneFraction_ecal;
-  //Energy fraction in cells with energy above threshold
+  //Energy fraction within deltaR cone size in HCAL
   TH1F* m_eneFraction_hcal;
-  // 
-  TH1F* m_ecut_ecal;
-  //
-  TH1F* m_ecut_hcal;
-
+ 
 };
 #endif /* DETSTUDIES_SHOWERCONESIZE_H */
