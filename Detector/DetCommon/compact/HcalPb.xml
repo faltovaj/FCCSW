@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd xmlns:compact="http://www.lcsim.org/schemas/compact/1.0"
+       xmlns:xs="http://www.w3.org/2001/XMLSchema"
+       xs:noNamespaceSchemaLocation="http://www.lcsim.org/schemas/compact/1.0/compact.xsd">
+
+  <info name="FCC"
+        title="Fe Volume to replace the Hcal"
+        author="J. Faltova"
+        url="no"
+        status="development"
+        version="1.0">
+    <comment>HCal full Fe</comment>
+  </info>
+  <display>
+    <vis name="HCalVis" r="0.2" g="0.6" b="0.2" alpha="1" showDaughters="false" visible="true"/>
+  </display>
+  <detectors>
+    <detector id="BarHCal_id" name="HcalFe" type="SimpleCylinder" sensitive="true" readout="HcalReadout" vis="HcalVis">
+      <sensitive type="AllEnergyCalorimeterSD"/>
+      <!-- <sensitive type="FullParticleAbsorptionSD"/> -->
+     <!--<dimensions rmin="BarHCal_rmin" rmax="BarHCal_rmax" dz="BarHCal_dz" phi0="0" deltaphi="360*deg" z_offset="0*cm" material="Steel235"/> -->
+    <dimensions rmin="50*mm" rmax="5050*mm" dz="5000*mm" phi0="0" deltaphi="360*deg" z_offset="0*cm" material="Lead"/>-->
+    <!-- <dimensions rmin="50*mm" rmax="150*mm" dz="100*mm" phi0="0" deltaphi="360*deg" z_offset="0*cm" material="Lead"/> -->
+    </detector>
+  </detectors> 
+
+ <readouts>
+  <readout name="HcalReadout">
+     <segmentation type="FCCSWGridPhiEta" grid_size_eta="0.1" phi_bins="256"/>
+     <id>system:4,eta:-9,phi:-10</id>
+ </readout>
+ </readouts>
+
+</lccdd>
