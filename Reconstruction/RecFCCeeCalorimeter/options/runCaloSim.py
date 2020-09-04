@@ -3,8 +3,8 @@ import os
 from GaudiKernel.SystemOfUnits import MeV, GeV, tesla
 
 # simulations setup
-energy=5*GeV
-num_events=500
+energy=200*GeV
+num_events=10
 magnetic_field = False
 particleType="e-"
 
@@ -88,7 +88,7 @@ savehcalfwdtool.caloHits.Path = "HCalFwdHits"
 # next, create the G4 algorithm, giving the list of names of tools ("XX/YY")
 from Configurables import SimG4SingleParticleGeneratorTool
 pgun = SimG4SingleParticleGeneratorTool("SimG4SingleParticleGeneratorTool",saveEdm=True,
-                  particleName=particleType,energyMin=energy,energyMax=energy,etaMin=-0.3,etaMax=0.3, phiMin=0, phiMax=6.28,
+                  particleName=particleType,energyMin=energy,energyMax=energy,etaMin=0,etaMax=0, phiMin=0, phiMax=6.28,
                 OutputLevel = DEBUG)
 
 geantsim = SimG4Alg("SimG4Alg",
@@ -109,7 +109,9 @@ calibHcells = CalibrateCaloHitsTool("CalibrateHCal", invSamplingFraction="41.66"
 from Configurables import CalibrateInLayersTool
 calibEcalBarrel = CalibrateInLayersTool("CalibrateECalBarrel",
                                    # sampling fraction obtained using SamplingFractionInLayers from DetStudies package
-                                   samplingFraction =  [0.248572114602] * 1  +  [0.0992468162487] * 1  +  [0.119373205045] * 1  +  [0.133802832225] * 1  +  [0.145763665387] * 1  +  [0.155451526889] * 1  +  [0.164469384154] * 1  +  [0.180677722391] * 1,
+                                   #samplingFraction =  [0.248572114602] * 1  +  [0.0992468162487] * 1  +  [0.119373205045] * 1  +  [0.133802832225] * 1  +  [0.145763665387] * 1  +  [0.155451526889] * 1  +  [0.164469384154] * 1  +  [0.180677722391] * 1,
+                                        samplingFraction =  [0.2499] * 1  +  [0.1017] * 1  +  [0.1272] * 1  +  [0.1446] * 1  +  [0.1583] * 1  +  [0.1694] * 1  +  [0.1789] * 1 + [0.1975] * 1,                               
+                                   #     samplingFraction =  [0.291] * 1  +  [0.120] * 1  +  [0.150] * 1  + [0.170] * 1  +  [0.185] * 1  +  [0.199] * 1  +  [0.209] * 1  +  [0.231] * 1, 
                                    readoutName = ecalBarrelReadoutName,
                                    layerFieldName = "layer")
 

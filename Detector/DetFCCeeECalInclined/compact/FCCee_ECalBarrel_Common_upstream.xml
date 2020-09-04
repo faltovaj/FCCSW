@@ -25,12 +25,12 @@
   </info>
 
   <define>
-    <constant name="LArBathThicknessFront" value="90*mm"/>
-    <constant name="LArBathThicknessBack" value="50*mm"/>
+    <constant name="LArBathThicknessFront" value="20*mm"/>
+    <constant name="LArBathThicknessBack" value="20*mm"/>
     <!-- overall calorimeter volume (cryostat) -->
-    <!-- 3 cm air margin -->
-    <constant name="BarCryoECal_rmin" value="BarECal_rmin+3*cm"/>
-    <constant name="BarCryoECal_rmax" value="BarECal_rmax-3*cm"/>
+    <!-- 0 cm air margin -->
+    <constant name="BarCryoECal_rmin" value="BarECal_rmin+0*cm"/>
+    <constant name="BarCryoECal_rmax" value="BarECal_rmax-0*cm"/>
     <constant name="BarCryoECal_dz" value="BarECal_dz"/>
     <!-- calorimeter active volume -->
     <constant name="EMBarrel_rmin" value="BarCryoECal_rmin+CommonCryoThicknessFront+LArBathThicknessFront"/>
