@@ -17,7 +17,7 @@
   <includes>
     <gdmlFile  ref="../../DetCommon/compact/elements.xml"/>
     <gdmlFile  ref="../../DetCommon/compact/materials.xml"/>
-    <gdmlFile  ref="additional_materials.xml"/> 
+    <gdmlFile  ref="../../DetFCCeeCLD/compact/additional_materials.xml"/> 
   </includes>
 
   <define>
@@ -34,19 +34,19 @@
   <include ref="../../DetFCCeeCommon/compact/BeamInstrumentation.xml"/>
   <include ref="../../DetFCCeeCommon/compact/LumiCal.xml"/>
 
-  <include ref="Vertex.xml"/> 
-  <include ref="InnerTracker.xml"/>
-  <include ref="OuterTracker.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/Vertex.xml"/> 
+  <include ref="../../DetFCCeeCLD/compact/InnerTracker.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/OuterTracker.xml"/>
 
   <include ref="../../DetFCCeeECalInclined/compact/FCCee_ECalBarrel.xml" />
-  <include ref="ECalEndcap.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/ECalEndcap.xml"/>
 
-  <include ref="HCalBarrel.xml"/>
-  <include ref="HCalEndcap.xml"/>
-  <include ref="Solenoid.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/HCalBarrel.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/HCalEndcap.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/Solenoid.xml"/>
 
-  <include ref="YokeBarrel.xml"/>
-  <include ref="YokeEndcap.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/YokeBarrel.xml"/>
+  <include ref="../../DetFCCeeCLD/compact/YokeEndcap.xml"/>
 
   
 </lccdd>
