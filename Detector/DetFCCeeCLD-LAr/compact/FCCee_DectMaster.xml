@@ -10,7 +10,7 @@
     status="development"
     version="1.0">
     <comment> 
-      One stop shop for a baseline / the latest developments of the FCCee Detector concept.
+      LAr calorimeter in the CLD detector concept.
     </comment>
   </info>
 

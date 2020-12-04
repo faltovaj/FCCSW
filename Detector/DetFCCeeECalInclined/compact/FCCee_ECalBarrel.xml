@@ -88,15 +88,31 @@
 	      <dimensions rmin="EMBarrel_rmin" rmax="EMBarrel_rmax" dz="EMBarrel_dz" offset="-InclinationAngle"/>
 	      <active thickness="LAr_thickness">
           <material name="LAr"/>
-	  <!-- overlap offset is a specific feature of the construction;
-do
-not change !-- > <!--one volume for a gap on both side of the readout)--><overlap offset = "0.5" /></ active><passive><
-    rotation angle = "InclinationAngle" /><!--inclination angle--><inner thickness = "Pb_thickness" sensitive =
-                                                                       "false"><material name = "Lead" /></ inner><
-    glue thickness = "Glue_thickness" sensitive =
-        "false"><material name = "lArCaloGlue" /></ glue><outer thickness = "Steel_thickness" sensitive = "false"><
-    material name = "lArCaloSteel" /></ outer></ passive><readout thickness = "readout_thickness" sensitive = "false"><
-    material name = "PCB" /></ readout><layers><layer thickness = "2*cm" repeat = "1" /><
-    layer thickness = "6.15*cm" repeat = "7" /></ layers></ calorimeter></ detector></ detectors>
+	  <!-- overlap offset is a specific feature of the construction -->
+	  <!-- one volume for a gap on both side of the readout) --> 
+          <overlap offset="0.5"/>
+        </active>
+        <passive>
+          <rotation angle="InclinationAngle"/>  <!-- inclination angle -->
+	       <inner thickness="Pb_thickness" sensitive="false">
+            <material name="Lead"/>
+          </inner>
+	       <glue thickness="Glue_thickness" sensitive="false">
+            <material name="lArCaloGlue"/>
+          </glue>
+	       <outer thickness="Steel_thickness" sensitive="false">
+            <material name="lArCaloSteel"/>
+          </outer>
+        </passive>
+        <readout thickness="readout_thickness" sensitive="false">
+          <material name="PCB"/>
+        </readout>
+        <layers>
+	       <layer thickness="2*cm" repeat="1"/>
+	       <layer thickness="6.15*cm" repeat="7"/>
+        </layers>
+      </calorimeter>
+    </detector>
+  </detectors>
 
-    </ lccdd>
+</lccdd>

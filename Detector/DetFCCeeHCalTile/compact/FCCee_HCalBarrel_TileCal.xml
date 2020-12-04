@@ -65,7 +65,7 @@
   </readouts>
 
   <detectors>
-    <detector id="BarHCal_id" name="HCalBarrel" type="HCalTileBarrel" readout="HCalBarrelReadout" >
+    <detector id="HCalBarrel_id" name="HCalBarrel" type="HCalTileBarrel" readout="HCalBarrelReadout" >
       <dimensions rmin="HCalBarrel_inner_radius" rmax="HCalBarrel_outer_radius" dz="HCalBarrel_half_length" vis="hcal_envelope" />
       <sensitive type="BirksLawCalorimeterSD"/>
       <end_plate name="end_plate" thickness="BarHCal_end_plate_thickness" material="Steel235" sensitive="false" vis="hcal_end_plate_vis" />
