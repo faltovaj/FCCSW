@@ -57,8 +57,23 @@ geantsim = SimG4Alg("SimG4Alg",
                        eventProvider=pgun,
                        OutputLevel=DEBUG)
 
+# Note: Optional: merge layers (each 2 layers are merged in this example)
+#from Configurables import MergeLayers
+#mergeLayers = MergeLayers("MergeLayers",
+#                   # take the bitfield description from the geometry service
+#                   readout = "ECalHitsPhiEta",
+#                   # cells in which field should be merged
+#                   identifier = "active_layer",
+#                   volumeName = "active_layer",
+#                   # how many cells to merge
+#                   merge = [2]*50,
+#                   OutputLevel = INFO)
+#mergeLayers.inhits.Path = "ECalHits"
+#mergeLayers.outhits.Path = "mergedECalHits"
+
 # Merge Geant4 hits into cells
 # set doCellCalibration to True if you want to apply sampling fraction correction
+# Note: replace hits="ECalHits" with hits="mergedECalHits" for merged layers
 from Configurables import CreateCaloCells
 createCells = CreateCaloCells("CreateCells",
                                doCellCalibration=False,
@@ -68,6 +83,8 @@ createCells = CreateCaloCells("CreateCells",
                                cells="ECalCells")
 
 # Add positions to the cell
+# Single layer thickness - active + passive is 0.6 cm in the default geometry
+# Note: change layerThickness to 1.2 (cm) for merged layers in the example
 from Configurables import CellPositionsCaloSimpleTool
 caloSimplePosition = CellPositionsCaloSimpleTool("CaloSimplePosition",
                                                  readoutName = "ECalHitsPhiEta",
@@ -96,8 +113,9 @@ audsvc.Auditors = [chra]
 geantsim.AuditExecute = True
 
 # ApplicationMgr
+# Note: For merged layers add mergeLayers in the TopAlgs before createCells
 from Configurables import ApplicationMgr
-ApplicationMgr( TopAlg = [geantsim,createCells, cellPositions, out],
+ApplicationMgr( TopAlg = [geantsim, createCells, cellPositions, out],
                 EvtSel = 'NONE',
                 EvtMax   = num_events,
                 # order is important, as GeoSvc is needed by G4SimSvc
